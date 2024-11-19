@@ -1,0 +1,303 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Prémises commandes
+
+\documentclass[a4paper, 12pt]{article} % 
+\usepackage{graphicx, float}
+\usepackage{titlesec}
+\usepackage{lmodern} % Police standard sous LaTeX : Latin Modern
+\usepackage[french]{babel} % Pour la langue française
+\usepackage[utf8]{inputenc} % Pour l'UTF8
+\usepackage[T1]{fontenc} % Pour les césures des caractères accentués
+\usepackage[hyphens]{url} % Pour des césures correctes dans les URLs
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage[a4paper, top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
+\usepackage{graphicx, float, adjustbox, caption}
+\usepackage{isomath}
+\usepackage{setspace}
+\setstretch{1.2}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{enumitem, pifont}
+\usepackage{tcolorbox}
+\usepackage[pdfauthor = {{Farius AINA}}, pdftitle = {{A LA RECHERCHE DU BONHEUR}}, pdfstartview = Fit, pdfpagelayout =
+SinglePage, pdfnewwindow = true, bookmarksnumbered =
+true, breaklinks, colorlinks, linkcolor = blue, urlcolor
+= black, citecolor = cyan, linktoc = all]{hyperref}% Interagir avec la table des matière
+\setlist[itemize, 1]{label = {--}, itemsep = \baselineskip}
+\setlist[enumerate, 1]{label= \arabic*), itemsep =\baselineskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Définition des titres
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Définition de commande 
+
+\newcommand{\grasital}[1]{\textbf{\textit{#1}}}
+
+\newcommand{\SAV}{\textbf{Service Après-Vente}}
+
+\newcommand{\vcol}[3]{\begin{pmatrix} #1 \\ #2 \\ #3 \end{pmatrix}}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Ligne horizontale (épaisseur modifiable)
+
+%\titlespacing*{\section}{0pt}{-100pt}{1cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document} 
+
+\everymath{\displaystyle}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% La page de garde
+
+\begin{titlepage}
+
+\begin{center} % Centrer le contenu de la page
+
+% En-têtes
+
+\textsc{\huge{}Université de Bordeaux} \\[2 cm]
+
+%\textsc{\Large{} \textcolor{blue}{Que de l'amour}} \\[1.5cm] % Nom du cursus
+
+\textsc{\large{} \textit{Traitement d'image et Sciences de Données }} \\[0.5cm] % Intitulé du cours 
+
+% Titre
+\HRule \\[0.6cm]
+{\huge\bfseries{}\textcolor{Red}{PROJET ISD}} \\[0.25cm]
+\HRule \\[1.5cm]
+
+% Auteur
+\Large\textit{Auteurs :} \\[0.5cm]
+
+Farius \textsc{AINA}\\[0.5cm] % Nom auteur
+
+Mohamed El-Amine \textsc{BENHAMIDA}\\[0.5cm] % Nom auteur
+
+Radia \textsc{MADDI}\\[0.5cm] % Nom auteur
+% Master
+
+Mamour \textsc{N'DIAYE}\\[0.5cm] % Nom auteur
+
+\Large\textbf{} \\[1.5cm]
+
+% Date
+
+{\large\today} \\[2cm]
+
+\end{center}
+
+\end{titlepage}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Table des matières 
+
+\tableofcontents
+\setcounter{tocdepth}{3}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{{\large Préambule : }}
+
+
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{{\large Objectifs }}
+L'objectif principal du présent projet est de développer une fonction de régularisation \( R(x) \) paramétrée par un réseau de neurones, en se basant sur les travaux de Goujon et al. Cette approche vise à exploiter les propriétés de convexité ou de faible convexité de la fonction de régularisation afin d'améliorer la résolution des problèmes inverses par rapport aux méthodes classiques.\\
+
+Et plus spéficiquement il s'agira de :
+\begin{itemize}
+    \item [$\blacktriangleright$] Comprendre les principes des méthodes 'Plug-and-Play' appliquées à la résolution des problèmes inverses.
+    \item [$\blacktriangleright$] Étudier le fonctionnement des fonctions de régularisation basées sur des réseaux de neurones.
+    \item [$\blacktriangleright$] Implémenter le code source et comparer ces approches aux méthodes classiques sur différents problèmes inverses.
+\end{itemize}
+
+
+\section{\large Introdution aux  problèmes inverses en imagerie}
+ 
+La résolution de problèmes inverses vise à retrouver l'information originale d'un objet d'étude à partir d'observations altérées de cet objet. Grâce à son caractère général et cohérent, cette approche inverse permet de traiter de manière globale et avec des méthodologies similaires des données de natures très diverses (images 2D ou 3D, images hyperspectrales), voire hétérogènes. \\
+
+La première étape de résolution d’un problème inverse passe par l’écriture du modèle direct dont la forme la plus simple s’écrit :
+\[ z = A \bar{u} + \epsilon \quad (1) \]
+où \( \bar{u} \) désigne l’objet original (inconnu), typiquement une image composée de \( N \) pixels, \( A \) une transformation linéaire (ou non linéaire) modélisant le dispositif d’acquisition, \( \epsilon \) une dégradation stochastique ou en d’autres termes un bruit de mesure, ici supposé additif, et \( z \) les observations, typiquement une image composée de \( M \) pixels.
+
+\section*{Probléme inverse}
+Le problème inverse consiste alors à estimer une image $\hat{u}$ proche de $\overline{u}$ à partir de l'information contenue dans $z$, d'une information complète ou partielle de $A$, de la statistique du bruit, et d'a priori sur la classe d'images à reconstruire. Cette unique équation décrit de nombreux problèmes inverses en analyse d'images tels que le débruitage (A est l'opérateur identité et $z$ est une version bruitée de l'objet original) ou la déconvolution (A est un opérateur de convolution et $z$ une version floue et bruitée de l'objet original) couramment rencontrés en astronomie ou microscopie. Elle décrit également de nombreux modèles d'acquisition rencontrés en imagerie médicale, notamment en imagerie par résonance magnétique (IRM : échantillonnage dans le domaine de Fourier) ou en tomographie (transformée de Radon). L'intérêt des approches de type problèmes inverses réside dans leur formulation générale qui les rend applicables à de nombreuses modalités et dans leur capacité à fournir des estimateurs $u$ ayant d'excellentes propriétés.
+
+
+
+
+
+
+\section{\large Exemples d'utilisation des problémes inverses en traitement d'image et de signal}
+
+\textbf{Utilisation pour les caméras à un  pixel :}
+
+Une caméra à pixel unique est un dispositif qui capture des images en utilisant un seul capteur. Elle fonctionne en corrélant une image réelle avec des vecteurs aléatoires de Bernoulli et en mesurant ces corrélations sur un seul pixel. Cela permet de reconstruire l'image à partir d'un nombre limité de mesures.
+
+Cette reconstruction est un problème inverse, car elle consiste à retrouver un signal complet (l'image) à partir de données incomplètes (les mesures). 
+
+\begin{figure}[h] % 'h' pour positionner ici
+    \centering
+    \includegraphics[width=0.8\textwidth]{camera 1 pixel.png}
+    \caption{Représentation schématique d'une caméra à pixel unique  \cite{rice_single_pixel_camera}.}
+    \label{fig:mon_label}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{\large Méthode variationnelle}
+Depuis ces travaux fondateurs, les avancées majeures concernent la résolution des problèmes inverses par minimisation d’un critère de la forme :
+
+\[
+\mathbf{u} \in \text{Argmin}_{\mathbf{u} \in \mathcal{C}} \left( \psi(A\mathbf{u}, \mathbf{z}) + \lambda \phi(\mathbf{u}) \right) \tag{2}
+\]
+où \( \mathcal{C} \subset \mathbb{R}^N \) représente l’ensemble des solutions admissibles, \( \psi \) correspond à une “distance” entre les observations \( \mathbf{z} \) et leur modèle, \( \phi \) est un terme qui pénalise les solutions trop irrégulières, et \( \lambda > 0 \) est un paramètre de régularisation permettant l’ajustement entre l’adéquation aux données \( \psi \) et la pénalisation \( \phi \).
+Cette minimisation générique permet de contrer le mauvais conditionnement des matrices (opérateurs) lorsque \( \lambda > 0 \). De plus, on peut retrouver les solutions irrégulières obtenues par maximum de vraisemblance (en prenant \( \lambda = 0 \)).\\
+\textbf{Hyperparamètre} – Une question sensible dans la résolution des problèmes inverses par approche variationnelle concerne le choix de l’hyperparamètre \( \lambda \). Les principales techniques proposées pour régler automatiquement ce paramètre sont la minimisation d’estimateurs de l’erreur quadratique moyenne.
+(estimateur non-biaisé du risque de Stein : SURE) \cite{ref13}, la validation croisée généralisée (GCV) \cite{ref15}, la courbe en L \cite{ref19}, ou les approches bayésiennes par marginalisation de la distribution a posteriori ou méthodes MCMC (ces dernières nécessitant de spécifier la densité de probabilité de \( \lambda \)).
+\section*{Dimensionalité}
+La résolution de problèmes inverses en imagerie fait face à une augmentation toujours croissante du volume de données à traiter mais bénéficie également de l’accroissement de la puissance de calcul des ordinateurs. Les développements méthodologiques algorithmiques combinés aux performances numériques nous ont permis de passer de l’analyse d’images composées de \( N = 10^3 \) pixels dans les années 80 \cite{14} à l’analyse d’images hyperspectrales de taille \( 10^7 \) \cite{17} quarante ans plus tard pour un même temps de calcul, et tout cela en améliorant les performances de reconstruction, grâce à l’utilisation de pénalisations \( \phi \) finement choisies.
+\section*{Vers le deep learning}
+Face aux stratégies variationnelles régularisées qui constituent l'état de l'art, l'analyse d'images, et plus spécifiquement la résolution de problèmes inverses, a vu le développement de méthodes reposant sur l'apprentissage profond au cours de la dernière décennie. Dans la littérature, on trouve principalement trois classes d'approches :
+
+\begin{enumerate}
+    \item Les réseaux d'apprentissage "end-to-end", également qualifiés de "boîte noire", qui ont été largement développés lors des premiers travaux combinant problèmes inverses et apprentissage profond.
+    \item Les approches Plug \& Play (PnP) \cite{25}, qui permettent de conserver le cadre standard des approches variationnelles régularisées, la différence résidant dans le choix du terme de pénalisation dont l'opérateur proximal \cite{23} associé prend la forme d'un réseau de neurones fortement contractant.
+    \item Les approches dites d'algorithmes déroulés (unfolded/unrolled) \cite{1}, qui permettent de construire un réseau inspiré des algorithmes proximaux tout en convergeant en très peu d'itérations (c'est-à-dire de couches de réseaux).
+\end{enumerate}
+Ces deux dernières catégories d'approches offrent un continuum entre les méthodes variationnelles classiques et celles qualifiées de "boîte noire".
+\section{Interprétation bayésienne}
+Afin d'intuiter la formulation générique (2), il peut être opportun de faire appel à la formulation bayésienne. Pour cela, nous supposons que \( u \) et \( z \) sont des réalisations de vecteurs aléatoires \( U \) et \( Z \). L'estimation peut alors être atteinte par une stratégie du Maximum A Posteriori (MAP). L'objectif est d'estimer \( u \) qui maximise la distribution a posteriori \( \mu_{U|Z=z} \), laquelle peut être reformulée par le théorème de Bayes, puis par monotonie du logarithme comme suit :
+
+\[
+\hat{u} \in \operatorname{Argmin}_{u \in \mathbb{R}^N} \left( -\log \mu_{Z|U=u}(z) \text{ (vraisemblance)} + -\log \mu_U(u) \text{ (a priori)} \right)
+\]
+Le premier terme de (3) quantifie la fidélité aux observations\( z \) dépend du modèle de formation des données (1). À titre d'exemple, lorsque \( \epsilon \) modélise un bruit blanc gaussien de variance \( \sigma^2 \) et \( A \in \mathbb{R}^{M \times N} \), la vraisemblance prend la forme :
+
+\begin{equation}
+\mu_{Z|U=u}(z) = (2\pi\sigma^2)^{-M} e^{-\frac{\|Au - z\|^2}{2\sigma^2}} \psi(Au,z) = 1,
+\end{equation}
+
+ce qui conduit à 
+
+\begin{equation}
+\frac{1}{2\sigma^2} \|Au - z\|^2.
+\end{equation}
+
+Ce même raisonnement permet, par exemple, de motiver une attache aux données de type divergence de Kullback-Leibler lorsque le modèle d’acquisition des données est un processus de Poisson \cite{ref26}. 
+
+Le second terme est relié à l’information a priori sur l’image originale, conduisant à 
+
+\begin{equation}
+\phi(u) = -\log \mu_U(u).
+\end{equation}
+
+Si la littérature en restauration d’image s’appuie fortement sur le modèle bayésien pour justifier le choix de l'attache aux données, les modèles de pénalisation ont, quant à eux, plutôt émergé du côté de la littérature dédiée aux ondelettes, à la parcimonie ou aux modèles variationnels continus.
+\section{Pénalisation/Régularisation}
+Une première catégorie de pénalisations concerne des fonctions différentiables et convexes, telles que la régularisation de Tikhonov \cite{28}, introduite dans les années 1960 et également connue sous le nom de régression de ridge. Cette méthode favorise des solutions lisses. La régularisation de Tikhonov peut également être interprétée comme un filtrage de Wiener (1949), en utilisant les connaissances sur les densités spectrales du bruit et du signal. On peut également mentionner la pénalisation de Huber \cite{20}, qui permet d'approcher la norme \(\ell_1\) et favorise des solutions parcimonieuses.\\
+À partir des années 1990, la résolution des problèmes inverses a connu une révolution grâce aux pénalisations non lisses, parmi lesquelles la pénalisation par variation totale, proposée par Rudin, Osher et Fatemi (ROF) \cite{27}, est sans aucun doute la plus connue. Sa définition originale a été formulée dans un contexte continu. En version discrétisée, plusieurs définitions de la variation totale existent, dépendant essentiellement du choix de l’opérateur de discrétisation. La formulation usuelle de la variation totale isotrope s'exprime comme suit :
+
+\[
+\phi(u) = \|Du\|_{2,1} = \sum_{n=(n_1,n_2)} \sqrt{((D_1 u)_{n_1,n_2})^2 + ((D_2 u)_{n_1,n_2})^2}
+\]
+
+où \((D_1 u)_{n_1,n_2} = u_{n_1+1,n_2} - u_{n_1,n_2}\) et \((D_2 u)_{n_1,n_2} = u_{n_1,n_2+1} - u_{n_1,n_2}\).
+
+La pénalisation par variation totale permet d'obtenir d'excellentes performances en débruitage, notamment lorsque l'image présente de vastes régions uniformes. Cependant, pour les images naturelles, cette méthode engendre un effet de staircasing que les utilisateurs préfèrent éviter. Par exemple, en astronomie, une version lissée de la variation totale est souvent utilisée. Il s'agit de la pénalisation par variation totale hyperbolique \cite{6}, qui s'exprime comme suit :
+
+\[
+\phi(u) = \sum_{n} \sqrt{ \| (Du)_n \|_2^2 + \nu},
+\]
+
+introduisant un paramètre supplémentaire \(\nu > 0\) à ajuster. Cette approche présente l'avantage de lisser l'effet constant par morceaux et de fournir une transition plus fluide, ce qui peut sembler plus réaliste dans certaines modalités d'imagerie. D'autres pénalisations avancées ont été proposées dans la littérature. Par exemple, les pénalisations qui favorisent la parcimonie dans une base ou une trame d'ondelettes \cite{21,26} adoptent une forme similaire à celle de la pénalisation par variation totale :
+
+\[
+\phi(u) = \|Du\|_{\cdot},
+\]
+
+où \(D\) modélise, dans ce cas, l'opérateur associé.\\
+On parle de formulation à la base ou trame d’ondelettes. Contrairement à la méthode de sous-gradient explicite, la formulation devient à la synthèse lorsque \(D\) est déplacé dans le terme d'attache aux données en utilisant son adjoint. Par ailleurs, \(\| \cdot \|_{\cdot}\) est une pénalisation qui favorise la parcimonie et peut prendre la forme d'une norme \(\ell_1\) ou d'une norme mixte \(\ell_{1,2}\) comme définie dans (3), offrant ainsi une flexibilité dans le choix de \(D\) et des groupes de coefficients considérés. Pour des choix de groupes judicieux, on peut se référer à \cite{2}. 
+
+Il existe également des formes avancées de pénalisation par variation totale, telles que la variation totale généralisée (TGV) \cite{4}, la variation totale non-locale, ou des pénalisations par tenseurs de structure \cite{8}. 
+
+Une troisième catégorie de pénalisation repose sur l’utilisation de pénalisations non convexes de type \(\ell_1\)-pondérée ou quadratique tronquée \cite{24}, qui introduisent cependant des difficultés algorithmiques associées à la minimisation. 
+
+Enfin, une dernière classe de pénalisation, basée sur l'apprentissage, est apparue récemment.
+\section{Solutions algorithmiques}
+Les avancées algorithmiques majeures pour la résolution de problèmes inverses proviennent de deux sources : 1) les adaptations entre les propriétés des fonctions \(\phi\) et \(\psi\) et 2) les progrès en optimisation numérique. 
+
+Les travaux fondateurs sur les problèmes inverses sont indissociables de l’algorithme de gradient explicite et de ses versions accélérées (par exemple, Levenberg-Marquardt ou L-BFGS) \cite{30}. Il a fallu attendre les années 2000 et l’essor des méthodes proximales \cite{3,10,2} (méthodes de sous-gradient implicite) pour pouvoir traiter de grands volumes de données combinés avec des pénalisations avancées (comme celles mentionnées dans la section précédente) et ainsi obtenir des gains significatifs en qualité de reconstruction. 
+
+Ces algorithmes reposent sur la notion clé d’opérateur proximal \cite{23} associé à une fonction \(f\), défini pour tout \(\tau > 0\) par :
+
+\[
+\forall x \in \mathbb{R}^N, \quad \text{prox}_{\tau f}(x) = \arg \min_{y \in \mathbb{R}^N} \left( \|y - x\|_2^2 + \tau f(y) \right). \tag{5}
+\]
+
+L’opérateur proximal généralise la projection sur un ensemble convexe fermé non vide \(C\) de \(\mathbb{R}^N\), notée \(P_C\), en remarquant que \(\text{prox}_{\iota_C} = P_C\) avec \(\iota_C\) la fonction indicatrice associée à l’ensemble \(C\) telle que, pour tout \(x \in \mathbb{R}^N\), \(\iota_C(x) = 0\) si \(x \in C\) et \(+\infty\) sinon. L’opérateur proximal associé à la norme \(\ell_1\) (très utilisé en analyse d’images) se réduit à une opération de seuillage doux de paramètre \(\tau\).\\
+Les méthodes proximales, en plus de permettre la gestion de fonctions non lisses, offrent un cadre unificateur entre l'optimisation lisse sous contrainte (par exemple, des contraintes dynamiques ou épigraphiques) et l'optimisation non lisse. 
+
+Formellement, si le problème considéré est de la forme 
+
+\[
+\min_{x \in \mathbb{R}^N} f(x),
+\]
+
+où \(f\) est une fonction convexe non lisse, une itération de l'algorithme du point proximal (ou sous-gradient implicite) s'écrit :
+
+\[
+x^{[k+1]} = x^{[k]} - \tau_k g^{[k]} \quad \text{avec} \quad g^{[k]}\in \partial f(x^{[k+1]}), \tag{6}
+\]
+
+et 
+
+\[
+x^{[k+1]} = \text{prox}_{\tau_k} f(x^{[k]}), \tag{7}
+\]
+
+où \(\tau_k > 0\) et \(\partial f(x) = \{ w \in \mathbb{R}^N \; | \; \forall y \in \mathbb{R}^N, \langle y - x, w \rangle + f(x) \leq f(y) \}\) désigne la sous-différentielle de Moreau \cite{23}, qui se réduit au gradient lorsque la fonction est différentiable (c'est-à-dire, \(\partial f = \{\nabla f\}\)). Dans le cas où la sous-différentielle est calculée en \(x^{[k]}\) et non en \(x^{[k+1]}\), on obtient une itération de l'algorithme de sous-gradient explicite.\\
+Contrairement à la méthode de sous-gradient explicite, la
+La convergence de l'algorithme proximal repose sur un choix de pas \(\tau_k\) moins contraignant. L'efficacité des itérations proximales est conditionnée par la connaissance explicite de l'opérateur proximal. De nombreuses formes explicites ont été proposées dans la littérature et sont en grande partie répertoriées sur le site web Prox-Repository.
+
+Une difficulté supplémentaire se présente lorsqu'il s'agit de calculer l'opérateur proximal associé à une somme de deux fonctions (c'est-à-dire, \(f = \psi + \lambda \phi\)), comme c'est le cas dans (2). Dans ce contexte, très peu de formes explicites existent, et il est alors nécessaire de recourir à des algorithmes proximaux de type éclatement (splitting), qui sont des variations de ces itérations permettant de minimiser une somme de fonctions convexes pouvant être non lisses. L'approche de référence est l'algorithme explicite-implicite (FB : forward-backward) \cite{7}, qui suppose que \(\psi\) possède un gradient \(\beta\)-Lipschitz   et dont les itérations sont de la forme :
+
+\[
+x[k+1] = \text{prox}_{\tau_k,\lambda \phi} \Big(x^{[k]} - \tau_k \nabla \psi(x^{[k]})\Big), \tag{8}
+\]
+
+où \(\tau_k < 2\beta^{-1}\). L'étape explicite permet de gérer l'inversion de \(A\), tandis que l'étape implicite est une étape de débruitage qui active les différentes pénalisations présentées dans la section précédente. Cependant, il peut parfois être coûteux numériquement d'avoir recours à des sous-itérations pour calculer l'opérateur proximal. Dans ce cas, il peut être opportun d'utiliser des algorithmes primaux-duaux \cite{5,11}.
+
+Pour la gestion de fonctions non convexes, une littérature reposant sur l'inégalité de Kurdyka-Łojasiewicz a permis de proposer des algorithmes capables de converger vers un point critique, ce qui est utile dans le cas de pénalisations non convexes ou en déconvolution aveugle \cite{9}.
+
+
+
+
+
+
+
+\section{\large Passage de methodes variationnelles a la methode de plug-and-play } 
+
+Bien que les méthodes variationnelles soient souvent utilisées pour le traitement d'images , leurs limites en termes de flexibilité, de sensibilité aux paramètres et de capacité à capturer des structures complexes ont conduit à l'exploration de méthodes alternatives, comme les approches Plug-and-Play et celles basées sur l'apprentissage profond. Ces limites soulignent l'importance d'adopter des méthodes plus adaptatives et puissantes pour répondre aux défis modernes du traitement d'images.
+
+\section{\large Introduction a la methode plug and play }
+
+Les méthodes plug-and-play constituent une classe d’algorithmes itératifs pour la résolution de problèmes inverses en imagerie, où la régularisation est effectuée par un débruiteur de bruit gaussien. Ces algorithmes donnent de très bonnes performances de restauration, notamment lorsque le débruiteur est paramétré par un réseau de neurones profond. La méthode Plug-and-Play (PnP) a émergé comme une approche innovante dans le domaine du traitement d'images et de l'optimisation. Dans un contexte où les problèmes inverses, tels que le débruitage, la super-résolution et la restauration d'images, deviennent de plus en plus complexes, les techniques traditionnelles d'optimisation rencontrent des limitations en raison de la nature non lisse des fonctions et de la difficulté à modéliser le bruit. En intégrant des modèles de débruitage avancés, souvent issus de réseaux de neurones, la méthode PnP offre une flexibilité et une adaptabilité qui permettent de mieux capturer les structures complexes des données réelles. 
+
+
+
+
+
+\end{document}
