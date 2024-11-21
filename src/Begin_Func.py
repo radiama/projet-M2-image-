@@ -533,84 +533,8 @@ class operateur:
             noise_model=dinv.physics.GaussianNoise(sigma=sigma),
         )
         inpainted = process_image_2(self.image, operator= lambda x: tensor_to_numpy(Inpaint(numpy_to_tensor(x))))
-        return inpainted, tensor_to_numpy(mask)
+        return inpainted, tensor_to_numpy(inpainted)
 
-
-# def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_params_ranges=None):
-#     """
-#     Recherche exhaustive pour optimiser une fonction donnée en fonction de plusieurs paramètres,
-#     avec prise en charge des paramètres spécifiques à l'opérateur proximal voulu.
-
-#     Parameters:
-#     - func : callable, fonction à optimiser (doit retourner une image ou un tableau).
-#     - u_truth : array_like, donnée de référence pour évaluer la performance.
-#     - param_ranges : dict, dictionnaire contenant les paramètres globaux à optimiser et leurs plages de valeurs.
-#         Exemple : {"K": [10, 20], "alpha": [0.1, 0.2]}
-#     - metric : callable, fonction pour évaluer la performance (doit retourner un score, ex. PSNR).
-#     - func_params : dict, dictionnaire des paramètres fixes pour `func` (par défaut None).
-#     - prox_params_ranges : dict, dictionnaire des plages pour les paramètres spécifiques au prox (par défaut None).
-#         Exemple : {"tau": [0.01, 0.1], "K": [10, 50]}
-
-#     Returns:
-#     - best_params : dict, combinaison des paramètres globaux qui maximise la métrique.
-#     - best_prox_params : dict, combinaison des paramètres du prox qui maximise la métrique.
-#     - best_score : float, score maximal atteint.
-#     - score_map : dict, carte des scores pour chaque combinaison de paramètres.
-#     """
-#     if not param_ranges:
-#         raise ValueError("Les plages de paramètres globaux ne peuvent pas être vides.")
-#     if func_params is None:
-#         func_params = {}
-#     if prox_params_ranges is None:
-#         prox_params_ranges = {}
-
-#     param_names = list(param_ranges.keys())
-#     param_values = list(param_ranges.values())
-
-#     prox_param_names = list(prox_params_ranges.keys())
-#     prox_param_values = list(prox_params_ranges.values())
-
-#     if any(len(vals) == 0 for vals in param_values + prox_param_values):
-#         raise ValueError("Toutes les plages de paramètres doivent contenir au moins une valeur.")
-
-#     total_combinations = np.prod([len(vals) for vals in param_values]) * np.prod([len(vals) for vals in prox_param_values])
-
-#     # Initialisation
-#     best_params = None
-#     best_prox_params = None
-#     best_score = -np.inf
-#     score_map = {}
-
-#     for i, params in enumerate(itertools.product(*param_values)):
-#         current_params = dict(zip(param_names, params))
-#         j = 0
-
-#         for prox_params in tqdm(itertools.product(*prox_param_values), f"{(i + 1) * (j + 1)}/{total_combinations}"):
-#             current_prox_params = dict(zip(prox_param_names, prox_params))
-
-#             # Mise à jour des paramètres de la fonction
-#             func_params_local = func_params.copy()
-#             func_params_local.update(current_params)
-#             func_params_local["prox_params"] = current_prox_params
-#             j += 1
-
-#             try:
-#                 # Calculer la sortie de la fonction
-#                 result = func(**func_params_local)
-
-#                 # Évaluer la performance
-#                 score = metric(u_truth, result)
-#                 score_map[(tuple(current_params.values()), tuple(current_prox_params.values()))] = score
-
-#                 # Mise à jour du meilleur score
-#                 if score > best_score:
-#                     best_score = score
-#                     best_params = current_params
-#                     best_prox_params = current_prox_params
-#             except Exception as e:
-#                 print(f"Erreur avec {current_params}, {current_prox_params}: {e}")
-
-#     return best_params, best_prox_params, best_score, score_map
 
 def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_params_ranges=None):
     """
