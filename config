@@ -1,0 +1,11 @@
+# Compte GitHub etude
+Host github.com-etude
+  HostName gitub.u-bordeaux.fr
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+
+# Compte GitHub professionnel 
+Host github.com-prof
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_prof
