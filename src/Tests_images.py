@@ -1,7 +1,8 @@
 import torch
-from deepinv.utils import load_url_image
 from Begin_Func import load_img, save_path, operateur, numpy_to_tensor, tensor_to_numpy, PSNR, search_opt
 from Proxy_Func import fista, prox_l6
+from Denoisers import DRUNet, DnCNN
+from Pnp_Algorithms import pnp_apgm
 import pandas as pd
 
 def main():
@@ -10,139 +11,216 @@ def main():
 
     Im_butterfly, Im_leaves, Im_starfish = load_img("butterfly.png"), load_img("leaves.png"), load_img("starfish.png")
 
+
+    # # # Proxy Algorithms
+
+
+    # # '''Test Bruitage avec Im_Butterfly'''
+
+    sigma_low, sigma_mod, sigma_high = 15/255, 25/255, 50/255
+
+    # Im_butterfly_noised_sig15, Im_butterfly_noised_sig25, Im_butterfly_noised_sig50 = operateur(Im_butterfly).noise(sigma=sigma_low), operateur(Im_butterfly).noise(sigma=sigma_mod), operateur(Im_butterfly).noise(sigma=sigma_high)
+
+    # Im_butterfly_denoised_sig15, Tb15 = fista(Im_butterfly_noised_sig15, "none", None, 0.008, 0.25, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
+
+    # Im_butterfly_denoised_sig25, Tb25 = fista(Im_butterfly_noised_sig25, "none", None, 0.008, 0.01, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
+
+    # Im_butterfly_denoised_sig50, Tb50 = fista(Im_butterfly_noised_sig50, "none", None, 0.008, 0.01, 10, prox=prox_l6, prox_params={"tau": 0.1, "K": 15}, tol=1e-7)
+
+    # names_noised = ["Low Noise ($\sigma=15$)", "Moderate Noise ($\sigma=25$)", "High Noise ($\sigma=50$)"]
+
+    # images_noised =[Im_butterfly_noised_sig15, Im_butterfly_noised_sig25, Im_butterfly_noised_sig50]
+
+    # names_denoised = ["FISTA Denoising ($\sigma=15$)", "FISTA Denoising ($\sigma=25$)", "FISTA Denoising ($\sigma=50$)"]
+
+    # images_denoised =[Im_butterfly_denoised_sig15, Im_butterfly_denoised_sig25, Im_butterfly_denoised_sig50]
+
+    # denoising_trajectories =[Tb15, Tb25, Tb50]
+
+    # save_path("results", "Im_butterfly_noised", names_noised, images_noised, reference_image=Im_butterfly)
+
+    # save_path("results", "Im_butterfly_denoised", names_denoised, images_denoised, reference_image=Im_butterfly, psnr=True, trajectories=denoising_trajectories)
     
-    # # '''Test Bruitage'''
+    # print(PSNR(Im_butterfly, Im_butterfly_denoised_sig15, 1.0))
 
-    # Im_butterfly_noised, Im_leaves_noised, Im_starfish_noised = operateur(Im_butterfly).noise(sigma=0.2), operateur(Im_leaves).noise(sigma=0.2), operateur(Im_starfish).noise(sigma=0.2)
 
-    # Im_butterfly_restored = fista(Im_butterfly_noised, "none", None, 0.01, 0.05, 10, prox=prox_l6, prox_params={"tau": 0.1, "K": 15}, tol=1e-7)
+    # # '''Test Floutage avec Im_leaves'''
 
-    # Im_starfish_restored = fista(Im_starfish_noised, "none", None, 0.008, 0.01, 10, prox=prox_l6, prox_params={"tau": 0.01, "K": 5}, tol=1e-7)
-
-    # Im_leaves_restored = fista(Im_leaves_noised, "none", None, 0.01, 0.1, 25, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
+    # sigma_low_2, sigma_mod_2, sigma_high_2 = (1, 1), (2, 2), (3, 3)
     
-    # save_path("results", "Im_starfish_noised.png", Im_starfish_noised, True, Im_starfish)
-
-    # save_path("results", "Im_leaves_noised.png", Im_leaves_noised, True, Im_leaves)
-
-    # save_path("results", "Im_butterfly_noised.png", Im_butterfly_noised, True, Im_butterfly)
-
-    # save_path("results", "Im_starfish_restored.png", Im_starfish_restored, True, Im_starfish)
-
-    # save_path("results", "Im_leaves_restored.png", Im_leaves_restored, True, Im_leaves)
-
-    # save_path("results", "Im_butterfly_restored.png", Im_butterfly_restored, True, Im_butterfly)
-
-    # # print(PSNR(Im_leaves, Im_leaves_restored, 1.0))
-
-
-    # # # '''Test Floutage'''
+    # Im_leaves_blurred_low, G_leaves_low = operateur(Im_leaves).blur(sigma = sigma_low_2, angle = 0)
     
-    # Im_butterfly_blurred, G_butterfly = operateur(Im_butterfly).blur(sigma = (3, 3), angle = 45) 
+    # Im_leaves_blurred_mod, G_leaves_mod = operateur(Im_leaves).blur(sigma = sigma_mod_2, angle = 0)
+
+    # Im_leaves_blurred_high, G_leaves_high = operateur(Im_leaves).blur(sigma = sigma_high_2, angle = 0)
     
-    # Im_leaves_blurred, G_leaves = operateur(Im_leaves).blur(sigma = (3, 3), angle = 45)
+    # Im_leaves_deblurred_low, Tl_low = fista(Im_leaves_blurred_low, "convolution", {"G": G_leaves_low}, 0.0001, 1, 25, prox=prox_l6, prox_params={"tau": 0.0001, "K": 10}, tol=1e-7)
+
+    # Im_leaves_deblurred_mod, Tl_mod = fista(Im_leaves_blurred_mod, "convolution", {"G": G_leaves_mod}, 0.0001, 1, 25, prox=prox_l6, prox_params={"tau": 0.0001, "K": 10}, tol=1e-7)
+
+    # Im_leaves_deblurred_high, Tl_high = fista(Im_leaves_blurred_high, "convolution", {"G": G_leaves_high}, 0.0001, 1, 25, prox=prox_l6, prox_params={"tau": 0.5, "K": 10}, tol=1e-7)
+
+    # names_blurred = ["Low Blur ($\sigma=1$)", "Moderate Blur ($\sigma=2$)", "High Blur ($\sigma=3$)"]
+
+    # images_blurred =[Im_leaves_blurred_low, Im_leaves_blurred_mod, Im_leaves_blurred_high]
+
+    # names_deblurred = ["FISTA Deblurring ($\sigma=1$)", "FISTA Deblurring ($\sigma=2$)", "FISTA Deblurring ($\sigma=3$)"]
+
+    # images_deblurred =[Im_leaves_deblurred_low, Im_leaves_deblurred_mod, Im_leaves_deblurred_high]
+
+    # deblurring_trajectories =[Tl_low, Tl_mod, Tl_high]
+
+    # save_path("results", "Im_leaves_blurred", names_blurred, images_blurred, reference_image=Im_leaves)
+
+    # save_path("results", "Im_leaves_deblurred", names_deblurred, images_deblurred, reference_image=Im_leaves, psnr=True, trajectories=deblurring_trajectories)
     
-    # Im_starfish_blurred, G_starfish = operateur(Im_starfish).blur(sigma = (3, 3), angle = 45)
-
-    # Im_butterfly_deblurred = fista(Im_butterfly_blurred, "convolution", {"G": G_butterfly}, 0.0001, 1, 25, prox=prox_l6, prox_params={"tau": 0.0001, "K": 25}, tol=1e-7)
-
-    # Im_leaves_deblurred = fista(Im_leaves_blurred, "convolution", {"G": G_leaves}, 0.0001, 1, 25, prox=prox_l6, prox_params={"tau": 0.0001, "K": 25}, tol=1e-7)
-
-    # Im_starfish_deblurred = fista(Im_starfish_blurred, "convolution", {"G": G_starfish}, 0.0001, 1, 25, prox=prox_l6, prox_params={"tau": 0.0001, "K": 25}, tol=1e-7)
-    
-    # save_path("results", "Im_starfish_blurred.png", Im_starfish_blurred, True, Im_starfish)
-
-    # save_path("results", "Im_leaves_blurred.png", Im_leaves_blurred, True, Im_leaves)
-
-    # save_path("results", "Im_butterfly_blurred.png", Im_butterfly_blurred, True, Im_butterfly)
-
-    # save_path("results", "Im_starfish_deblurred.png", Im_starfish_deblurred, True, Im_starfish)
-
-    # save_path("results", "Im_leaves_deblurred.png", Im_leaves_deblurred, True, Im_leaves)
-
-    # save_path("results", "Im_butterfly_deblurred.png", Im_butterfly_deblurred, True, Im_butterfly)
-    
-    # # print(PSNR(Im_starfish, Im_starfish_deblurred, 1.0))
+    # print(PSNR(Im_leaves, Im_leaves_deblurred_high, 1.0))
 
    
-    # # # '''Test Inpainting'''
+    # # # '''Test Inpainting avec Im_starfish'''
 
-    # mask = torch.ones(1, 1, 256, 256)
+    simple_mask = torch.ones(1, 1, 256, 256)
 
-    # mask[:, :, 0::24, :] = 0
+    simple_mask[:, :, 0::24, :] = 0
 
-    # mask[:, :, :, 0::24] = 0
+    simple_mask[:, :, :, 0::24] = 0
 
-    # # # mask[:, :, 64:-64, 64:-64] = 0
+    simple_mask = simple_mask.to(torch.bool) # mask.type(torch.uint8)
 
-    # mask = mask.to(torch.bool) # mask.type(torch.uint8)
+    medium_mask = torch.rand(1, 1, 256, 256) > 0.5
 
-    Im_starfish_masked, Mask_star = operateur(Im_starfish).inpaint(mask = mask , sigma=.08)
+    complex_mask = torch.rand(1, 1, 256, 256) > 0.8
 
-    # Im_leaves_masked, Mask_leaves = operateur(Im_leaves).inpaint(mask = mask , sigma=.08)
+    Im_starfish_masked_simple, Mask_star_simple = operateur(Im_starfish).inpaint(mask =simple_mask , sigma=sigma_low)
 
-    # Im_butterfly_masked, Mask_butterfly = operateur(Im_butterfly).inpaint(mask = mask , sigma=.08)
+    Im_starfish_masked_medium, Mask_star_medium = operateur(Im_starfish).inpaint(mask =medium_mask , sigma=sigma_mod)
 
-    # Im_butterfly_demasked = fista(Im_butterfly_masked, "mask", {"Mask": Mask_butterfly }, 0.01, 0.25, 25, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
+    # Im_starfish_masked_complex, Mask_star_complex = operateur(Im_starfish).inpaint(mask =complex_mask , sigma=sigma_high)
 
-    # Im_leaves_demasked = fista(Im_leaves_masked, "mask", {"Mask": Mask_leaves }, 0.01, 0.25, 25, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
+    # Im_starfish_demasked_simple, Ts_simple = fista(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 0.01, 0.5, 25, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
 
-    # Im_starfish_demasked = fista(Im_starfish_masked, "mask", {"Mask": Mask_star }, 0.01, 0.25, 25, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
+    # Im_starfish_demasked_meduim, Ts_medium = fista(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 0.01, 0.25, 50, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
 
-    # save_path("results", "Im_starfish_masked.png", Im_starfish_masked, True, Im_starfish)
+    # Im_starfish_demasked_complex, Ts_complex = fista(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 0.5, 0.1, 100, prox=prox_l6, prox_params={"tau": 0.001, "K": 25}, tol=1e-7)
 
-    # save_path("results", "Im_leaves_masked.png", Im_leaves_masked, True, Im_leaves)
+    # names_masked = ["Simple Mask with Low Noise", "Medium Mask with Moderate Noise", "Complex Mask with High Noise"]
 
-    # save_path("results", "Im_butterfly_masked.png", Im_butterfly_masked, True, Im_butterfly)
+    # images_masked =[Im_starfish_masked_simple, Im_starfish_masked_medium, Im_starfish_masked_complex]
 
-    # save_path("results", "Im_starfish_demasked.png", Im_starfish_demasked, True, Im_starfish)
+    # names_inpaint = ["FISTA Inpainting with Low Noise", "FISTA Inpainting with Moderate Noise)", "FISTA Inpainting with High Noise$)"]
 
-    # save_path("results", "Im_leaves_demasked.png", Im_leaves_demasked, True, Im_leaves)
+    # images_inpaint =[Im_starfish_demasked_simple, Im_starfish_demasked_meduim, Im_starfish_demasked_complex]
 
-    # save_path("results", "Im_butterfly_demasked.png", Im_butterfly_demasked, True, Im_butterfly)
+    # inpainting_trajectories =[Ts_simple, Ts_medium, Ts_complex]
 
-    # print(PSNR(Im_leaves, Im_leaves_demasked, 1.0))
+    # save_path("results", "Im_starfish_masked", names_masked, images_masked, reference_image=Im_starfish)
 
-    import matplotlib.pyplot as plt
+    # save_path("results", "Im_starfish_inpaint", names_inpaint, images_inpaint, reference_image=Im_starfish, psnr=True, trajectories=inpainting_trajectories)
     
-    plt.subplot(121)
-    plt.imshow(Im_starfish_masked)
-    plt.subplot(122)
-    plt.imshow(Mask_star)
-   
-    # # '''Recherche paramètres optimaux'''
+    # print(PSNR(Im_starfish, Im_starfish_demasked_simple, 1.0))
+
     
-    # param_ranges = { "K": [5, 10, 25], "lambd": [0.01, 0.1, 0.5], "tau": [0.01, 0.25, 0.5] }
+    # # # PNP(Plug and Play Algorithms)
+
+
+    # # PNP_Débruiteur (Im_butterfly)
+
+    denoiser = DRUNet()
+
+    # Im_butterfly_denoised_sig15_pnp, Tb15_pnp = pnp_apgm(Im_butterfly_noised_sig15, "none", None, 1, denoiser, sigma=sigma_low, K=15, tol=1e-7)
+
+    # Im_butterfly_denoised_sig25_pnp, Tb25_pnp = pnp_apgm(Im_butterfly_noised_sig25, "none", None, 1, denoiser, sigma=sigma_mod, K=15, tol=1e-7)
+
+    # Im_butterfly_denoised_sig50_pnp, Tb50_pnp = pnp_apgm(Im_butterfly_noised_sig50, "none", None, 1, denoiser, sigma=sigma_high, K=15, tol=1e-7)
+
+    # names_denoised_pnp = ["PNP_DRUNet Denoising ($\sigma=15$)", "PNP_DRUNet Denoising ($\sigma=25$)", "PNP_DRUNet Denoising ($\sigma=50$)"]
+
+    # images_denoised_pnp =[Im_butterfly_denoised_sig15_pnp, Im_butterfly_denoised_sig25_pnp, Im_butterfly_denoised_sig50_pnp]
+
+    # denoising_trajectories_pnp =[Tb15_pnp, Tb25_pnp, Tb50_pnp]
+
+    # save_path("results", "Im_butterfly_denoised", names_denoised_pnp, images_denoised_pnp, reference_image=Im_butterfly, psnr=True, trajectories=denoising_trajectories_pnp)
+    
+    # print(PSNR(Im_butterfly, Im_butterfly_denoised_sig50_pnp, 1.0))
+
+
+    # # PNP_Floutage (Im_leaves)
+
+    # denoiser = DnCNN()
+
+    # Im_leaves_deblurred_low_pnp, Tl_low_pnp = pnp_apgm(Im_leaves_blurred_low, "convolution", {"G": G_leaves_low}, 1.5, denoiser, sigma=sigma_low, K=15, tol=1e-7)
+
+    # Im_leaves_deblurred_mod_pnp, Tl_mod_pnp = pnp_apgm(Im_leaves_blurred_mod, "convolution", {"G": G_leaves_mod}, 1.5, denoiser, sigma=sigma_mod, K=25, tol=1e-7)
+
+    # Im_leaves_deblurred_high_pnp, Tl_high_pnp = pnp_apgm(Im_leaves_blurred_high, "convolution", {"G": G_leaves_high}, 1.5, denoiser, sigma=sigma_high, K=25, tol=1e-7)
+
+    # names_deblurred_pnp = ["PNP_DnCNN Deblurring ($\sigma=1$)", "PNP_DnCNN Deblurring ($\sigma=2$)", "PNP_DnCNN Deblurring ($\sigma=3$)"]
+
+    # images_deblurred_pnp =[Im_leaves_deblurred_low_pnp, Im_leaves_deblurred_mod_pnp, Im_leaves_deblurred_high_pnp]
+
+    # deblurring_trajectories_pnp =[Tl_low_pnp, Tl_mod_pnp, Tl_high_pnp]
+
+    # save_path("results", "Im_leaves_deblurred", names_deblurred_pnp, images_deblurred_pnp, reference_image=Im_leaves, psnr=True, trajectories=deblurring_trajectories_pnp)
+
+
+    # # PNP_Inpainting (Im_starfish)
+
+    # Im_starfish_demasked_simple_pnp, Ts_simple_pnp = pnp_apgm(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 1, denoiser, sigma=0.05, K=30, tol=1e-7)
+
+    # Im_starfish_demasked_meduim_pnp, Ts_medium_pnp = pnp_apgm(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 0.25, denoiser, sigma=sigma_mod, K=30, tol=1e-7)
+
+    # Im_starfish_demasked_complex_pnp, Ts_complex_pnp = pnp_apgm(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 1, denoiser, sigma=0.14, K=30, tol=1e-7)
+
+    # names_inpaint_pnp = ["PNP_DRUNet Inpainting with Low Noise", "PNP_DRUNet Inpainting with Moderate Noise", "PNP_DRUNet Inpainting with High Noise"]
+
+    # images_inpaint_pnp =[Im_starfish_demasked_simple_pnp, Im_starfish_demasked_meduim_pnp, Im_starfish_demasked_complex_pnp]
+
+    # inpainting_trajectories_pnp =[Ts_simple_pnp, Ts_medium_pnp, Ts_complex_pnp]
+
+    # save_path("results", "Im_starfish_inpaint", names_inpaint_pnp, images_inpaint_pnp, reference_image=Im_starfish, psnr=True, trajectories=inpainting_trajectories_pnp)
+    
+    # print(PSNR(Im_starfish, Im_starfish_demasked_simple_pnp, 1.0))
+
+    
+    # # '''Recherche paramètres optimaux (Proxy and PNP)'''
+    
+    # Proxy
+
+    # param_ranges = { "K": [5, 15, 25], "lambd": [0.01, 0.5, 1], "tau": [0.01, 0.25, 0.5]}
 
     # prox_params_ranges = {"tau": [0.01, 0.1, 0.5],  "K": [5, 10, 15]}
 
-    # func_params = {"u": Im_leaves_noised, "operator_type": "none", "operator_params": {}, "prox": prox_l6, "tol": 1e-7}
-    # func_params = {"u": Im_leaves_masked, "operator_type": "mask", "operator_params": {"Mask": Mask_leaves }, "prox": prox_l6, "tol": 1e-7}
-    # func_params = {"u": Im_starfish_blurred, "operator_type": "convolution", "operator_params": {"G": G_starfish }, "prox": prox_l6, "tol": 1e-7}
+    # func_params = {"u": Im_butterfly_noised_sig15, "operator_type": "none", "operator_params": {}, "prox": prox_l6, "tol": 1e-7}
+    # func_params = {"u": Im_starfish_masked_complex, "operator_type": "mask", "operator_params": {"Mask": Mask_star_complex }, "prox": prox_l6, "tol": 1e-7}
+    # func_params = {"u": Im_leaves_blurred_high, "operator_type": "convolution", "operator_params": {"G": G_leaves_high }, "prox": prox_l6, "tol": 1e-7}
 
-    # best_params, best_prox_params, best_score, score_map = search_opt(func=fista, u_truth= Im_starfish, param_ranges=param_ranges, 
+    # best_params, best_score, score_map = search_opt(func=fista, u_truth=Im_butterfly, param_ranges=param_ranges, 
     # metric=PSNR, func_params=func_params, prox_params_ranges=prox_params_ranges)
 
-    # # Résultats
-    # print("Meilleurs paramètres globaux:", best_params)
-    # print("Meilleurs paramètres du prox:", best_prox_params)
-    # print("Meilleur score:", best_score)
-    # print(score_map.head())
+    # PNP
 
+    param_ranges_pnp = { "K": [15, 25, 50], "tau": [0.25, 0.5, 1.5], "sigma": [sigma_low, sigma_mod, sigma_high]}
+    
+    # func_params_pnp = {"u": Im_butterfly_noised_sig15, "operator_type": "none", "operator_params": {}, "denoiser": denoiser,  "tol": 1e-7}
 
-    # # PNP(Plug and Play Algorithms)
+    # func_params_pnp = {"u": Im_leaves_blurred_high, "operator_type": "convolution", "operator_params": {"G": G_leaves_high}, "denoiser": denoiser, "sigma": None,  "tol": 1e-7}
 
+    func_params_pnp = {"u": Im_starfish_masked_simple, "operator_type": "mask", "operator_params": {"Mask": Mask_star_simple}, "denoiser": denoiser,  "tol": 1e-7}
 
-    #                                     noise_model=dinv.physics.GaussianNoise(sigma=0.01))
+    best_params, best_score, score_map = search_opt(func=pnp_apgm, u_truth=Im_leaves, param_ranges=param_ranges_pnp, metric=PSNR, func_params=func_params_pnp)
 
-    # data_fidelity = dinv.optim.data_fidelity.L2()
-    # prior = dinv.optim.prior.PnP(denoiser=dinv.models.MedianFilter())
-    # model = dinv.optim.optim_builder(iteration="HQS", prior=prior, data_fidelity=data_fidelity, \
-    #                                 params_algo={"stepsize": 1.0, "g_param": 0.1})
-    # y = physics(x)
-    # x_hat = model(Im_starfish_masked, Mask_star )
-    # dinv.utils.plot([x, y, x_hat], ["signal", "measurement", "estimate"], rescale_mode='clip')
+    # Résultats
+    print("Meilleurs paramètres globaux:", best_params)
+    print("Meilleur score:", best_score)
+    print(score_map.head())
 
+    # import matplotlib.pyplot as plt
+
+    # plt.figure(figsize=(8,4))
+    # plt.subplot(121)
+    # plt.imshow(Im_starfish_masked_simple)
+    # plt.subplot(122)
+    # plt.imshow(Im_starfish_demasked_simple_pnp)
 
 if __name__ == "__main__" :
 

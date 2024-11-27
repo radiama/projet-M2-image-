@@ -1,10 +1,10 @@
 from PIL import Image
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import deepinv as dinv
 import torch, os, itertools, cv2
+import matplotlib.pyplot as plt
 
 # Chargement des images
 
@@ -40,28 +40,17 @@ def load_img(fname, subfolder='data/set3c', resize=None, normalize=True):
 
 # Sauvegarder les images
 
-def save_path(folder, file_name, image, psnr=False, reference_image=None):
-    """
-    Sauvegarde une image avec option d'afficher le PSNR dans le coin inférieur gauche.
+def treat_image_and_add_psnr(image, reference_image, psnr=True):
 
-    Parameters:
-    - folder : str, dossier où sauvegarder l'image.
-    - file_name : str, nom du fichier de l'image.
-    - image : array_like, image à sauvegarder (niveaux de gris ou couleur).
-    - psnr : bool, calculer et afficher le PSNR sur l'image.
-    - reference_image : array_like, image de référence pour calculer le PSNR.
+    # Vérifiez la mutabilité de l'image
+    if not image.flags['C_CONTIGUOUS']:
+        image = np.ascontiguousarray(image)
 
-    Returns:
-    - None
-    """
     # Normalisation de l'image
     if image.dtype != np.uint8:
         image = (image * 255).clip(0, 255).astype(np.uint8)
 
     if psnr and reference_image is not None:
-        # Normalisation de l'image de référence
-        if reference_image.dtype != np.uint8:
-            reference_image = (reference_image * 255).clip(0, 255).astype(np.uint8)
 
         # Calcul du PSNR
         psnr_value = cv2.PSNR(reference_image, image)
@@ -96,86 +85,83 @@ def save_path(folder, file_name, image, psnr=False, reference_image=None):
         color_black = (0, 0, 0) if image.ndim == 3 else 0  # Noir
         image = cv2.putText(image, text, (x, y), font, font_scale, color_black, thickness)
 
-    # Convertir de RGB à BGR
-    if image.ndim == 3 and image.shape[2] == 3:  # Image en couleur
-        image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    else:
-        image_bgr = image  # Image en niveaux de gris
+    return image
 
+def save_path(folder, file_name, names_list, images_list, reference_image=None, psnr=True, trajectories=None):
+    """
+    Sauvegarde les images côte à côte et trace les trajectoires de PSNR si applicables.
+
+    Parameters:
+    ----------
+    folder : str, Dossier où sauvegarder les résultats.
+    file_name : str, Nom de base pour les fichiers sauvegardés.
+    names_list : list of str, Noms associés aux images pour les titres.
+    images_list : list of array_like, Liste des images à sauvegarder (niveaux de gris ou couleur).
+    reference_image : array_like, optional, Image de référence pour calculer le PSNR.
+    psnr : bool, optional, Si True, ajoute le PSNR sur les images sauvegardées (par défaut True).
+    trajectories : list of list of array_like, optional, Trajectoires associées aux images réparées.
+
+    Returns:
+    -------
+    None
+    """
     # Définir le chemin de sauvegarde
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     path = os.path.join(parent_dir, folder)
-    os.makedirs(path, exist_ok=True)  # Créer le dossier s'il n'existe pas
-    full_path = os.path.join(path, file_name)
-    
-    # Enregistrer l'image avec OpenCV
-    cv2.imwrite(full_path, image_bgr)
+    os.makedirs(path, exist_ok=True)
+    full_path = os.path.join(path, f"{file_name}_comparaison.png")
 
-    # Afficher des informations sur la sauvegarde
-    print(f"L'image a été sauvegardée dans {full_path}.")
-    if psnr and reference_image is not None:
-        print(f"PSNR calculé : {psnr_value:.2f}")
-
-def save_path2(folder, file_name, image, psnr=False, reference_image=None, white = True, position = (10, 30)):
-    """
-    Sauvegarde une image avec option d'afficher le PSNR.
-
-    Parameters:
-    - folder : str, dossier où sauvegarder l'image.
-    - file_name : str, nom du fichier de l'image.
-    - image : array_like, image à sauvegarder (niveaux de gris ou couleur).
-    - psnr : bool, calculer et afficher le PSNR sur l'image.
-    - reference_image : array_like, image de référence pour calculer le PSNR.
-
-    Returns:
-    - None
-    """
-
-    # Normalisation de l'image pour correspondre à uint8 (0-255)
-    if image.dtype != np.uint8:
-        image = (image * 255).clip(0, 255).astype(np.uint8)
-
-    # Normaliser la référence pour le calcul PSNR
-    if psnr and reference_image is not None:
+    # Normalisation de l'image de référence
+    if reference_image is not None:
         if reference_image.dtype != np.uint8:
             reference_image = (reference_image * 255).clip(0, 255).astype(np.uint8)
 
-        # Calcul du PSNR
-        psnr_value = cv2.PSNR(reference_image, image)
+    # Traitement des images
+    treated_images = []
+    for im in images_list:
+        treated_im = treat_image_and_add_psnr(im, reference_image, psnr)
+        treated_images.append(treated_im)
 
-        # Ajouter le texte PSNR sur l'image
-        text = f"PSNR: {psnr_value:.2f}"
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.8
-        if white:
-            color = (255, 255, 255) if image.ndim == 3 else 255  # Blanc
-        else:
-            color = (0, 0, 0) if image.ndim == 3 else 0  # Noir
+    # Gestion des subplots
+    n = len(treated_images) + (1 if reference_image is not None else 0)
+    fig, axes = plt.subplots(1, n, figsize=(3 * n, 4))
+    if n == 1:  # Cas où il y a une seule image
+        axes = [axes]
 
-        thickness = 2
-        position = position
-        image = cv2.putText(image.copy(), text, position, font, font_scale, color, thickness)
+    # Affichage de l'image originale si présente
+    start = 0
+    if reference_image is not None:
+        axes[0].imshow(reference_image)
+        axes[0].set_title("Ground Truth")
+        axes[0].axis("off")
+        start += 1
 
-    # Convertir de RGB à BGR si nécessaire (OpenCV utilise BGR pour enregistrer)
-    if image.ndim == 3 and image.shape[2] == 3:  # Image en couleur
-        image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    else:
-        image_bgr = image  # Image en niveaux de gris
+    # Affichage des images traitées
+    for idx, (name, img) in enumerate(zip(names_list, treated_images), start=start):
+        axes[idx].imshow(img, cmap="gray")
+        axes[idx].set_title(name)
+        axes[idx].axis("off")
 
-    # Définir le chemin du dossier de sauvegarde
-    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-    path = os.path.join(parent_dir, folder)
-    os.makedirs(path, exist_ok=True)  # Créer le dossier s'il n'existe pas
-    full_path = os.path.join(path, file_name)
+    # Sauvegarde du fichier comparatif
+    plt.tight_layout()
+    plt.savefig(full_path, bbox_inches="tight", pad_inches=0.1)
+    plt.close()
 
-    # Enregistrer l'image en utilisant OpenCV
-    cv2.imwrite(full_path, image_bgr)
+    # Gestion des trajectoires de PSNR
+    if trajectories is not None and reference_image is not None:
+        plt.figure(figsize=(10, 6))
+        for name, trajectory in zip(names_list, trajectories):
+            psnr_values = [cv2.PSNR(reference_image, (traj * 255).clip(0, 255).astype(np.uint8)) for traj in trajectory]
+            plt.plot(range(len(psnr_values)), psnr_values, marker="o", linestyle="-", label=name)
 
-    # Afficher les informations sur la sauvegarde
-    print(f"L'image a été sauvegardée dans {full_path}.")
-    if psnr and reference_image is not None:
-        print(f"PSNR calculé : {psnr_value:.2f}")
-
+        plt.xlabel("Itérations")
+        plt.ylabel("PSNR (dB)")
+        plt.title("Évolution du PSNR au fil des itérations")
+        plt.legend()
+        plt.grid(True)
+        psnr_plot_path = os.path.join(path, f"{file_name}_psnr_plot.png")
+        plt.savefig(psnr_plot_path, bbox_inches="tight", pad_inches=0.1)
+        plt.close()
 
 def process_image(image, processing_function, **kwargs):
     """
@@ -444,6 +430,10 @@ def tensor_to_numpy(im_tsr):
 
     if im_tsr.dim() != 4 or im_tsr.size(0) != 1:
         raise ValueError("Le tenseur doit avoir une dimension (1, C, H, W).")
+    
+    # Si le tenseur a requires_grad=True, on le détache
+    if im_tsr.requires_grad:
+        im_tsr = im_tsr.detach()
 
     # Cas niveaux de gris
     if im_tsr.size(1) == 1:
@@ -490,13 +480,13 @@ class operateur:
         noise.noise_model = dinv.physics.GaussianNoise(sigma=sigma)
         return process_image_2(self.image, operator=lambda x: tensor_to_numpy(noise(numpy_to_tensor(x))))
 
-    def blur(self, sigma=(2, 2), angle=45):
+    def blur(self, sigma=(2, 2), angle=0):
         """
         Applique un flou gaussien à l'image.
 
         Parameters:
         - sigma : tuple, écart-type du flou pour les axes x et y (par défaut (2, 2)).
-        - angle : float, angle du flou en degrés (par défaut 45).
+        - angle : float, angle du flou en degrés (par défaut 0).
 
         Returns:
         - tuple : (image floutée sous forme de tableau NumPy, filtre de flou).
@@ -530,50 +520,148 @@ class operateur:
         Inpaint = dinv.physics.Inpainting(
             mask=mask,
             tensor_size=self.image.shape[:2],
-            noise_model=dinv.physics.GaussianNoise(sigma=sigma),
+            noise_model=dinv.physics.GaussianNoise(sigma=sigma)
         )
         inpainted = process_image_2(self.image, operator= lambda x: tensor_to_numpy(Inpaint(numpy_to_tensor(x))))
-        return inpainted, tensor_to_numpy(inpainted)
+        return inpainted, tensor_to_numpy(mask)
 
+
+# def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_params_ranges=None):
+#     """
+#     Recherche exhaustive pour optimiser une fonction donnée en fonction de plusieurs paramètres,
+#     avec prise en charge des paramètres spécifiques à l'opérateur proximal voulu.
+
+#     Parameters:
+#     - func : callable, fonction à optimiser (doit retourner une image ou un tableau).
+#     - u_truth : array_like, donnée de référence pour évaluer la performance.
+#     - param_ranges : dict, dictionnaire contenant les paramètres globaux à optimiser et leurs plages de valeurs.
+#     - metric : callable, fonction pour évaluer la performance (doit retourner un score, ex. PSNR).
+#     - func_params : dict, dictionnaire des paramètres fixes pour `func` (par défaut None).
+#     - prox_params_ranges : dict, dictionnaire des plages pour les paramètres spécifiques au prox (par défaut None).
+
+#     Returns:
+#     - best_params : dict, combinaison des paramètres globaux qui maximise la métrique.
+#     - best_prox_params : dict, combinaison des paramètres du prox qui maximise la métrique.
+#     - best_score : float, score maximal atteint.
+#     - score_map_df : DataFrame, carte des scores pour chaque combinaison de paramètres.
+#     """
+#     if not param_ranges:
+#         raise ValueError("Les plages de paramètres globaux ne peuvent pas être vides.")
+#     if func_params is None:
+#         func_params = {}
+#     if prox_params_ranges is None:
+#         prox_params_ranges = {}
+
+#     param_names = list(param_ranges.keys())
+#     param_values = list(param_ranges.values())
+
+#     prox_param_names = list(prox_params_ranges.keys())
+#     prox_param_values = list(prox_params_ranges.values())
+
+#     if any(len(vals) == 0 for vals in param_values + prox_param_values):
+#         raise ValueError("Toutes les plages de paramètres doivent contenir au moins une valeur.")
+
+#     # Initialisation
+#     best_params = None
+#     best_prox_params = None
+#     best_score = -np.inf
+#     score_map = []
+
+#     # Boucle principale sur les paramètres globaux
+#     with tqdm(total=len(list(itertools.product(*param_values))), desc="Recherche globale") as global_bar:
+#         for params in itertools.product(*param_values):
+#             current_params = dict(zip(param_names, params))
+
+#             # Boucle interne sur les paramètres du prox
+#             with tqdm(total=len(list(itertools.product(*prox_param_values))), desc="Recherche Prox", leave=False) as prox_bar:
+#                 for prox_params in itertools.product(*prox_param_values):
+#                     current_prox_params = dict(zip(prox_param_names, prox_params))
+
+#                     # Préparation des paramètres locaux
+#                     func_params_local = func_params.copy()
+#                     func_params_local.update(current_params)
+#                     func_params_local["prox_params"] = current_prox_params
+
+#                     try:
+#                         # Calculer la sortie de la fonction
+#                         result, _ = func(**func_params_local)
+
+#                         # Vérifier les dimensions avant de calculer la métrique
+#                         if result.shape != u_truth.shape:
+#                             raise ValueError("Les dimensions du résultat et de la référence ne correspondent pas.")
+
+#                         # Évaluer la performance
+#                         score = metric(u_truth, result)
+#                         score_map.append((current_params, current_prox_params, score))
+
+#                         # Mise à jour du meilleur score
+#                         if score > best_score:
+#                             best_score = score
+#                             best_params = current_params
+#                             best_prox_params = current_prox_params
+
+#                     except Exception as e:
+#                         print(f"Erreur avec paramètres {current_params}, prox {current_prox_params}: {e}")
+#                     finally:
+#                         prox_bar.update(1)  # Mise à jour de la barre interne
+#             global_bar.update(1)  # Mise à jour de la barre externe
+
+#     # Conversion des scores en DataFrame
+#     score_map_df = pd.DataFrame([(dict(p), dict(pp), s) for p, pp, s in score_map], columns=["Params", "Prox_Params", "Score"])
+
+#     # Trier par score décroissant
+#     score_map_df = score_map_df.sort_values(by="Score", ascending=False)
+
+#     return best_params, best_prox_params, best_score, score_map_df
 
 def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_params_ranges=None):
     """
     Recherche exhaustive pour optimiser une fonction donnée en fonction de plusieurs paramètres,
-    avec prise en charge des paramètres spécifiques à l'opérateur proximal voulu.
+    avec prise en charge optionnelle des paramètres spécifiques au prox.
 
     Parameters:
-    - func : callable, fonction à optimiser (doit retourner une image ou un tableau).
-    - u_truth : array_like, donnée de référence pour évaluer la performance.
-    - param_ranges : dict, dictionnaire contenant les paramètres globaux à optimiser et leurs plages de valeurs.
-    - metric : callable, fonction pour évaluer la performance (doit retourner un score, ex. PSNR).
-    - func_params : dict, dictionnaire des paramètres fixes pour `func` (par défaut None).
-    - prox_params_ranges : dict, dictionnaire des plages pour les paramètres spécifiques au prox (par défaut None).
+    ----------
+    func : callable
+        Fonction à optimiser (doit retourner une image ou un tableau).
+    u_truth : array_like
+        Donnée de référence pour évaluer la performance.
+    param_ranges : dict
+        Dictionnaire contenant les paramètres globaux à optimiser et leurs plages de valeurs.
+    metric : callable
+        Fonction pour évaluer la performance (doit retourner un score, ex. PSNR).
+    func_params : dict, optional
+        Dictionnaire des paramètres fixes pour `func` (par défaut None).
+    prox_params_ranges : dict, optional
+        Dictionnaire des plages pour les paramètres spécifiques au prox (par défaut None).
 
     Returns:
-    - best_params : dict, combinaison des paramètres globaux qui maximise la métrique.
-    - best_prox_params : dict, combinaison des paramètres du prox qui maximise la métrique.
-    - best_score : float, score maximal atteint.
-    - score_map_df : DataFrame, carte des scores pour chaque combinaison de paramètres.
+    -------
+    tuple :
+        - best_params : dict, combinaison des paramètres globaux qui maximise la métrique.
+        - best_score : float, score maximal atteint.
+        - score_map_df : DataFrame, carte des scores pour chaque combinaison de paramètres.
     """
     if not param_ranges:
         raise ValueError("Les plages de paramètres globaux ne peuvent pas être vides.")
     if func_params is None:
         func_params = {}
-    if prox_params_ranges is None:
-        prox_params_ranges = {}
 
     param_names = list(param_ranges.keys())
     param_values = list(param_ranges.values())
 
-    prox_param_names = list(prox_params_ranges.keys())
-    prox_param_values = list(prox_params_ranges.values())
+    if any(len(vals) == 0 for vals in param_values):
+        raise ValueError("Toutes les plages de paramètres globaux doivent contenir au moins une valeur.")
 
-    if any(len(vals) == 0 for vals in param_values + prox_param_values):
-        raise ValueError("Toutes les plages de paramètres doivent contenir au moins une valeur.")
+    # Gestion des paramètres spécifiques au prox
+    use_prox_params = prox_params_ranges is not None and bool(prox_params_ranges)
+    if use_prox_params:
+        prox_param_names = list(prox_params_ranges.keys())
+        prox_param_values = list(prox_params_ranges.values())
+        if any(len(vals) == 0 for vals in prox_param_values):
+            raise ValueError("Toutes les plages de paramètres du prox doivent contenir au moins une valeur.")
 
     # Initialisation
     best_params = None
-    best_prox_params = None
     best_score = -np.inf
     score_map = []
 
@@ -582,47 +670,54 @@ def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_param
         for params in itertools.product(*param_values):
             current_params = dict(zip(param_names, params))
 
-            # Boucle interne sur les paramètres du prox
-            with tqdm(total=len(list(itertools.product(*prox_param_values))), desc="Recherche Prox", leave=False) as prox_bar:
-                for prox_params in itertools.product(*prox_param_values):
-                    current_prox_params = dict(zip(prox_param_names, prox_params))
+            # Si prox_params_ranges n'est pas fourni, exécutez uniquement pour les paramètres globaux
+            prox_param_combinations = itertools.product(*prox_param_values) if use_prox_params else [None]
 
-                    # Préparation des paramètres locaux
-                    func_params_local = func_params.copy()
-                    func_params_local.update(current_params)
+            for prox_params in prox_param_combinations:
+                if use_prox_params:
+                    current_prox_params = dict(zip(prox_param_names, prox_params))
+                else:
+                    current_prox_params = {}
+
+                # Préparation des paramètres pour la fonction
+                func_params_local = func_params.copy()
+                func_params_local.update(current_params)
+                if use_prox_params:
                     func_params_local["prox_params"] = current_prox_params
 
-                    try:
-                        # Calculer la sortie de la fonction
-                        result = func(**func_params_local)
+                try:
+                    # Calculer la sortie de la fonction
+                    result, _ = func(**func_params_local)
 
-                        # Vérifier les dimensions avant de calculer la métrique
-                        if result.shape != u_truth.shape:
-                            raise ValueError("Les dimensions du résultat et de la référence ne correspondent pas.")
+                    # Vérifier les dimensions avant de calculer la métrique
+                    if result.shape != u_truth.shape:
+                        raise ValueError("Les dimensions du résultat et de la référence ne correspondent pas.")
 
-                        # Évaluer la performance
-                        score = metric(u_truth, result)
-                        score_map.append((current_params, current_prox_params, score))
+                    # Évaluer la performance
+                    score = metric(u_truth, result)
+                    score_entry = (current_params, current_prox_params, score) if use_prox_params else (current_params, score)
+                    score_map.append(score_entry)
 
-                        # Mise à jour du meilleur score
-                        if score > best_score:
-                            best_score = score
-                            best_params = current_params
-                            best_prox_params = current_prox_params
+                    # Mise à jour du meilleur score
+                    if score > best_score:
+                        best_score = score
+                        best_params = (current_params, current_prox_params) if use_prox_params else current_params
 
-                    except Exception as e:
-                        print(f"Erreur avec paramètres {current_params}, prox {current_prox_params}: {e}")
-                    finally:
-                        prox_bar.update(1)  # Mise à jour de la barre interne
+                except Exception as e:
+                    print(f"Erreur avec paramètres {current_params}, prox {current_prox_params}: {e}")
+
             global_bar.update(1)  # Mise à jour de la barre externe
 
     # Conversion des scores en DataFrame
-    score_map_df = pd.DataFrame(
-        [(dict(p), dict(pp), s) for p, pp, s in score_map],
-        columns=["Params", "Prox_Params", "Score"]
-    )
+    if use_prox_params:
+        score_map_df = pd.DataFrame([(dict(p), dict(pp), s) for p, pp, s in score_map], columns=["Params", "Prox_Params", "Score"])
+    else:
+        score_map_df = pd.DataFrame([(dict(p), s) for p, s in score_map], columns=["Params", "Score"])
 
     # Trier par score décroissant
     score_map_df = score_map_df.sort_values(by="Score", ascending=False)
 
-    return best_params, best_prox_params, best_score, score_map_df
+    if use_prox_params:
+        return best_params, best_score, score_map_df
+    else:
+        return best_params, best_score, score_map_df
