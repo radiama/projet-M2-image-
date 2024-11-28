@@ -95,13 +95,13 @@ def main():
 
     Im_starfish_masked_medium, Mask_star_medium = operateur(Im_starfish).inpaint(mask =medium_mask , sigma=sigma_mod)
 
-    # Im_starfish_masked_complex, Mask_star_complex = operateur(Im_starfish).inpaint(mask =complex_mask , sigma=sigma_high)
+    Im_starfish_masked_complex, Mask_star_complex = operateur(Im_starfish).inpaint(mask =complex_mask , sigma=sigma_high)
 
-    # Im_starfish_demasked_simple, Ts_simple = fista(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 0.01, 0.5, 25, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
+    Im_starfish_demasked_simple, Ts_simple = fista(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 0.01, 0.5, 25, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
 
-    # Im_starfish_demasked_meduim, Ts_medium = fista(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 0.01, 0.25, 50, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
+    # Im_starfish_demasked_meduim, Ts_medium = fista(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 1, 0.5, 25, prox=prox_l6, prox_params={"tau": 0.01, "K": 10}, tol=1e-7)
 
-    # Im_starfish_demasked_complex, Ts_complex = fista(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 0.5, 0.1, 100, prox=prox_l6, prox_params={"tau": 0.001, "K": 25}, tol=1e-7)
+    # Im_starfish_demasked_complex, Ts_complex = fista(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 1, 0.5, 25, prox=prox_l6, prox_params={"tau": 0.01, "K": 15}, tol=1e-7)
 
     # names_masked = ["Simple Mask with Low Noise", "Medium Mask with Moderate Noise", "Complex Mask with High Noise"]
 
@@ -117,7 +117,7 @@ def main():
 
     # save_path("results", "Im_starfish_inpaint", names_inpaint, images_inpaint, reference_image=Im_starfish, psnr=True, trajectories=inpainting_trajectories)
     
-    # print(PSNR(Im_starfish, Im_starfish_demasked_simple, 1.0))
+    print(PSNR(Im_starfish, Im_starfish_demasked_meduim, 1.0))
 
     
     # # # PNP(Plug and Play Algorithms)
@@ -165,11 +165,11 @@ def main():
 
     # # PNP_Inpainting (Im_starfish)
 
-    # Im_starfish_demasked_simple_pnp, Ts_simple_pnp = pnp_apgm(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 1, denoiser, sigma=0.05, K=30, tol=1e-7)
+    # Im_starfish_demasked_simple_pnp, Ts_simple_pnp = pnp_apgm(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 1, denoiser, sigma=0.17, K=25, tol=1e-7)
 
-    # Im_starfish_demasked_meduim_pnp, Ts_medium_pnp = pnp_apgm(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 0.25, denoiser, sigma=sigma_mod, K=30, tol=1e-7)
+    # Im_starfish_demasked_meduim_pnp, Ts_medium_pnp = pnp_apgm(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 1, denoiser, sigma=0.13, K=25, tol=1e-7)
 
-    # Im_starfish_demasked_complex_pnp, Ts_complex_pnp = pnp_apgm(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 1, denoiser, sigma=0.14, K=30, tol=1e-7)
+    # Im_starfish_demasked_complex_pnp, Ts_complex_pnp = pnp_apgm(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 1, denoiser, sigma=0.17, K=25, tol=1e-7)
 
     # names_inpaint_pnp = ["PNP_DRUNet Inpainting with Low Noise", "PNP_DRUNet Inpainting with Moderate Noise", "PNP_DRUNet Inpainting with High Noise"]
 
@@ -179,7 +179,7 @@ def main():
 
     # save_path("results", "Im_starfish_inpaint", names_inpaint_pnp, images_inpaint_pnp, reference_image=Im_starfish, psnr=True, trajectories=inpainting_trajectories_pnp)
     
-    # print(PSNR(Im_starfish, Im_starfish_demasked_simple_pnp, 1.0))
+    # print(PSNR(Im_starfish, Im_starfish_demasked_complex_pnp, 1.0))
 
     
     # # '''Recherche paramètres optimaux (Proxy and PNP)'''
@@ -191,36 +191,36 @@ def main():
     # prox_params_ranges = {"tau": [0.01, 0.1, 0.5],  "K": [5, 10, 15]}
 
     # func_params = {"u": Im_butterfly_noised_sig15, "operator_type": "none", "operator_params": {}, "prox": prox_l6, "tol": 1e-7}
-    # func_params = {"u": Im_starfish_masked_complex, "operator_type": "mask", "operator_params": {"Mask": Mask_star_complex }, "prox": prox_l6, "tol": 1e-7}
-    # func_params = {"u": Im_leaves_blurred_high, "operator_type": "convolution", "operator_params": {"G": G_leaves_high }, "prox": prox_l6, "tol": 1e-7}
+    # func_params = {"u": Im_starfish_masked_medium, "operator_type": "mask", "operator_params": {"Mask": Mask_star_medium}, "prox": prox_l6, "tol": 1e-7}
+    # func_params = {"u": Im_leaves_blurred_high, "operator_type": "convolution", "operator_params": {"G": G_leaves_high}, "prox": prox_l6, "tol": 1e-7}
 
-    # best_params, best_score, score_map = search_opt(func=fista, u_truth=Im_butterfly, param_ranges=param_ranges, 
+    # best_params, best_score, score_map = search_opt(func=fista, u_truth=Im_starfish, param_ranges=param_ranges, 
     # metric=PSNR, func_params=func_params, prox_params_ranges=prox_params_ranges)
 
     # PNP
 
-    param_ranges_pnp = { "K": [15, 25, 50], "tau": [0.25, 0.5, 1.5], "sigma": [sigma_low, sigma_mod, sigma_high]}
+    # param_ranges_pnp = { "K": [15, 25, 50], "tau": [0.25, 0.5, 1], "sigma": [0.10, 0.13, 0.14]}
     
     # func_params_pnp = {"u": Im_butterfly_noised_sig15, "operator_type": "none", "operator_params": {}, "denoiser": denoiser,  "tol": 1e-7}
 
     # func_params_pnp = {"u": Im_leaves_blurred_high, "operator_type": "convolution", "operator_params": {"G": G_leaves_high}, "denoiser": denoiser, "sigma": None,  "tol": 1e-7}
 
-    func_params_pnp = {"u": Im_starfish_masked_simple, "operator_type": "mask", "operator_params": {"Mask": Mask_star_simple}, "denoiser": denoiser,  "tol": 1e-7}
+    # func_params_pnp = {"u": Im_starfish_masked_simple, "operator_type": "mask", "operator_params": {"Mask": Mask_star_simple}, "denoiser": denoiser,  "tol": 1e-7}
 
-    best_params, best_score, score_map = search_opt(func=pnp_apgm, u_truth=Im_leaves, param_ranges=param_ranges_pnp, metric=PSNR, func_params=func_params_pnp)
+    # best_params, best_score, score_map = search_opt(func=pnp_apgm, u_truth=Im_starfish, param_ranges=param_ranges_pnp, metric=PSNR, func_params=func_params_pnp)
 
     # Résultats
-    print("Meilleurs paramètres globaux:", best_params)
-    print("Meilleur score:", best_score)
-    print(score_map.head())
+    # print("Meilleurs paramètres globaux:", best_params)
+    # print("Meilleur score:", best_score)
+    # print(score_map.head())
 
-    # import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
-    # plt.figure(figsize=(8,4))
-    # plt.subplot(121)
-    # plt.imshow(Im_starfish_masked_simple)
-    # plt.subplot(122)
-    # plt.imshow(Im_starfish_demasked_simple_pnp)
+    plt.figure(figsize=(8,4))
+    plt.subplot(121)
+    plt.imshow(Im_starfish_masked_simple)
+    plt.subplot(122)
+    plt.imshow(Im_starfish_demasked_simple)
 
 if __name__ == "__main__" :
 
