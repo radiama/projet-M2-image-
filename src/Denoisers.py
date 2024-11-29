@@ -242,7 +242,8 @@ def conv(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1, bi
 # --------------------------------------------
 class ResBlock(nn.Module):
     """
-    Définition d'un bloc résiduel. Un bloc résiduel aide à l'apprentissage des différences d'une image par rapport à son état précédent, facilitant ainsi l'entraînement des réseaux profonds.
+    Définition d'un bloc résiduel. 
+    Il aide à l'apprentissage des différences d'une image par rapport à son état précédent, facilitant ainsi l'entraînement des réseaux profonds.
     
     :param in_channels: Nombre de canaux d'entrée.
     :param out_channels: Nombre de canaux de sortie (doit être égal à in_channels).
@@ -281,7 +282,7 @@ class ResBlock(nn.Module):
 # Pixel Shuffle (sous-échantillonnage en utilisant un facteur de pixel)
 def upsample_pixelshuffle(in_channels=64, out_channels=3, kernel_size=3, stride=1, padding=1, bias=True, mode="2R", negative_slope=0.2):
     """
-    Upsampling via Pixel Shuffle, une méthode qui réorganise les pixels d'une image pour augmenter sa résolution.
+    Upsampling via Pixel Shuffle, Réorganise les pixels d'une image pour augmenter sa résolution.
 
     :param in_channels: Nombre de canaux d'entrée.
     :param out_channels: Nombre de canaux de sortie.
@@ -489,15 +490,22 @@ class DnCNN(nn.Module):
 # Fonction d'initialisation des poids utilisant la méthode de Kaiming
 def weights_init_kaiming(m):
     """
-    Initialisation des poids des couches convolutionnelles en utilisant l'initialisation de Kaiming.
-
-    :param m: Module dont les poids doivent être initialisés.
+    Initialisation des poids des modules d'un réseau en utilisant l'initialisation de Kaiming.
+    
+    Parameters:
+    ----------
+    m : nn.Module
+        Module dont les poids doivent être initialisés.
     """
-    classname = m.__class__.__name__
-    if classname.find("Conv") != -1:
-        nn.init.kaiming_normal_(m.weight.data, a=0, mode="fan_in")
-    elif classname.find("Linear") != -1:
-        nn.init.kaiming_normal_(m.weight.data, a=0, mode="fan_in")
-    elif classname.find("BatchNorm") != -1:
-        m.weight.data.normal_(mean=0, std=torch.sqrt(torch.tensor(2.0 / 9.0 / 64.0))).clamp_(-0.025, 0.025)
-        nn.init.constant_(m.bias.data, 0.0)
+    if isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
+        nn.init.kaiming_normal_(m.weight, a=0, mode="fan_in")
+        if m.bias is not None:
+            nn.init.constant_(m.bias, 0.0)
+    elif isinstance(m, nn.Linear):
+        nn.init.kaiming_normal_(m.weight, a=0, mode="fan_in")
+        if m.bias is not None:
+            nn.init.constant_(m.bias, 0.0)
+    elif isinstance(m, nn.BatchNorm2d):
+        m.weight.data.normal_(mean=1.0, std=0.02)
+        nn.init.constant_(m.bias, 0.0)
+

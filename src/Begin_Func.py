@@ -149,8 +149,9 @@ def save_path(folder, file_name, names_list, images_list, reference_image=None, 
 
     # Gestion des trajectoires de PSNR
     if trajectories is not None and reference_image is not None:
+        n_trajet = len(trajectories)
         plt.figure(figsize=(10, 6))
-        for name, trajectory in zip(names_list, trajectories):
+        for name, trajectory in zip(names_list[-n_trajet:], trajectories):
             psnr_values = [cv2.PSNR(reference_image, (traj * 255).clip(0, 255).astype(np.uint8)) for traj in trajectory]
             plt.plot(range(len(psnr_values)), psnr_values, marker="o", linestyle="-", label=name)
 
@@ -524,95 +525,7 @@ class operateur:
         )
         inpainted = process_image_2(self.image, operator= lambda x: tensor_to_numpy(Inpaint(numpy_to_tensor(x))))
         return inpainted, tensor_to_numpy(mask)
-
-
-# def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_params_ranges=None):
-#     """
-#     Recherche exhaustive pour optimiser une fonction donnée en fonction de plusieurs paramètres,
-#     avec prise en charge des paramètres spécifiques à l'opérateur proximal voulu.
-
-#     Parameters:
-#     - func : callable, fonction à optimiser (doit retourner une image ou un tableau).
-#     - u_truth : array_like, donnée de référence pour évaluer la performance.
-#     - param_ranges : dict, dictionnaire contenant les paramètres globaux à optimiser et leurs plages de valeurs.
-#     - metric : callable, fonction pour évaluer la performance (doit retourner un score, ex. PSNR).
-#     - func_params : dict, dictionnaire des paramètres fixes pour `func` (par défaut None).
-#     - prox_params_ranges : dict, dictionnaire des plages pour les paramètres spécifiques au prox (par défaut None).
-
-#     Returns:
-#     - best_params : dict, combinaison des paramètres globaux qui maximise la métrique.
-#     - best_prox_params : dict, combinaison des paramètres du prox qui maximise la métrique.
-#     - best_score : float, score maximal atteint.
-#     - score_map_df : DataFrame, carte des scores pour chaque combinaison de paramètres.
-#     """
-#     if not param_ranges:
-#         raise ValueError("Les plages de paramètres globaux ne peuvent pas être vides.")
-#     if func_params is None:
-#         func_params = {}
-#     if prox_params_ranges is None:
-#         prox_params_ranges = {}
-
-#     param_names = list(param_ranges.keys())
-#     param_values = list(param_ranges.values())
-
-#     prox_param_names = list(prox_params_ranges.keys())
-#     prox_param_values = list(prox_params_ranges.values())
-
-#     if any(len(vals) == 0 for vals in param_values + prox_param_values):
-#         raise ValueError("Toutes les plages de paramètres doivent contenir au moins une valeur.")
-
-#     # Initialisation
-#     best_params = None
-#     best_prox_params = None
-#     best_score = -np.inf
-#     score_map = []
-
-#     # Boucle principale sur les paramètres globaux
-#     with tqdm(total=len(list(itertools.product(*param_values))), desc="Recherche globale") as global_bar:
-#         for params in itertools.product(*param_values):
-#             current_params = dict(zip(param_names, params))
-
-#             # Boucle interne sur les paramètres du prox
-#             with tqdm(total=len(list(itertools.product(*prox_param_values))), desc="Recherche Prox", leave=False) as prox_bar:
-#                 for prox_params in itertools.product(*prox_param_values):
-#                     current_prox_params = dict(zip(prox_param_names, prox_params))
-
-#                     # Préparation des paramètres locaux
-#                     func_params_local = func_params.copy()
-#                     func_params_local.update(current_params)
-#                     func_params_local["prox_params"] = current_prox_params
-
-#                     try:
-#                         # Calculer la sortie de la fonction
-#                         result, _ = func(**func_params_local)
-
-#                         # Vérifier les dimensions avant de calculer la métrique
-#                         if result.shape != u_truth.shape:
-#                             raise ValueError("Les dimensions du résultat et de la référence ne correspondent pas.")
-
-#                         # Évaluer la performance
-#                         score = metric(u_truth, result)
-#                         score_map.append((current_params, current_prox_params, score))
-
-#                         # Mise à jour du meilleur score
-#                         if score > best_score:
-#                             best_score = score
-#                             best_params = current_params
-#                             best_prox_params = current_prox_params
-
-#                     except Exception as e:
-#                         print(f"Erreur avec paramètres {current_params}, prox {current_prox_params}: {e}")
-#                     finally:
-#                         prox_bar.update(1)  # Mise à jour de la barre interne
-#             global_bar.update(1)  # Mise à jour de la barre externe
-
-#     # Conversion des scores en DataFrame
-#     score_map_df = pd.DataFrame([(dict(p), dict(pp), s) for p, pp, s in score_map], columns=["Params", "Prox_Params", "Score"])
-
-#     # Trier par score décroissant
-#     score_map_df = score_map_df.sort_values(by="Score", ascending=False)
-
-#     return best_params, best_prox_params, best_score, score_map_df
+    
 
 def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_params_ranges=None):
     """

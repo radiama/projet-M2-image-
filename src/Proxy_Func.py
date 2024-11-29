@@ -149,7 +149,10 @@ def prox_l6(u, lambd, tau, K):
         z = z - tau * grad_z  # Mise à jour avec normalisation
         
         # Projection sur ||z||_∞ ≤ 1
-        z = np.clip(z, -1, 1)
+        norm_z = np.linalg.norm(z, axis=0)
+        # Normalisation
+        mask = norm_z > 1
+        z[:, mask] /= norm_z[mask]
     
     return u + lambd * div(z)
 
