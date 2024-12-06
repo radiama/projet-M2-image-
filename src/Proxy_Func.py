@@ -2,6 +2,7 @@ import numpy as np
 from Begin_Func import gradient, div, laplacian, norm, process_image_2
 from Variational_Func import convolve
 from Mix_Func import g_PM
+from numpy.fft import fft2, ifft2
 
 # prox(u) = argmin_F(x) = (1/2) * ||x-u||^2 + lambd * g(x)
 
@@ -153,7 +154,7 @@ def prox_l6(u, lambd, tau, K):
         # Normalisation
         mask = norm_z > 1
         z[:, mask] /= norm_z[mask]
-    
+
     return u + lambd * div(z)
 
 
@@ -283,6 +284,8 @@ def compute_gradient(u, y, operator_type, operator_params):
     # Calcul du gradient
     return operators[operator_type](u, y, operator_params)
 
+# 
+
 def forward_backward(u, operator_type, operator_params, lambd, tau, K, prox=prox_l1, prox_params=None, tol=1e-7):
     """
     Algorithme Forward-Backward modulable.
@@ -411,6 +414,7 @@ def fista(u, operator_type, operator_params, lambd, tau, K, prox=prox_l6, prox_p
 
         # Application de l'opérateur proximal
         x = process_image_2(x_half, operator=prox, lambd=lambd, **prox_params)
+
         trajectoires.append(np.copy(x))  # Sauvegarder la solution intermédiaire
 
         # Mise à jour de FISTA
@@ -707,21 +711,3 @@ def ADMM(u, operator_type, operator_params, lambd, tau, rho=1.0, K=100, prox=pro
             break
 
     return x, trajectoires
-
-from numpy.fft import fft2, ifft2
-
-def update_convolution(u, x, z, G, rho):
-    # Transformée de Fourier de G
-    G_fft = fft2(G, s=u.shape)
-    
-    # Terme de droite (D) dans l'espace fréquentiel
-    D_fft = fft2(u) + rho * fft2(x - z / rho)
-
-    # Résolution dans l'espace fréquentiel
-    numerator = D_fft
-    denominator = np.abs(G_fft)**2 + rho
-    y_fft = numerator / denominator
-
-    # Retour à l'espace image
-    y = np.real(ifft2(y_fft))
-    return y

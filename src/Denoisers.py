@@ -509,3 +509,6 @@ def weights_init_kaiming(m):
         m.weight.data.normal_(mean=1.0, std=0.02)
         nn.init.constant_(m.bias, 0.0)
 
+
+# drunet_deepinv_color_finetune_22k.pth or drunet_deepinv_color.pth or drunet_color.pth"
+

@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import ImageFont, ImageDraw, Image
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
@@ -87,82 +87,178 @@ def treat_image_and_add_psnr(image, reference_image, psnr=True):
 
     return image
 
-def save_path(folder, file_name, names_list, images_list, reference_image=None, psnr=True, trajectories=None):
+
+def treat_image_and_add_psnr_2(image, reference_image, psnr=True, subfolder='data/fonts', fname = "Poppins-BoldItalic.ttf"):
     """
-    Sauvegarde les images côte à côte et trace les trajectoires de PSNR si applicables.
+    Ajoute le PSNR (optionnel) et un texte esthétique sur une image.
 
     Parameters:
     ----------
-    folder : str, Dossier où sauvegarder les résultats.
-    file_name : str, Nom de base pour les fichiers sauvegardés.
-    names_list : list of str, Noms associés aux images pour les titres.
-    images_list : list of array_like, Liste des images à sauvegarder (niveaux de gris ou couleur).
-    reference_image : array_like, optional, Image de référence pour calculer le PSNR.
-    psnr : bool, optional, Si True, ajoute le PSNR sur les images sauvegardées (par défaut True).
-    trajectories : list of list of array_like, optional, Trajectoires associées aux images réparées.
+    image : np.ndarray
+        Image d'entrée (à annoter).
+    reference_image : np.ndarray
+        Image de référence pour calculer le PSNR.
+    psnr : bool
+        Si True, le PSNR sera calculé et affiché sur l'image.
+
+    Returns:
+    -------
+    np.ndarray
+        Image annotée avec le texte.
+
+    """
+    script_dir = os.path.dirname(__file__)
+    parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+    image_directory = os.path.join(parent_dir, subfolder)
+    font_path = os.path.join(image_directory, fname)
+
+    # Vérification de la mutabilité de l'image
+    if not image.flags['C_CONTIGUOUS']:
+        image = np.ascontiguousarray(image)
+
+    # Normalisation : conversion en uint8 si l'image n'est pas déjà dans ce format
+    if image.dtype != np.uint8:
+        image = (image * 255).clip(0, 255).astype(np.uint8)
+
+    # Si le PSNR doit être calculé
+    if psnr and reference_image is not None:
+        # Calcul du PSNR entre l'image d'entrée et l'image de référence
+        psnr_value = cv2.PSNR(reference_image, image)
+
+        # Dimensions de l'image pour ajuster le texte
+        H, _ = image.shape[:2]
+
+        # Contenu du texte à afficher
+        text_psnr = f"PSNR: {psnr_value:.2f}"  # Le PSNR avec deux décimales
+
+        # Chargement d'une police personnalisée pour un meilleur style (avec PIL)
+        font = ImageFont.truetype(font_path, size=int(H * 0.05))  # Taille dynamique
+
+        # Conversion de l'image en format PIL pour dessiner du texte avec plus de flexibilité
+        image_pil = Image.fromarray(image)
+        draw = ImageDraw.Draw(image_pil)
+
+        # Calcul des dimensions du texte
+        text_bbox_psnr = draw.textbbox((0, 0), text_psnr, font=font)  # tuple (x0, y0, x1, y1)
+
+        # Calcul des dimensions à partir de textbbox
+        text_size_psnr = (text_bbox_psnr[2] - text_bbox_psnr[0], text_bbox_psnr[3] - text_bbox_psnr[1])
+
+        # Positionnement dynamique pour un alignement esthétique
+        x_psnr = 5  # Coin inférieur gauche
+        y_psnr = H - text_size_psnr[1] - 10  # Légèrement au-dessus du bas
+
+        # Création d'un fond pour le texte avec PIL
+        rectangle_width = text_size_psnr[0] + 8
+        rectangle_height = text_size_psnr[1] + 15
+        overlay = Image.new('RGBA', image_pil.size, (255, 255, 255, 0))  # transparence (Alpha = 0)
+        draw_overlay = ImageDraw.Draw(overlay)
+        draw_overlay.rectangle([(0, H - rectangle_height), (rectangle_width, H)], fill=(255, 255, 255, 255))  # Blanc Opaque (Alpha=255)
+        image_pil = Image.alpha_composite(image_pil.convert('RGBA'), overlay).convert('RGB')
+
+        # Dessiner le texte sur l'image avec PIL
+        draw = ImageDraw.Draw(image_pil)
+        draw.text((x_psnr, y_psnr), text_psnr, font=font, fill=(0, 0, 0))  # Noir
+
+        # Reconversion de l'image PIL en tableau NumPy pour OpenCV
+        image = np.array(image_pil)
+
+    # Retourner l'image annotée
+    return image
+
+def save_path(folder, file_name, names_list, images_list, reference_image_list=None, psnr=True, trajectories_list=None):
+    """
+    Sauvegarde toutes les images côte à côte avec leurs dégradations/réparations et affiche les trajectoires PSNR.
+
+    Parameters:
+    ----------
+    folder : str
+        Dossier où sauvegarder les résultats.
+    file_name : str
+        Nom de base pour les fichiers sauvegardés.
+    names_list : list of list of str
+        Noms associés aux images pour les titres (par image et méthode).
+    images_list : list of list of array_like
+        Liste des groupes d'images (chaque groupe correspond à une référence).
+    reference_image_list : list of array_like, optional
+        Liste des images de référence pour calculer le PSNR.
+    psnr : bool, optional
+        Si True, ajoute le PSNR sur les images sauvegardées (par défaut True).
+    trajectories_list : list of list of array_like, optional
+        Liste des trajectoires associées aux images réparées (par défaut None).
 
     Returns:
     -------
     None
     """
-    # Définir le chemin de sauvegarde
+    # Création du dossier de sauvegarde
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     path = os.path.join(parent_dir, folder)
     os.makedirs(path, exist_ok=True)
-    full_path = os.path.join(path, f"{file_name}_comparaison.png")
 
-    # Normalisation de l'image de référence
-    if reference_image is not None:
-        if reference_image.dtype != np.uint8:
-            reference_image = (reference_image * 255).clip(0, 255).astype(np.uint8)
+    # Calcul du nombre total de colonnes nécessaires
+    num_images_per_group = max(len(group) for group in images_list)
+    num_groups = len(reference_image_list)
+    total_cols = num_images_per_group + (1 if reference_image_list is not None else 0) # Une colonne pour la référence, les autres pour les méthodes
 
-    # Traitement des images
-    treated_images = []
-    for im in images_list:
-        treated_im = treat_image_and_add_psnr(im, reference_image, psnr)
-        treated_images.append(treated_im)
+    # Dimensions pour l'affichage global
+    fig, axes = plt.subplots(num_groups, total_cols, figsize=(3 * total_cols, 3 * num_groups), dpi=200)
 
-    # Gestion des subplots
-    n = len(treated_images) + (1 if reference_image is not None else 0)
-    fig, axes = plt.subplots(1, n, figsize=(3 * n, 4))
-    if n == 1:  # Cas où il y a une seule image
-        axes = [axes]
+    # Normalisation des axes pour le cas d'une seule image ou groupe
+    if num_groups == 1:
+        axes = [axes]  # Convertir en liste pour un accès uniforme
+    if total_cols == 1:
+        axes = [[ax] for ax in axes]  # Convertir en liste de listes
 
-    # Affichage de l'image originale si présente
-    start = 0
-    if reference_image is not None:
-        axes[0].imshow(reference_image)
-        axes[0].set_title("Ground Truth")
-        axes[0].axis("off")
-        start += 1
+    # Affichage des images : références, dégradations et réparations
+    for row_idx, (img_ref, img_group, name_group) in enumerate(zip(reference_image_list, images_list, names_list)):
+        # Normaliser l'image de référence
+        if img_ref is not None and img_ref.dtype != np.uint8:
+            img_ref = (img_ref * 255).clip(0, 255).astype(np.uint8)
 
-    # Affichage des images traitées
-    for idx, (name, img) in enumerate(zip(names_list, treated_images), start=start):
-        axes[idx].imshow(img, cmap="gray")
-        axes[idx].set_title(name)
-        axes[idx].axis("off")
+        # Afficher l'image de référence
+        axes[row_idx][0].imshow(img_ref, cmap="gray")
+        axes[row_idx][0].set_title("Ground Truth")
+        axes[row_idx][0].axis("off")
 
-    # Sauvegarde du fichier comparatif
+        # Afficher les dégradations/réparations
+        for col_idx, (img, name) in enumerate(zip(img_group, name_group), start=1):
+            if psnr and img_ref is not None:
+                img = treat_image_and_add_psnr_2(img, img_ref, psnr=True)
+            axes[row_idx][col_idx].imshow(img, cmap="gray")
+            axes[row_idx][col_idx].set_title(name)
+            axes[row_idx][col_idx].axis("off")
+
+    # Sauvegarde du graphique global des images
     plt.tight_layout()
-    plt.savefig(full_path, bbox_inches="tight", pad_inches=0.1)
+    comparison_path = os.path.join(path, f"{file_name}_comparison.png")
+    plt.savefig(comparison_path, bbox_inches="tight", pad_inches=0.1)
     plt.close()
 
-    # Gestion des trajectoires de PSNR
-    if trajectories is not None and reference_image is not None:
-        n_trajet = len(trajectories)
-        plt.figure(figsize=(10, 6))
-        for name, trajectory in zip(names_list[-n_trajet:], trajectories):
-            psnr_values = [cv2.PSNR(reference_image, (traj * 255).clip(0, 255).astype(np.uint8)) for traj in trajectory]
-            plt.plot(range(len(psnr_values)), psnr_values, marker="o", linestyle="-", label=name)
+    # Affichage des trajectoires PSNR (si applicables)
+    if trajectories_list is not None and reference_image_list is not None:
+        plt.figure(figsize=(12, 8), dpi=200)
+        for img_ref, trajectory_group, name_group in zip(reference_image_list, trajectories_list, names_list):
+            if img_ref is not None:
+                for trajectory, name in zip(trajectory_group, name_group[-2:]):
+                    psnr_values = [
+                        cv2.PSNR((img_ref * 255).clip(0, 255).astype(np.uint8), (traj * 255).clip(0, 255).astype(np.uint8))
+                        for traj in trajectory
+                    ]
+                    plt.plot(range(len(psnr_values)), psnr_values, marker="o", linestyle="-", label=name)
 
+        # Paramètres du graphique PSNR
         plt.xlabel("Itérations")
         plt.ylabel("PSNR (dB)")
-        plt.title("Évolution du PSNR au fil des itérations")
-        plt.legend()
+        plt.title("Évolution du PSNR pour toutes les trajectoires")
+        plt.legend(loc="best")
         plt.grid(True)
+
+        # Sauvegarde du graphique des trajectoires PSNR
         psnr_plot_path = os.path.join(path, f"{file_name}_psnr_plot.png")
         plt.savefig(psnr_plot_path, bbox_inches="tight", pad_inches=0.1)
         plt.close()
+
 
 def process_image(image, processing_function, **kwargs):
     """
@@ -634,3 +730,10 @@ def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_param
         return best_params, best_score, score_map_df
     else:
         return best_params, best_score, score_map_df
+    
+# Redimensionnement avec PIL
+# def upscale_image(image, scale_factor):
+#     width, height = image.size
+#     new_width = int(width * scale_factor)
+#     new_height = int(height * scale_factor)
+#     return image.resize((new_width, new_height), Image.BICUBIC)

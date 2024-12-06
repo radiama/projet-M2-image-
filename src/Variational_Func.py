@@ -84,7 +84,7 @@ def convolve(f, G):
         raise ValueError("L'image f doit être un tableau 2D ou 3D.")
 
     def convolve_channel(channel):
-        return convolve2d(channel, G, mode='same', boundary='symm')
+        return convolve2d(channel, G, mode='same', boundary='wrap')
 
     # Appliquer la convolution pour les images en niveaux de gris ou en couleur
     return process_image_2(f, operator= convolve_channel)
