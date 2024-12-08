@@ -3,6 +3,7 @@ from Begin_Func import gradient, div, laplacian, norm, process_image_2
 from Variational_Func import convolve
 from Mix_Func import g_PM
 from numpy.fft import fft2, ifft2
+from tqdm import tqdm
 
 # prox(u) = argmin_F(x) = (1/2) * ||x-u||^2 + lambd * g(x)
 
@@ -405,7 +406,7 @@ def fista(u, operator_type, operator_params, lambd, tau, K, prox=prox_l6, prox_p
     t = 1  # Paramètre d'accélération de FISTA
     trajectoires = [np.copy(u)]  # Stocke les solutions intermédiaires
 
-    for k in range(K):
+    for k in tqdm(range(K), desc="Fista_TV Algorithm"):
         # Calcul du gradient
         grad_f = process_image_2(u, y, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
 

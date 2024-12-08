@@ -3,6 +3,7 @@ from Proxy_Func import compute_gradient, validate_inputs, prox_l6
 from Begin_Func import numpy_to_tensor, tensor_to_numpy, norm, process_image_2
 from Variational_Func import convolve
 import torch
+from tqdm import tqdm
 
 
 def pnp_admm(u, operator_type, operator_params, tau, denoiser, rho=1.0, sigma=0.1, K=100, tol=1e-7):
@@ -63,7 +64,7 @@ def pnp_admm(u, operator_type, operator_params, tau, denoiser, rho=1.0, sigma=0.
         return operators[operator_type](u, x, z, operator_params)
 
     # Boucle principale d'optimisation
-    for k in range(K):
+    for k in tqdm(range(K), desc="PnP_ADMM Algorithm"):
         # Mise à jour de y (variable intermédiaire)
         y = process_image_2(u, x, z, operator=compute_gradient_2, operator_type=operator_type, operator_params=operator_params, rho=rho)
 
@@ -124,16 +125,16 @@ def pnp_pgm(u, operator_type, operator_params, tau, denoiser, sigma=0.1, K=100, 
         validate_inputs(u, operator_type, operator_params, tau, sigma, K)
 
     # Initialisation
-    y = np.copy(u)  # Variable intermédiaire
-    trajectoires = [np.copy(u)]  # Stocker les trajectoires
+    x = np.copy(u)  # Variable intermédiaire
+    trajectoires = [np.copy(x)]  # Stocker les trajectoires
 
     # Boucle d'optimisation
-    for k in range(K):
+    for k in tqdm(range(K), desc="PnP_PGM Algorithm"):
         # Calcul du gradient
-        grad_f = process_image_2(u, y, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
+        grad_f = process_image_2(u, x, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
 
         # Mise à jour par descente de gradient
-        x_half = y - tau * grad_f
+        x_half = x - tau * grad_f
 
         # # Application du débruiteur
         with torch.no_grad():
@@ -192,10 +193,11 @@ def pnp_apgm(u, operator_type, operator_params, tau, denoiser, sigma=0.1, K=100,
     x_old = np.copy(u)  # Solution précédente
     y = np.copy(u)  # Variable intermédiaire
     trajectoires = [np.copy(x_old)]  # Stocker les trajectoires
-    theta_n = lambda n: 1 / (n + 100)  # Séquence décroissante
+    v, w, z = 1, 100, 1
+    theta_n = lambda n: v / (n + w)**(z)  # Séquence décroissante
 
     # Boucle d'optimisation
-    for k in range(K):
+    for k in tqdm(range(K), desc="PnP_APGM Algorithm"):
         # Calcul du gradient
         grad_f = process_image_2(u, y, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
 
@@ -269,7 +271,7 @@ def pnp_apgm2(u, operator_type, operator_params, tau, denoiser, sigma=0.1, K=100
     trajectoires = [np.copy(x_old)]  # Stocker les trajectoires
 
     # Boucle d'optimisation
-    for k in range(K):
+    for k in tqdm(range(K), desc="PnP_APGM Algorithm"):
         # Calcul du gradient
         grad_f = process_image_2(u, y, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
 
@@ -345,7 +347,7 @@ def pnp_red(u, operator_type, operator_params, tau, lambd, denoiser, sigma=0.1, 
     trajectoires = [np.copy(x)]  # Stocker les trajectoires
 
     # Boucle d'optimisation
-    for k in range(K):
+    for k in tqdm(range(K), desc="PnP_Red Algorithm"):
         # Calcul du gradient
         grad_f = process_image_2(u, x, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
 
