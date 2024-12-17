@@ -1,108 +1,235 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Prémises commandes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Configuration et préambule du document
 
-\documentclass[a4paper, 12pt]{article} % 
-\usepackage{graphicx, float}
-\usepackage{titlesec}
-\usepackage{lmodern} % Police standard sous LaTeX : Latin Modern
-\usepackage[french]{babel} % Pour la langue française
-\usepackage[utf8]{inputenc} % Pour l'UTF8
-\usepackage[T1]{fontenc} % Pour les césures des caractères accentués
-\usepackage[hyphens]{url} % Pour des césures correctes dans les URLs
+\documentclass[a4paper, 12pt]{report} % Classe de document pour rapport
+
+% ----------------------------------------------------------------------
+% Importation des packages nécessaires
+
+% Gestion des commentaires
+\usepackage{todonotes}
+
+% Gestion des sections et des titres
+\usepackage{titlesec} 
+
+% Police standard sous LaTeX (Latin Modern)
+\usepackage{lmodern} 
+
+% Bibliographie (si besoin, décommentez la ligne ci-dessous)
+% \addbibresource{Mabiblio.bib} 
+
+% Gestion des citations
+\usepackage{cite} 
+
+% Langue française et encodage
+\usepackage[french]{babel}      % Pour les règles typographiques françaises
+\usepackage[utf8]{inputenc}     % Pour l'encodage UTF-8
+\usepackage[T1]{fontenc}        % Pour les caractères accentués
+
+% Gestion des URL et césures correctes
+\usepackage[hyphens]{url} 
+
+% Mathématiques (symboles et formats avancés)
 \usepackage{amsmath, amsfonts, amssymb}
-\usepackage[a4paper, top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
+
+% Mise en page et marges
+\usepackage[a4paper, top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} 
+
+% Gestion des graphiques, positionnement et ajustement
 \usepackage{graphicx, float, adjustbox, caption}
-\usepackage{isomath}
+
+% Pour des symboles mathématiques et physiques avancés
+\usepackage{isomath} 
+
+% Espacement entre les lignes
 \usepackage{setspace}
-\setstretch{1.2}
+\setstretch{1.2} % Espacement 1.2 pour un meilleur confort de lecture
+
+% Couleurs avancées
 \usepackage[dvipsnames]{xcolor}
+
+% Listes personnalisées
 \usepackage{enumitem, pifont}
+
+% Boîtes colorées (par exemple pour mettre en valeur des parties du texte)
 \usepackage{tcolorbox}
-\usepackage[pdfauthor = {{Farius AINA}}, pdftitle = {{A LA RECHERCHE DU BONHEUR}}, pdfstartview = Fit, pdfpagelayout =
-SinglePage, pdfnewwindow = true, bookmarksnumbered =
-true, breaklinks, colorlinks, linkcolor = blue, urlcolor
-= black, citecolor = cyan, linktoc = all]{hyperref}% Interagir avec la table des matière
-\setlist[itemize, 1]{label = {--}, itemsep = \baselineskip}
-\setlist[enumerate, 1]{label= \arabic*), itemsep =\baselineskip}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Définition des titres
+% Hyperliens et interaction dans le PDF
+\usepackage[
+    pdfauthor={{Groupe_IOD}}, 
+    pdftitle={{À LA RECHERCHE DU BONHEUR}}, 
+    pdfstartview=Fit, 
+    pdfpagelayout=SinglePage, 
+    pdfnewwindow=true, 
+    bookmarksnumbered=true, 
+    breaklinks, 
+    colorlinks, 
+    linkcolor=blue, 
+    urlcolor=black, 
+    citecolor=cyan, 
+    linktoc=all
+]{hyperref} 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Définition de commande 
+% ----------------------------------------------------------------------
+% Personnalisation des listes
+\usepackage{enumitem}
 
+% Réglage global pour les listes
+\setlist[itemize]{itemsep=0pt, topsep=0pt} % Réduit les espacements
+\setlist[enumerate]{itemsep=0pt, topsep=0pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Définition des titres et commandes personnalisées
+
+% ----------------------------------------------------------------------
+% Définition des commandes personnalisées
+
+% Texte en gras et italique
 \newcommand{\grasital}[1]{\textbf{\textit{#1}}}
 
+% Abréviation du "Service Après-Vente"
 \newcommand{\SAV}{\textbf{Service Après-Vente}}
 
+% Vecteur colonne 3x1
 \newcommand{\vcol}[3]{\begin{pmatrix} #1 \\ #2 \\ #3 \end{pmatrix}}
 
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Ligne horizontale (épaisseur modifiable)
+% Ligne horizontale personnalisée (épaisseur ajustable)
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
-%\titlespacing*{\section}{0pt}{-100pt}{1cm}
+% ----------------------------------------------------------------------
+% Gestion des espacements pour les titres (exemple commenté)
+
+% Personnalisation de l'espacement des sections
+% \titlespacing*{\section}{0pt}{-100pt}{1cm} 
+% Explications :
+% - Premier paramètre : indentation du titre (ici 0pt)
+% - Deuxième paramètre : espacement avant le titre (ici -100pt)
+% - Troisième paramètre : espacement après le titre (ici 1cm)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Personnalisation des titres avec titlesec
+
+% Activer la numérotation des sous-sous-sections
+\setcounter{secnumdepth}{3}
+
+% ----------------------------------------------------------------------
+% Personnalisation des chapitres
+\titleformat{\chapter}[block] % Utilisation du style "block" pour alignement propre
+{\normalfont\huge\bfseries} % Style : taille et gras
+{Chapitre~\thechapter :} % Numérotation avec texte personnalisé
+{0.5em} % Espacement entre numéro et titre
+{} % Alignement à gauche pour le titre complet
+
+% Personnalisation des sections
+\titleformat{\section}[block]
+{\normalfont\Large\bfseries} % Taille "Large", gras
+{\thesection.} % Numérotation (exemple : 1.1)
+{0.5em} % Espacement entre numéro et titre
+{}
+
+% Personnalisation des sous-sections
+\titleformat{\subsection}[block]
+{\normalfont\large\bfseries} % Taille "large", gras
+{\thesubsection.} % Numérotation (exemple : 1.1.1)
+{0.5em}
+{}
+
+% Personnalisation des sous-sous-sections
+\titleformat{\subsubsection}[block]
+{\normalfont\normalsize\bfseries}       % Formatage : taille "\normalsize" et texte en gras
+{\thesubsubsection.}               % Affiche la numérotation (exemple : 1.1.1)
+{0.5em}           % Espacement entre la numérotation et le titre
+{}                                 % Pas de texte supplémentaire avant le titre
+
+
+% Espacement pour les chapitres
+\titlespacing*{\chapter}{0pt}{0pt}{20pt} % {indentation}{espace avant}{espace après}
+
+% Espacement pour les sections
+\titlespacing*{\section}{0pt}{15pt}{10pt} % {indentation}{espace avant}{espace après}
+
+% Espacement pour les sous-sections
+\titlespacing*{\subsection}{0pt}{10pt}{6pt}
+
+% Espacement pour les sous-sous-sections
+\titlespacing*{\subsubsection}{0pt}{8pt}{2pt}
+
+
+% Espacement paragraphe
+% Définition de commande pour l'espacement des paragraphes
+\newcommand{\configEspacementParagraphe}[2]{
+    \setlength{\parindent}{#1} % Indentation des paragraphes
+    \setlength{\parskip}{#2}   % Espacement vertical entre les paragraphes
+}
+
+% Application de la configuration
+\configEspacementParagraphe{20pt}{10pt}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Début du document
 
 \begin{document} 
 
+% Configuration mathématique pour afficher tous les mathématiques en mode "display"
 \everymath{\displaystyle}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% La page de garde
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% La page de garde
 
 \begin{titlepage}
-
 \begin{center} % Centrer le contenu de la page
 
-% En-têtes
+% ----------------------------------------------------------------------
+% En-tête de l'université
+\textsc{\huge Université de Bordeaux} \\[2cm]
 
-\textsc{\huge{}Université de Bordeaux} \\[2 cm]
+% Intitulé du cursus (personnalisé si nécessaire)
+% \textsc{\Large \textcolor{blue}{Que de l'amour}} \\[1.5cm] % Exemple en commentaire
+\textsc{\large \textit{Image, Optimisation et Sciences des Données}} \\[0.5cm] 
 
-%\textsc{\Large{} \textcolor{blue}{Que de l'amour}} \\[1.5cm] % Nom du cursus
-
-\textsc{\large{} \textit{Traitement d'image et Sciences de Données }} \\[0.5cm] % Intitulé du cours 
-
-% Titre
+% ----------------------------------------------------------------------
+% Titre du projet
 \HRule \\[0.6cm]
-{\huge\bfseries{}\textcolor{Red}{PROJET ISD}} \\[0.25cm]
+{\huge\bfseries\textcolor{Red}{- PROJET IOD -}} \\[0.25cm]
 \HRule \\[1.5cm]
 
-% Auteur
+% ----------------------------------------------------------------------
+% Liste des auteurs
 \Large\textit{Auteurs :} \\[0.5cm]
+Farius \textsc{AINA} \\[0.5cm]
+Mohamed El-Amine \textsc{BENHAMIDA} \\[0.5cm]
+Radia \textsc{MADDI} \\[0.5cm]
+Mamour \textsc{N'DIAYE} \\[2.5cm]
 
-Farius \textsc{AINA}\\[0.5cm] % Nom auteur
-
-Mohamed El-Amine \textsc{BENHAMIDA}\\[0.5cm] % Nom auteur
-
-Radia \textsc{MADDI}\\[0.5cm] % Nom auteur
-% Master
-
-Mamour \textsc{N'DIAYE}\\[0.5cm] % Nom auteur
-
-\Large\textbf{} \\[1.5cm]
-
-% Date
-
-{\large\today} \\[2cm]
+% ----------------------------------------------------------------------
+% Encadrant
+\Large\textit{Encadrant :} \\[0.5cm]
+Antoine \textsc{GUENNEC} \\[0.5cm]
 
 \end{center}
-
 \end{titlepage}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table des matières
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Table des matières 
+% Définition de la profondeur des sections affichées
+% tocdepth = 3 : inclut les chapitres, sections, sous-sections, et sous-sous-sections
+\setcounter{tocdepth}{1} 
 
-\tableofcontents
-\setcounter{tocdepth}{3}
+% Génération automatique de la table des matières
+\tableofcontents 
+
+% Insérer une nouvelle page après la table des matières
 \newpage
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{{\large Préambule : }}
-
-
-\newpage
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{{\large Objectifs }}
+\chapter*{Objectifs }
 L'objectif principal du présent projet est de développer une fonction de régularisation \( R(x) \) paramétrée par un réseau de neurones, en se basant sur les travaux de Goujon et al. Cette approche vise à exploiter les propriétés de convexité ou de faible convexité de la fonction de régularisation afin d'améliorer la résolution des problèmes inverses par rapport aux méthodes classiques.\\
 
 Et plus spéficiquement il s'agira de :
@@ -110,194 +237,788 @@ Et plus spéficiquement il s'agira de :
     \item [$\blacktriangleright$] Comprendre les principes des méthodes 'Plug-and-Play' appliquées à la résolution des problèmes inverses.
     \item [$\blacktriangleright$] Étudier le fonctionnement des fonctions de régularisation basées sur des réseaux de neurones.
     \item [$\blacktriangleright$] Implémenter le code source et comparer ces approches aux méthodes classiques sur différents problèmes inverses.
-\end{itemize}
+\end{itemize} 
+
+\newpage
 
 
-\section{\large Introdution aux  problèmes inverses en imagerie}
+\chapter{Approches variationnelle et plug and play pour la résolution de problémes inverses}
+
+
+\section{Introduction aux  problèmes inverses en imagerie}
  
-La résolution de problèmes inverses vise à retrouver l'information originale d'un objet d'étude à partir d'observations altérées de cet objet. Grâce à son caractère général et cohérent, cette approche inverse permet de traiter de manière globale et avec des méthodologies similaires des données de natures très diverses (images 2D ou 3D, images hyperspectrales), voire hétérogènes. \\
+La résolution des problèmes inverses consiste à retrouver l'information originale d'un objet d'étude à partir d'observations dégradées. Grâce à sa flexibilité, cette approche permet de traiter des données variées (images 2D, 3D, hyperspectrales) en utilisant des techniques spécifiques, telles que la reconstruction d'image ou l'analyse spectrale.
 
-La première étape de résolution d’un problème inverse passe par l’écriture du modèle direct dont la forme la plus simple s’écrit :
-\[ z = A \bar{u} + \epsilon \quad (1) \]
-où \( \bar{u} \) désigne l’objet original (inconnu), typiquement une image composée de \( N \) pixels, \( A \) une transformation linéaire (ou non linéaire) modélisant le dispositif d’acquisition, \( \epsilon \) une dégradation stochastique ou en d’autres termes un bruit de mesure, ici supposé additif, et \( z \) les observations, typiquement une image composée de \( M \) pixels.
-
-\section*{Probléme inverse}
-Le problème inverse consiste alors à estimer une image $\hat{u}$ proche de $\overline{u}$ à partir de l'information contenue dans $z$, d'une information complète ou partielle de $A$, de la statistique du bruit, et d'a priori sur la classe d'images à reconstruire. Cette unique équation décrit de nombreux problèmes inverses en analyse d'images tels que le débruitage (A est l'opérateur identité et $z$ est une version bruitée de l'objet original) ou la déconvolution (A est un opérateur de convolution et $z$ une version floue et bruitée de l'objet original) couramment rencontrés en astronomie ou microscopie. Elle décrit également de nombreux modèles d'acquisition rencontrés en imagerie médicale, notamment en imagerie par résonance magnétique (IRM : échantillonnage dans le domaine de Fourier) ou en tomographie (transformée de Radon). L'intérêt des approches de type problèmes inverses réside dans leur formulation générale qui les rend applicables à de nombreuses modalités et dans leur capacité à fournir des estimateurs $u$ ayant d'excellentes propriétés.
-
+La première étape pour résoudre un problème inverse consiste à établir le modèle direct, qui s'exprime sous la forme la plus simple :
+\[
+z = A \bar{u} + \epsilon \quad (1)
+\]
+où \( \bar{u} \) représente l'objet original (inconnu), généralement une image composée de \( N \) pixels. \( A \) désigne une transformation linéaire ou non linéaire, modélisant le dispositif d'acquisition. \( \epsilon \) correspond à une perturbation stochastique, autrement dit un bruit de mesure, supposé ici additif. Enfin, \( z \) représente les observations, typiquement une image composée de \( M \) pixels.
 
 
+\subsection{Définition d'un problème inverse}
+
+Le problème inverse consiste alors à estimer une image $\hat{u}$ proche de $\overline{u}$ à partir des informations contenues dans $z$, d'une connaissance complète ou partielle de $A$, des statistiques du bruit, et d'a priori sur la classe d'images à reconstruire. Cette unique équation décrit de nombreux problèmes inverses en traitements d'images, tels que le débruitage ($A$ est l'opérateur identité et $z$ est une version bruitée de l'image originale) ou la déconvolution ($A$ est un opérateur de convolution et $z$ une version floue et bruitée de l'image originale), couramment rencontrés en astronomie ou en microscopie. Elle décrit également de nombreux modèles d'acquisition utilisés en imagerie médicale, notamment en imagerie par résonance magnétique (IRM : échantillonnage dans le domaine de Fourier) ou en tomographie (transformée de Radon). L'intérêt des approches basées sur les problèmes inverses réside dans leur formulation générale, qui les rend applicables à de nombreuses modalités, et dans leur capacité à fournir des estimateurs $\hat{u}$ ayant d'excellentes propriétés.
 
 
+\subsection{Exemples d'utilisation des problèmes inverses en traitement d'image et de signal.}
 
-\section{\large Exemples d'utilisation des problémes inverses en traitement d'image et de signal}
+\subsubsection{Utilisation pour les caméras à un  pixel}
 
-\textbf{Utilisation pour les caméras à un  pixel :}
+Une caméra à pixel unique est un dispositif qui capture des images en utilisant un seul capteur. Elle fonctionne en corrélant une image réelle avec des vecteurs aléatoires de Bernoulli et en mesurant ces corrélations sur un unique pixel. Cela permet de reconstruire l'image à partir d'un nombre limité de mesures.
 
-Une caméra à pixel unique est un dispositif qui capture des images en utilisant un seul capteur. Elle fonctionne en corrélant une image réelle avec des vecteurs aléatoires de Bernoulli et en mesurant ces corrélations sur un seul pixel. Cela permet de reconstruire l'image à partir d'un nombre limité de mesures.
+Cette reconstruction constitue un problème inverse, car elle consiste à retrouver un signal complet (l'image) à partir de données incomplètes (les mesures). Un petit miroir, étant activé ou désactivé, contribue ou non à l'intensité lumineuse mesurée par le capteur. De cette manière, on réalise le produit scalaire \( \langle z, b \rangle \) de l'image \( z \) avec un vecteur \( b \) contenant des uns aux emplacements correspondant aux miroirs activés et des zéros ailleurs.
 
-Cette reconstruction est un problème inverse, car elle consiste à retrouver un signal complet (l'image) à partir de données incomplètes (les mesures). 
+On peut également réaliser des produits scalaires avec des vecteurs \( a \) contenant uniquement \( +1 \) et \( -1 \) avec une probabilité égale, en définissant deux vecteurs auxiliaires \( b_1, b_2 \in \{0,1\}^N \) via :
+\[
+b_1^j = 
+\begin{cases} 
+1 & \text{si } a_j = 1, \\
+0 & \text{si } a_j = -1 
+\end{cases}, \quad
+b_2^j = 
+\begin{cases} 
+1 & \text{si } a_j = -1, \\
+0 & \text{si } a_j = 1 
+\end{cases}
+\]
 
-\begin{figure}[h] % 'h' pour positionner ici
+de sorte que \( \langle z, a \rangle = \langle z, b_1 \rangle - \langle z, b_2 \rangle \). En choisissant des vecteurs \( a_1, \ldots, a_m \) indépendamment au hasard, avec des entrées prenant les valeurs \( \pm 1 \) avec une probabilité égale, les intensités mesurées \( y = \langle z, a \rangle \) correspondent à des produits scalaires avec des vecteurs de Bernoulli indépendants. Par conséquent, nous avons \( y = Az \), où \( A \in \mathbb{R}^{m \times N} \) est une matrice de Bernoulli (aléatoire). Cette opération est appliquée sur l'image \( z \).
+
+
+En rappelant que \( z = Wx \) où \( x \in \mathbb{R}^N \) est un vecteur parcimonieux  et \( W \in \mathbb{R}^{N \times N} \) est une matrice unitaire représentant la transformation 
+et en écrivant \( A' = AW \), on obtient le système :
+\[
+y = A'x,
+\]
+ Dans cette situation, les mesures sont prises séquentiellement. Comme ce processus peut être chronophage, il est souhaitable de n'utiliser qu'un nombre limité de mesures. Ainsi, nous arrivons au problème standard de compression de l'information. Ce dernier permet la reconstruction de \( x \) à partir de \( y \), et l'image est finalement déduite comme \( z = Wx \).
+
+
+\begin{figure}[H] % 'h' pour positionner ici
     \centering
     \includegraphics[width=0.8\textwidth]{camera 1 pixel.png}
-    \caption{Représentation schématique d'une caméra à pixel unique  \cite{rice_single_pixel_camera}.}
+    \caption{Représentation schématique d'une caméra à pixel unique  \cite{rice_single_pixel_camera}}
     \label{fig:mon_label}
+\end{figure}
+
+\subsubsection{Utilisation en imagerie par résonance magnétique (IRM) }
+
+L'imagerie par résonance magnétique (IRM) est une technologie médicale avancée qui utilise des champs magnétiques et des ondes radiofréquence pour visualiser les structures internes du corps. Les atomes d'hydrogène présents dans les tissus réagissent aux champs magnétiques en émettant des signaux, qui sont mesurés et traités pour reconstruire des images détaillées des tissus et organes.
+
+Les problèmes inverses en IRM sont essentiels pour transformer ces signaux en images anatomiques significatives. La reconstruction d'images précises est complexe en raison de la nature indirecte et bruitée des données. Les techniques de résolution de problèmes inverses sont utilisées pour convertir les mesures brutes en images interprétables. Cela implique de traiter les données pour corriger les imperfections et réduire le bruit, puis d'appliquer des méthodes d'optimisation et de régularisation pour obtenir des images de haute qualité.
+
+L'opérateur linéaire associé à l'IRM dans la résolution de problèmes inverses est souvent représenté par la matrice de Fourier. En termes mathématiques, l'IRM mesure les coefficients de Fourier de la magnétisation transverse du corps. Ces coefficients sont obtenus en appliquant une transformation de Fourier aux signaux mesurés par les capteurs.
+
+En notation mathématique, si \( X(z) \) représente la magnétisation transverse à la position \( z \), les mesures \( y \) obtenues par l'IRM peuvent être exprimées comme :
+\[
+y = \mathcal{F}(X(z))
+\]
+où \( \mathcal{F} \) est l'opérateur de transformation de Fourier. La reconstruction de l'image du corps à partir des mesures \( y \) implique l'inversion de cette transformation, ce qui constitue le problème inverse en IRM.
+
+
+\begin{figure}[H] % 'H' pour positionner ici
+    \begin{center}
+    \includegraphics[scale=0.5]{cerveau irm.png}
+    \caption{Image capturée par l'IRM (Image disponible \href{https://www.lesnumeriques.com/sante-sport/des-images-inedites-du-cerveau-humain-ont-ete-capturees-par-le-plus-puissant-irm-au-monde-n220416.html}{\textcolor{green}{ici}})}
+    \label{fig:mon_label}
+    \end{center}
 \end{figure}
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-\section{\large Méthode variationnelle}
-Depuis ces travaux fondateurs, les avancées majeures concernent la résolution des problèmes inverses par minimisation d’un critère de la forme :
-
+\section{Méthode variationnelle}
+\todo[inline]{Je pense qu'il manque quelque chose à la phrase de début}
+\textcolor{red}{Depuis ces travaux fondateurs, les avancées majeures concernent la résolution des problèmes inverses par minimisation d’un critère de la forme} :
 \[
 \mathbf{u} \in \text{Argmin}_{\mathbf{u} \in \mathcal{C}} \left( \psi(A\mathbf{u}, \mathbf{z}) + \lambda \phi(\mathbf{u}) \right) \tag{2}
 \]
-où \( \mathcal{C} \subset \mathbb{R}^N \) représente l’ensemble des solutions admissibles, \( \psi \) correspond à une “distance” entre les observations \( \mathbf{z} \) et leur modèle, \( \phi \) est un terme qui pénalise les solutions trop irrégulières, et \( \lambda > 0 \) est un paramètre de régularisation permettant l’ajustement entre l’adéquation aux données \( \psi \) et la pénalisation \( \phi \).
-Cette minimisation générique permet de contrer le mauvais conditionnement des matrices (opérateurs) lorsque \( \lambda > 0 \). De plus, on peut retrouver les solutions irrégulières obtenues par maximum de vraisemblance (en prenant \( \lambda = 0 \)).\\
-\textbf{Hyperparamètre} – Une question sensible dans la résolution des problèmes inverses par approche variationnelle concerne le choix de l’hyperparamètre \( \lambda \). Les principales techniques proposées pour régler automatiquement ce paramètre sont la minimisation d’estimateurs de l’erreur quadratique moyenne.
-(estimateur non-biaisé du risque de Stein : SURE) \cite{ref13}, la validation croisée généralisée (GCV) \cite{ref15}, la courbe en L \cite{ref19}, ou les approches bayésiennes par marginalisation de la distribution a posteriori ou méthodes MCMC (ces dernières nécessitant de spécifier la densité de probabilité de \( \lambda \)).
-\section*{Dimensionalité}
-La résolution de problèmes inverses en imagerie fait face à une augmentation toujours croissante du volume de données à traiter mais bénéficie également de l’accroissement de la puissance de calcul des ordinateurs. Les développements méthodologiques algorithmiques combinés aux performances numériques nous ont permis de passer de l’analyse d’images composées de \( N = 10^3 \) pixels dans les années 80 \cite{14} à l’analyse d’images hyperspectrales de taille \( 10^7 \) \cite{17} quarante ans plus tard pour un même temps de calcul, et tout cela en améliorant les performances de reconstruction, grâce à l’utilisation de pénalisations \( \phi \) finement choisies.
-\section*{Vers le deep learning}
-Face aux stratégies variationnelles régularisées qui constituent l'état de l'art, l'analyse d'images, et plus spécifiquement la résolution de problèmes inverses, a vu le développement de méthodes reposant sur l'apprentissage profond au cours de la dernière décennie. Dans la littérature, on trouve principalement trois classes d'approches :
+où \( \mathcal{C} \subset \mathbb{R}^N \) représente l’ensemble des solutions admissibles, \( \psi \) correspond à une “distance” entre les observations \( \mathbf{z} \) et \textcolor{red}{leur modèle}\todo{modèle à expliciter}, \( \phi \) est un terme qui pénalise les solutions trop irrégulières, et \( \lambda > 0 \) est un paramètre de régularisation permettant l’ajustement entre l’adéquation aux données \( \psi \) et la pénalisation \( \phi \).
 
-\begin{enumerate}
-    \item Les réseaux d'apprentissage "end-to-end", également qualifiés de "boîte noire", qui ont été largement développés lors des premiers travaux combinant problèmes inverses et apprentissage profond.
-    \item Les approches Plug \& Play (PnP) \cite{25}, qui permettent de conserver le cadre standard des approches variationnelles régularisées, la différence résidant dans le choix du terme de pénalisation dont l'opérateur proximal \cite{23} associé prend la forme d'un réseau de neurones fortement contractant.
-    \item Les approches dites d'algorithmes déroulés (unfolded/unrolled) \cite{1}, qui permettent de construire un réseau inspiré des algorithmes proximaux tout en convergeant en très peu d'itérations (c'est-à-dire de couches de réseaux).
-\end{enumerate}
-Ces deux dernières catégories d'approches offrent un continuum entre les méthodes variationnelles classiques et celles qualifiées de "boîte noire".
-\section{Interprétation bayésienne}
-Afin d'intuiter la formulation générique (2), il peut être opportun de faire appel à la formulation bayésienne. Pour cela, nous supposons que \( u \) et \( z \) sont des réalisations de vecteurs aléatoires \( U \) et \( Z \). L'estimation peut alors être atteinte par une stratégie du Maximum A Posteriori (MAP). L'objectif est d'estimer \( u \) qui maximise la distribution a posteriori \( \mu_{U|Z=z} \), laquelle peut être reformulée par le théorème de Bayes, puis par monotonie du logarithme comme suit :
+Cette minimisation générique permet de contrer le mauvais conditionnement des matrices (opérateurs) lorsque \( \lambda > 0 \). De plus, on peut retrouver les solutions irrégulières obtenues par maximum de vraisemblance en prenant \( \lambda = 0 \).
 
-\[
-\hat{u} \in \operatorname{Argmin}_{u \in \mathbb{R}^N} \left( -\log \mu_{Z|U=u}(z) \text{ (vraisemblance)} + -\log \mu_U(u) \text{ (a priori)} \right)
-\]
-Le premier terme de (3) quantifie la fidélité aux observations\( z \) dépend du modèle de formation des données (1). À titre d'exemple, lorsque \( \epsilon \) modélise un bruit blanc gaussien de variance \( \sigma^2 \) et \( A \in \mathbb{R}^{M \times N} \), la vraisemblance prend la forme :
+\subsection{Hyperparamètre et Dimensionalité}
 
-\begin{equation}
-\mu_{Z|U=u}(z) = (2\pi\sigma^2)^{-M} e^{-\frac{\|Au - z\|^2}{2\sigma^2}} \psi(Au,z) = 1,
-\end{equation}
+\subsubsection{Hyperparamètre}
+Une question sensible dans la résolution des problèmes inverses par approche variationnelle concerne le choix de l’hyperparamètre \( \lambda \). Les principales techniques proposées pour régler automatiquement ce paramètre sont la minimisation d’estimateurs de l’erreur quadratique moyenne 
+(estimateur non-biaisé du risque de Stein : SURE) \cite{deledalle2014stein}, la validation croisée généralisée (GCV) \cite{golub1979generalized}, la courbe en L \cite{hansen1998rank}, ou les approches bayésiennes par marginalisation de la distribution a posteriori ou méthodes MCMC (ces dernières nécessitant de spécifier la densité de probabilité de \( \lambda \)).
 
-ce qui conduit à 
+\subsubsection{Dimensionalité}
+La résolution de problèmes inverses en imagerie fait face à une augmentation constante du volume de données à traiter, mais bénéficie également de l’accroissement de la puissance de calcul des ordinateurs. Les développements méthodologiques et algorithmiques, combinés aux avancées en performances numériques, ont permis de passer de l’analyse d’images composées de \( N = 10^3 \) pixels dans les années 80 \cite{geman1984stochastic} à l’analyse d’images hyperspectrales de taille \( 10^7 \) \cite{guilloteau2020hyperspectral} quarante ans plus tard, et ce, pour un temps de calcul équivalent. Ces avancées ont également permis d’améliorer les performances de reconstruction grâce à l’utilisation de pénalisations \( \phi \) finement choisies.
 
-\begin{equation}
-\frac{1}{2\sigma^2} \|Au - z\|^2.
-\end{equation}
+\subsection{Pénalisation/Régularisation}
+Une première catégorie de pénalisations concerne des fonctions différentiables et convexes, telles que la régularisation de Tikhonov \cite{tikhonov1963solution}, introduite dans les années 1960 et également connue sous le nom de régression de ridge. Cette méthode favorise des solutions lisses. La régularisation de Tikhonov peut également être interprétée comme un filtrage de Wiener (1949), utilisant les connaissances sur les densités spectrales du bruit et du signal. On peut également mentionner la pénalisation de Huber \cite{huber1992robust}, qui permet d'approcher la norme \(\ell_1\) et favorise des solutions parcimonieuses.
 
-Ce même raisonnement permet, par exemple, de motiver une attache aux données de type divergence de Kullback-Leibler lorsque le modèle d’acquisition des données est un processus de Poisson \cite{ref26}. 
-
-Le second terme est relié à l’information a priori sur l’image originale, conduisant à 
-
-\begin{equation}
-\phi(u) = -\log \mu_U(u).
-\end{equation}
-
-Si la littérature en restauration d’image s’appuie fortement sur le modèle bayésien pour justifier le choix de l'attache aux données, les modèles de pénalisation ont, quant à eux, plutôt émergé du côté de la littérature dédiée aux ondelettes, à la parcimonie ou aux modèles variationnels continus.
-\section{Pénalisation/Régularisation}
-Une première catégorie de pénalisations concerne des fonctions différentiables et convexes, telles que la régularisation de Tikhonov \cite{28}, introduite dans les années 1960 et également connue sous le nom de régression de ridge. Cette méthode favorise des solutions lisses. La régularisation de Tikhonov peut également être interprétée comme un filtrage de Wiener (1949), en utilisant les connaissances sur les densités spectrales du bruit et du signal. On peut également mentionner la pénalisation de Huber \cite{20}, qui permet d'approcher la norme \(\ell_1\) et favorise des solutions parcimonieuses.\\
-À partir des années 1990, la résolution des problèmes inverses a connu une révolution grâce aux pénalisations non lisses, parmi lesquelles la pénalisation par variation totale, proposée par Rudin, Osher et Fatemi (ROF) \cite{27}, est sans aucun doute la plus connue. Sa définition originale a été formulée dans un contexte continu. En version discrétisée, plusieurs définitions de la variation totale existent, dépendant essentiellement du choix de l’opérateur de discrétisation. La formulation usuelle de la variation totale isotrope s'exprime comme suit :
+À partir des années 1990, la résolution des problèmes inverses a connu une révolution grâce aux pénalisations non lisses, parmi lesquelles la pénalisation par variation totale, proposée par Rudin, Osher et Fatemi (ROF) \cite{rudin1992nonlinear}, est sans aucun doute la plus connue. Sa définition originale a été formulée dans un contexte continu. En version discrétisée, plusieurs définitions de la variation totale existent, dépendant essentiellement du choix de l’opérateur de discrétisation. La formulation usuelle de la variation totale isotrope s'exprime comme suit :
 
 \[
-\phi(u) = \|Du\|_{2,1} = \sum_{n=(n_1,n_2)} \sqrt{((D_1 u)_{n_1,n_2})^2 + ((D_2 u)_{n_1,n_2})^2}
-\]
+\phi(u) = \|Du\|_{2,1}  = \sum_{n=(n_1,n_2)} \sqrt{((D_1 u)_{n_1,n_2})^2 + ((D_2 u)_{n_1,n_2})^2},
+\] \todo{Est ce bien ça $\|Du\|_{2,1}$ ?}
 
 où \((D_1 u)_{n_1,n_2} = u_{n_1+1,n_2} - u_{n_1,n_2}\) et \((D_2 u)_{n_1,n_2} = u_{n_1,n_2+1} - u_{n_1,n_2}\).
 
-La pénalisation par variation totale permet d'obtenir d'excellentes performances en débruitage, notamment lorsque l'image présente de vastes régions uniformes. Cependant, pour les images naturelles, cette méthode engendre un effet de staircasing que les utilisateurs préfèrent éviter. Par exemple, en astronomie, une version lissée de la variation totale est souvent utilisée. Il s'agit de la pénalisation par variation totale hyperbolique \cite{6}, qui s'exprime comme suit :
+La pénalisation par variation totale permet d'obtenir d'excellentes performances en débruitage, notamment lorsque l'image présente de vastes régions uniformes. Cependant, pour les images naturelles, cette méthode engendre un effet de \textcolor{red}{staircasing} \todo{A expliciter} que les utilisateurs préfèrent éviter. Par exemple, en astronomie, une version lissée de la variation totale est souvent utilisée : la pénalisation par variation totale hyperbolique \cite{charbonnier1997deterministic}, qui s'exprime comme suit :
 
 \[
 \phi(u) = \sum_{n} \sqrt{ \| (Du)_n \|_2^2 + \nu},
 \]
 
-introduisant un paramètre supplémentaire \(\nu > 0\) à ajuster. Cette approche présente l'avantage de lisser l'effet constant par morceaux et de fournir une transition plus fluide, ce qui peut sembler plus réaliste dans certaines modalités d'imagerie. D'autres pénalisations avancées ont été proposées dans la littérature. Par exemple, les pénalisations qui favorisent la parcimonie dans une base ou une trame d'ondelettes \cite{21,26} adoptent une forme similaire à celle de la pénalisation par variation totale :
+introduisant un paramètre supplémentaire \(\nu > 0\) à ajuster. Cette approche présente l'avantage de lisser l'effet constant par morceaux et de fournir une transition plus fluide, ce qui peut sembler plus réaliste dans certaines modalités d'imagerie.
 
+D'autres pénalisations avancées ont été proposées dans la littérature. Par exemple, les pénalisations favorisant la parcimonie dans une base ou une trame d'ondelettes \cite{jacques2011panorama} adoptent une forme similaire à celle de la pénalisation par variation totale :
 \[
 \phi(u) = \|Du\|_{\cdot},
 \]
+\todo{$\|Du\|_{\cdot}$ ?}
+où \(D\) modélise, dans ce cas, l'opérateur associé. On parle alors de formulation à la base ou trame d’ondelettes. Contrairement à la méthode de sous-gradient explicite, la formulation devient synthétique lorsque \(D\) est déplacé dans le terme d'attache aux données en utilisant son adjoint. Par ailleurs, \(\| \cdot \|_{\cdot}\) est une pénalisation favorisant la parcimonie et peut prendre la forme d'une norme \(\ell_1\) ou d'une norme mixte \(\ell_{1,2}\), offrant ainsi une flexibilité dans le choix de \(D\) et des groupes de coefficients considérés. Pour des choix de groupes judicieux, on peut se référer à \cite{bach2012optimization}.
 
-où \(D\) modélise, dans ce cas, l'opérateur associé.\\
-On parle de formulation à la base ou trame d’ondelettes. Contrairement à la méthode de sous-gradient explicite, la formulation devient à la synthèse lorsque \(D\) est déplacé dans le terme d'attache aux données en utilisant son adjoint. Par ailleurs, \(\| \cdot \|_{\cdot}\) est une pénalisation qui favorise la parcimonie et peut prendre la forme d'une norme \(\ell_1\) ou d'une norme mixte \(\ell_{1,2}\) comme définie dans (3), offrant ainsi une flexibilité dans le choix de \(D\) et des groupes de coefficients considérés. Pour des choix de groupes judicieux, on peut se référer à \cite{2}. 
+Il existe également des formes avancées de pénalisation par variation totale, telles que la variation totale généralisée (TGV) \cite{bredies2010total}, la variation totale non-locale, ou des pénalisations par tenseurs de structure \cite{chierchia2014nonlocal}.
 
-Il existe également des formes avancées de pénalisation par variation totale, telles que la variation totale généralisée (TGV) \cite{4}, la variation totale non-locale, ou des pénalisations par tenseurs de structure \cite{8}. 
-
-Une troisième catégorie de pénalisation repose sur l’utilisation de pénalisations non convexes de type \(\ell_1\)-pondérée ou quadratique tronquée \cite{24}, qui introduisent cependant des difficultés algorithmiques associées à la minimisation. 
+Une troisième catégorie de pénalisation repose sur l’utilisation de pénalisations non convexes de type \(\ell_1\)-pondérée ou quadratique tronquée \cite{nikolova2005analysis}, qui introduisent cependant des difficultés algorithmiques associées à la minimisation.
 
 Enfin, une dernière classe de pénalisation, basée sur l'apprentissage, est apparue récemment.
-\section{Solutions algorithmiques}
-Les avancées algorithmiques majeures pour la résolution de problèmes inverses proviennent de deux sources : 1) les adaptations entre les propriétés des fonctions \(\phi\) et \(\psi\) et 2) les progrès en optimisation numérique. 
 
-Les travaux fondateurs sur les problèmes inverses sont indissociables de l’algorithme de gradient explicite et de ses versions accélérées (par exemple, Levenberg-Marquardt ou L-BFGS) \cite{30}. Il a fallu attendre les années 2000 et l’essor des méthodes proximales \cite{3,10,2} (méthodes de sous-gradient implicite) pour pouvoir traiter de grands volumes de données combinés avec des pénalisations avancées (comme celles mentionnées dans la section précédente) et ainsi obtenir des gains significatifs en qualité de reconstruction. 
 
-Ces algorithmes reposent sur la notion clé d’opérateur proximal \cite{23} associé à une fonction \(f\), défini pour tout \(\tau > 0\) par :
+\subsection{Interprétation bayésienne}
+Pour mieux comprendre la formulation générique (2), il peut être utile d’utiliser une approche bayésienne. Supposons que \( u \) et \( z \) soient des réalisations de vecteurs aléatoires \( U \) et \( Z \). L’estimation peut alors être effectuée à l’aide de la stratégie du Maximum A Posteriori (MAP). L’objectif est de trouver \( u \) qui maximise la distribution a posteriori \( \mu_{U|Z=z} \). Cette distribution peut être reformulée grâce au théorème de Bayes, puis simplifiée à l’aide du logarithme, comme suit :
+\[
+\hat{u} \in \operatorname{Argmin}_{u \in \mathbb{R}^N} \left( 
+\underbrace{-\log \mu_{Z|U=u}(z)}_{\text{(vraisemblance)}} + 
+\underbrace{-\log \mu_U(u)}_{\text{(a priori)}}
+\right)
+\]
+Le premier terme de (3), qui mesure l’adéquation aux observations \( z \), dépend du modèle de formation des données (1). Par exemple, lorsque \( \epsilon \) représente un bruit blanc gaussien de variance \( \sigma^2 \) et \( A \in \mathbb{R}^{M \times N} \), la vraisemblance est donnée par :
+
+\begin{equation}
+\mu_{Z|U=u}(z) = (2\pi\sigma^2)^{-M} e^{-\frac{\|Au - z\|^2}{2\sigma^2}},
+\end{equation}
+
+ce qui conduit à l’expression suivante :
+
+\begin{equation}
+\frac{1}{2\sigma^2} \|Au - z\|^2
+\end{equation}
+\todo[inline]{Commment est-on passée de 1.1 à 1.2 ?}
+Ce raisonnement peut également être utilisé pour justifier une attache aux données de type divergence de Kullback-Leibler dans le cas où le modèle d’acquisition suit un processus de Poisson \cite{pustelnik2023evolution}.
+
+Le second terme est lié aux informations a priori sur l’image originale et conduit à :
+\begin{equation}
+\phi(u) = -\log \mu_U(u).
+\end{equation}
+Dans le domaine de la restauration d’images, les modèles bayésiens sont souvent utilisés pour justifier le choix de l’attache aux données. En revanche, les modèles de pénalisation viennent plutôt de la littérature sur les ondelettes, la parcimonie ou les modèles variationnels continus.
+
+\section{Opérateurs Proximaux}
+Les avancées algorithmiques majeures pour la résolution de problèmes inverses proviennent de deux sources : l’adaptation des propriétés des fonctions \(\phi\) et \(\psi\), et les progrès en optimisation numérique.
+
+Les travaux fondateurs sur les problèmes inverses sont liés à l’algorithme de gradient explicite et à ses versions accélérées (par exemple, Levenberg-Marquardt ou L-BFGS) \cite{wright1999numerical}. À partir des années 2000, l’apparition des méthodes proximales \cite{bauschke2017correction} (basées sur le sous-gradient implicite) a permis de traiter des volumes importants de données combinés à des pénalisations avancées (comme celles présentées dans la section précédente), offrant des gains significatifs en qualité de reconstruction.
+
+Ces méthodes s’appuient sur la notion clé d’opérateur proximal \cite{moreau1965proximite}, défini pour une fonction \(f\) et tout \(\tau > 0\) comme :
 
 \[
-\forall x \in \mathbb{R}^N, \quad \text{prox}_{\tau f}(x) = \arg \min_{y \in \mathbb{R}^N} \left( \|y - x\|_2^2 + \tau f(y) \right). \tag{5}
+\forall x \in \mathbb{R}^N, \quad \text{prox}_{\tau f}(x) = \arg \min_{y \in \mathbb{R}^N} \left( \|y - x\|_2^2 + \tau f(y) \right) \tag{5}
 \]
+\todo[inline]{Attention aux notations des fonctions d'attache et de régularisation, maintenir les mêmes}
+Cet opérateur généralise la projection sur un ensemble convexe \(C\), notée \(P_C\), en posant que \(\text{prox}_{\chi_C} = P_C\), où \(\chi_C(x) = 0\) si \(x \in C\), et \(+\infty\) sinon. Par exemple, l’opérateur proximal de la norme \(\ell_1\) correspond à une opération de seuillage doux de paramètre \(\tau\).
 
-L’opérateur proximal généralise la projection sur un ensemble convexe fermé non vide \(C\) de \(\mathbb{R}^N\), notée \(P_C\), en remarquant que \(\text{prox}_{\iota_C} = P_C\) avec \(\iota_C\) la fonction indicatrice associée à l’ensemble \(C\) telle que, pour tout \(x \in \mathbb{R}^N\), \(\iota_C(x) = 0\) si \(x \in C\) et \(+\infty\) sinon. L’opérateur proximal associé à la norme \(\ell_1\) (très utilisé en analyse d’images) se réduit à une opération de seuillage doux de paramètre \(\tau\).\\
-Les méthodes proximales, en plus de permettre la gestion de fonctions non lisses, offrent un cadre unificateur entre l'optimisation lisse sous contrainte (par exemple, des contraintes dynamiques ou épigraphiques) et l'optimisation non lisse. 
+Les méthodes proximales unifient l’optimisation lisse sous contrainte et l’optimisation non lisse. Pour un problème de la forme $\min_{x \in \mathbb{R}^N} f(x)$, où \(f\) est convexe et non lisse, une itération de l’algorithme proximal (sous-gradient implicite) s’écrit :
+\[
+x^{[k+1]} = \text{prox}_{\tau_k f}(x^{[k]}), \hspace{0.2 cm} \text{où} \hspace{0.2 cm} \(\tau_k > 0\) \tag{6}
+\]
+Lorsque \(f\) est différentiable, l’opérateur proximal se réduit au gradient. La convergence de ces méthodes est plus flexible grâce à un choix de pas \(\tau_k\) moins contraignant. De nombreuses formes explicites d’opérateurs proximaux sont répertoriées, notamment sur le site \textcolor{red}{Prox-Repository} \todo{site à insérer}.
 
-Formellement, si le problème considéré est de la forme 
+Lorsqu’il s’agit de minimiser une somme de fonctions (par exemple \(f = \psi + \lambda \phi\)), il est nécessaire d’utiliser des algorithmes de type éclatement (splitting). L’algorithme explicite-implicite (forward-backward, FB) \cite{7}, est particulièrement adapté si \(\psi\) possède un gradient \(\beta\)-Lipschitz. Les itérations prennent la forme :
 
 \[
-\min_{x \in \mathbb{R}^N} f(x),
+x^{[k+1]} = \text{prox}_{\tau_k,\lambda \phi} \Big(x^{[k]} - \tau_k \nabla \psi(x^{[k]})\Big), \tag{7}
 \]
 
-où \(f\) est une fonction convexe non lisse, une itération de l'algorithme du point proximal (ou sous-gradient implicite) s'écrit :
+avec \(\tau_k < 2\beta^{-1}\). L’étape explicite gère l’inversion de \(A\), tandis que l’étape implicite applique les pénalisations. Toutefois, calculer l’opérateur proximal peut être coûteux, nécessitant parfois des sous-itérations. Dans ces cas, des algorithmes primaux-duaux \cite{chambolle2016introduction} sont plus efficaces.
+
+Pour les fonctions non convexes, des résultats basés sur l’inégalité de Kurdyka-Łojasiewicz permettent de garantir la convergence vers un point critique. Ces méthodes sont particulièrement utiles pour des problèmes complexes, comme les pénalisations non convexes ou la déconvolution aveugle \cite{chouzenoux2014variable}.
+
+\section{Introduction aux méthodes Plug and Play (PnP)}
+Les méthodes Plug-and-Play (PnP) représentent une avancée significative dans le domaine de la restauration d'images, en intégrant les capacités des débruiteurs basés sur des réseaux de neurones profonds dans des algorithmes d'optimisation classiques. Ces méthodes exploitent la puissance de l'apprentissage profond pour améliorer la qualité des images tout en conservant une flexibilité qui permet d'adapter les techniques de régularisation à divers types de bruits et d'artéfacts.
+
+
+Traditionnellement, la restauration d'images reposait sur des méthodes de régularisation classiques, telles que la méthode des moindres carrés ou des approches basées sur l'ADMM (Alternating Direction Method of Multipliers) et la méthode de gradient proximal (PGM). Ces techniques, bien que efficaces, présentent souvent des limitations en termes de flexibilité et de capacité à s'adapter à des scénarios variés de bruit. Avec l'émergence des réseaux de neurones convolutifs (CNN), il est devenu possible de concevoir des débruiteurs qui apprennent à partir de données réelles, offrant ainsi des performances supérieures par rapport aux méthodes classiques.
+
+\subsection{Principes des Méthodes PnP}
+
+L’originalité des méthodes Plug-and-Play (PnP) réside dans l’intégration d’un opérateur de débruitage au sein des algorithmes d’optimisation. Plutôt que de minimiser directement \( \phi(\mathbf{u}) \), ces méthodes remplacent l’opérateur proximal de \( \phi \) par un débruiteur \( R_\theta \), qui peut être un réseau neuronal pré-entraîné ou une méthode de débruitage classique.
+
+Dans ce cadre, le terme \( \phi(\mathbf{u}) \) n'est pas explicitement défini. À la place, l'application d'un opérateur de débruitage \( R_\theta \) permet une approximation implicite. L’idée clé des méthodes PnP est donc d’utiliser une étape de débruitage comme substitut à la minimisation directe de \( \phi(\mathbf{u}) \). Ainsi, plutôt que de résoudre :
+\[
+\mathbf{u} \leftarrow \text{prox}_{\lambda \phi}(\mathbf{v}),
+\]
+on effectue une mise à jour de la forme suivante :
+\[
+\mathbf{u} \leftarrow R_\theta(\mathbf{v}), 
+\]
+où \( \mathbf{v} \) représente une solution intermédiaire. L’opérateur \( R_\theta \) peut correspondre à un réseau neuronal convolutif (CNN) pré-entraîné ou à une méthode de débruitage traditionnelle, telle que le filtre NL-means.
+
+Des algorithmes tels que le Deep Plug-and-Play Image Restoration (DPIR) exploitent cette approche pour résoudre efficacement les problèmes inverses. Par un processus itératif, ils réduisent progressivement le bruit ou les artéfacts présents dans l’image, améliorant ainsi la qualité de la reconstruction à chaque étape.
+
+\subsection{Intégration des opérateurs PnP dans des méthodes d’optimisation}
+
+Les méthodes Plug-and-Play (PnP) s’intègrent naturellement dans les algorithmes d’optimisation classiques, comme l’ADMM (Alternating Direction Method of Multipliers) et la méthode de gradient proximal (PGM). Elles remplacent l’étape classique de régularisation par un opérateur de débruitage \( R_\theta \), offrant ainsi une approche \textcolor{red}{flexible et efficace} pour résoudre des problèmes inverses.
+
+\subsubsection{Méthode PnP-ADMM (Alternating Direction Method of Multipliers)}
+
+L’ADMM reformule un problème d’optimisation en introduisant une variable auxiliaire afin de découpler les différents termes de la fonction objectif. Le problème s’écrit :
+\[
+\min_{\mathbf{u}, \mathbf{v}} \left( \psi(A\mathbf{u}, \mathbf{z}) + \lambda \phi(\mathbf{v}) \right) \quad \text{sous la contrainte } \mathbf{u} = \mathbf{v}.
+\]
+L’algorithme ADMM met à jour les variables de manière itérative selon trois étapes :
+
+\begin{itemize}
+    \item \textbf{Mise à jour de \( \mathbf{u} \)} :
+    \[
+    \mathbf{u}^{k+1} \leftarrow \arg\min_{\mathbf{u}} \left( \psi(A\mathbf{u}, \mathbf{z}) + \frac{\rho}{2} \| \mathbf{u} - \mathbf{v}^k + \mathbf{y}^k \|_2^2 \right), \hspace{0.2 cm} \text{où} \hspace{0.2 cm}  \rho \hspace{0.2 cm} \text{est un paramètre de pénalité}
+    \]
+    \item \textbf{Mise à jour de \( \mathbf{v} \)} :
+    \[
+    \mathbf{v}^{k+1} \leftarrow \arg\min_{\mathbf{v}} \left( \lambda \phi(\mathbf{v}) + \frac{\rho}{2} \| \mathbf{u}^{k+1} - \mathbf{v} + \mathbf{y}^k \|_2^2 \right).
+    \]
+    \item \textbf{Mise à jour du multiplicateur de Lagrange \( \mathbf{y} \)} :
+    \[
+    \mathbf{y}^{k+1} \leftarrow \mathbf{y}^k + (\mathbf{u}^{k+1} - \mathbf{v}^{k+1})
+    \]
+\end{itemize}
+Dans le cadre des méthodes PnP, l’étape de mise à jour de \( \mathbf{v} \) est remplacée par une application de l’opérateur de débruitage \( R_\theta \), ce qui donne :
+\[
+\mathbf{v}^{k+1} \leftarrow R_\theta(\mathbf{u}^{k+1} + \mathbf{y}^k).
+\]
+L’algorithme PnP-ADMM peut alors être résumé ainsi :
+\begin{enumerate}
+    \item Mettre à jour \( \mathbf{u} \) en minimisant \( \psi \),
+    \item Appliquer le débruitage \( R_\theta \) pour mettre à jour \( \mathbf{v} \),
+    \item Mettre à jour le multiplicateur \( \mathbf{y} \) pour imposer la contrainte \( \mathbf{u} = \mathbf{v} \).
+\end{enumerate}
+
+Cette approche assure une convergence rapide et stable, en particulier pour des problèmes mal posés.
+
+\subsubsection{Méthode PnP-PGM (Proximal Gradient Method)}
+
+La méthode de gradient proximal (PGM) est adaptée aux problèmes de la forme :
 
 \[
-x^{[k+1]} = x^{[k]} - \tau_k g^{[k]} \quad \text{avec} \quad g^{[k]}\in \partial f(x^{[k+1]}), \tag{6}
+\min_{\mathbf{u}} \left( \psi(A\mathbf{u}, \mathbf{z}) + \lambda \phi(\mathbf{u}) \right).
 \]
 
-et 
+Elle fonctionne par des mises à jour itératives comportant deux étapes principales :
+
+\begin{itemize}
+    \item \textbf{Descente de gradient sur le terme de fidélité \( \psi \)} :
+    \[
+    \mathbf{v} \leftarrow \mathbf{u}^k - \gamma \nabla \psi(A\mathbf{u}^k, \mathbf{z}),
+    \hspace{0.2 cm} \text{où} \hspace{0.2 cm}  \gamma \hspace{0.2 cm} \text{est le pas de gradient}
+    \]
+    \item \textbf{Régularisation via l’opérateur proximal} :
+    \[
+    \mathbf{u}^{k+1} \leftarrow \text{prox}_{\lambda \phi}(\mathbf{v})
+    \]
+\end{itemize}
+En remplaçant ici l'opérateur proximal par un débruiteur \( R_\theta \). La mise à jour devient alors :
+\[
+\mathbf{u}^{k+1} \leftarrow R_\theta(\mathbf{v})
+\]
+L’algorithme PnP-PGM se résume alors à son tour comme suit :
+\begin{enumerate}
+    \item Effectuer une étape de descente de gradient sur \( \psi \),
+    \item Appliquer le débruitage \( R_\theta \) pour obtenir la régularisation.
+\end{enumerate}
+
+Bien que plus simple à implémenter que PnP-ADMM, PnP-PGM peut se révéler moins robuste pour certains types de problèmes inverses complexes.
+
+
+
+\section{Comparaison TV vs PnP : Expérience Numérique} 
+
+Dans cette section, nous analyserons les performances des algorithmes TV (Variation Totale) et PnP (Plug-and-Play) sur des images présentant différents niveaux de flou et de bruit, à la fois faibles et élevés. Nous observerons comment chaque méthode s’adapte à ces variations et procéderons à une comparaison détaillée entre leurs résultats en termes de qualité de reconstruction.
+
+
+\subsection{Application des deux méthosdes sur une image bruitée}
+Les figures (1.3) et (1.5)  comparent les méthodes TV et PnP avec différents niveaux de bruit (\(\sigma=15\), \(\sigma=50\)) sur les different images (butterfly , leaves , starfish)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{projet radia/results/Imgs_denoised_sig15_comparison.png}   
+    \caption{ Débruitage d'une image avec un niveau de bruit $\sigma = 0.06$ en utilisant la TV et PnP  sur différents exemples  } 
+    
+    \label{fig:4}
+\end{figure}   
+
+La \hyperref[fig:4]{Figure 1.3} montre la comparaison entre les méthodes TV (Variation Totale) et PnP-DRUNet pour le débruitage d’images présentant un faible niveau de bruit (\(\sigma=0.06\)). Trois ensembles d’images distincts (Butterfly, Leaves et Starfish) sont utilisés pour évaluer les performances des deux approches à l’aide du PSNR (Peak Signal-to-Noise Ratio). L’image de référence, appelée Ground Truth, représente l’objectif visuel à atteindre.
+
+Pour les trois exemples étudiés, le PSNR des images bruitées tourne autour de 24.5 dB. Après débruitage, la méthode TV atteint environ 29 dB, tandis que la méthode PnP-DRUNet obtient des valeurs nettement supérieures, comprises entre 34 et 35 dB. Cela représente un gain moyen de 5 à 6 dB en faveur de PnP-DRUNet, confirmant ainsi sa meilleure performance quantitative.
+
+En comparant visuellement les deux approches, la méthode TV réduit efficacement le bruit, mais tend à adoucir légèrement les contours et à atténuer certains détails fins, notamment dans les zones texturées telles que les motifs des ailes du papillon ou les fines feuilles de la plante. En revanche, la méthode PnP-DRUNet conserve mieux les structures fines, les transitions de couleur et les textures complexes, offrant ainsi une apparence plus réaliste et détaillée des images débruitées. \todo{exemple à suivre pour le reste}
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Imgs_denoised_sig15_psnr_plot.png}
+    \caption{\textbf{Évolution comparative du PSNR pour différentes méthodes de débruitage (\(\sigma = 0.06\))}
+ }
+    \label{fig:5}
+\end{figure}  
+
+La \hyperref[fig:5]{Figure 1.4} montre l’évolution du PSNR en fonction des itérations pour les méthodes TV et PnP-DRUNet appliquées à trois ensembles d’images (Butterfly, Leaves, Starfish) avec un niveau de bruit fixé à $\sigma = 0.06$
+
+Les courbes des méthodes PnP-DRUNet (rouge, orange, marron) affichent une convergence rapide dès la première itération, atteignant un plateau autour de 34-35 dB. Cette progression montre que PnP-DRUNet produit des résultats de haute qualité en très peu d’itérations, ce qui traduit son efficacité et sa capacité à préserver les détails fins.
+
+En comparaison, les courbes des méthodes TV Denoising (bleu, vert, violet) progressent plus lentement. Le PSNR augmente graduellement pour atteindre des valeurs stabilisées autour de 29-30 dB, nettement inférieures à celles obtenues par PnP-DRUNet. Cela souligne les limites des méthodes TV, qui nécessitent plus d’itérations et peinent à rivaliser avec la qualité produite par les débruiteurs avancés comme DRUNet.
+
+\textcolor{red}{En conclusion, PnP-DRUNet surpasse TV Denoising à la fois en termes de vitesse de convergence et de qualité finale du PSNR, ce qui en fait une approche plus performante pour le débruitage d’images bruitées présentant des structures complexes}.
+\todo[inline]{exemple à suivre pour le reste et paragraphe à mettre à la fin de la partie débruitage}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{projet radia/results/Imgs_denoised_sig50_comparison.png}
+    \caption{ Débruitage d'une image avec un niveau de bruit $\sigma = 50$ en utilisant la TV et PnP  sur différents exemples }
+    \label{fig:6}
+\end{figure}
+
+\textbf{Qualité visuelle}
+\begin{itemize}
+    \item \textbf{Images bruitées ("high Noise")} :  
+    Les images bruitées avec $\sigma = 50$ présentent un bruit important, dégradant fortement la qualité visuelle et masquant les détails des textures et des contours.
+    
+    \item \textbf{TV Denoising} :  
+    L'algorithme de débruitage par TV améliore la qualité visuelle en supprimant une partie du bruit, mais il introduit des artefacts de lissage et perd certains détails fins.
+    
+    \item \textbf{PNP\_DRUNet Denoising} :  
+    la methode PNP offre une meilleure qualité visuelle, préservant les textures et les contours tout en supprimant efficacement le bruit. Les images obtenues sont proches de l'image originale.
+\end{itemize}
+
+\textbf{PSNR}
+\begin{itemize}
+    \item \textbf{TV Denoising} :  
+    Une amélioration modérée du PSNR est observée (entre 22 et 24), indiquant une réduction du bruit mais avec des pertes de détails.
+    
+    \item \textbf{PNP\_DRUNet Denoising} :  
+    Les PSNR les plus élevés (entre 28 et 29) montrent que cette méthode est plus performante pour préserver les détails tout en supprimant efficacement le bruit.
+\end{itemize}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{projet radia/results/Imgs_denoised_sig50_psnr_plot.png}
+    \caption{ \textbf{Évolution comparative du PSNR pour différentes méthodes de débruitage (\(\sigma = 50\))}
+ }
+    \label{fig:6}
+\end{figure} 
+Ce graphique illustre l'évolution du \textbf{PSNR} au cours des itérations pour différentes méthodes de débruitage (\textbf{TV Denoising} et \textbf{PnP\_DRUNet}) appliquées à trois types d’images bruitées avec un niveau de bruit $\sigma = 50$.
+
+\textbf{Analyse de la convergence du PSNR}
+
+\textbf{Convergence}
+\begin{itemize}
+    \item Les courbes montrent une convergence rapide du PSNR dans les premières itérations, notamment pour la méthode \textbf{PNP\_DRUNet}.
+    \item Après 2-3 itérations, le PSNR atteint un plateau pour les images "B" (bruitées avec des textures nettes).
+    \item Les images "L" (avec des détails linéaires) et "S" (structures complexes) montrent une convergence plus progressive, surtout pour le débruitage par TV.
+\end{itemize}
+
+\textbf{Performance globale}
+\begin{itemize}
+    \item Les méthodes \textbf{PNP\_DRUNet} surpassent \textbf{TV Denoising} sur toutes les images, atteignant un PSNR supérieur à 28 dB pour les images "B", "L" et "S".
+    \item \textbf{TV Denoising} donne des résultats intermédiaires, mais ses courbes restent en dessous de celles de \textbf{PNP\_DRUNet}, avec des PSNR plus faibles après convergence (autour de 24-25 dB).
+\end{itemize}
+
+\textbf{Différences entre les types d’images}
+\begin{itemize}
+    \item L'image "B" montre les meilleures performances, atteignant rapidement des PSNR proches de 30 dB pour \textbf{PNP\_DRUNet}.
+    \item L'mages "L" est de PSNR légèrement inférieur, probablement en raison des détails linéaires plus sensibles au bruit et aux artefacts de débruitage.
+    \item L'images "S", avec des structures complexes, présentent une amélioration plus lente, mais les performances finales de \textbf{PNP\_DRUNet} restent significativement meilleures que celles de \textbf{TV Denoising}.
+\end{itemize}
+
+\subsection{Application des deux méthodes aux images floutées}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{projet radia/results/Imgs_deblurred_sig_1_comparison.png}
+    \caption{\textbf Défloutage d'une image avec un niveau de flou $\sigma = 1$ en utilisant la TV et PnP  sur différents exemples}
+ }
+    \label{fig:7}
+\end{figure}  
+La \hyperref[fig:7]{Figure 1.7}présente une comparaison de différentes méthodes de défloutage appliquées à des images contenant un flou de faible intensité ($\sigma = 1$). Trois catégories d’images sont analysées : papillon, feuillage et étoile de mer, illustrant la performance des méthodes évaluées en termes de \textbf{PSNR}.
+
+
+\subsection*{Observations :}
+
+\begin{itemize}
+    \item \textbf{Qualité Visuelle :}
+    \begin{itemize}
+        \item \textbf{PNP\_DRUNet} :
+        \begin{itemize}
+            \item Fournit des résultats visuels de haute qualité en préservant les contours des images .
+        \end{itemize}
+        \item \textbf{TV Deblurring} :
+        \begin{itemize}
+            \item Fournit également des résultats visuels de haute qualité, similaire à ceux de PNP\_DRUNet, avec une meilleure préservation des contours et des détails.
+        \end{itemize}
+        \item \textbf{Low Blur ($\sigma = 1$)} :
+        \begin{itemize}
+            \item Réduit le flou, mais les images restent moins définies par rapport aux autres méthodes.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{PSNR (Peak Signal-to-Noise Ratio) :}
+    \begin{itemize}
+        \item \textbf{TV Deblurring} :
+        \begin{itemize}
+            \item Affiche un PSNR supérieur à celui de PNP\_DRUNet, indiquant une capacité efficace à restaurer les détails tout en minimisant le flou.
+        \end{itemize}
+        \item \textbf{PNP\_DRUNet} :
+        \begin{itemize}
+            \item Bien qu'efficace, ses scores PSNR sont inférieurs à ceux de la méthode TV, suggérant que TV peut mieux gérer certains types de flou dans ces images spécifiques.
+        \end{itemize}
+       
+    \end{itemize}
+\end{itemize}
+\section*{Analyse des Résultats du PSNR}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{projet radia/results/Imgs_deblurred_sig_1_psnr_plot.png}
+    \caption{ \textbf{Évolution comparative du PSNR pour différentes méthodes de débruitage (\(\sigma = 1\))}
+ }
+    \label{fig:8}
+\end{figure} 
+
+
+
+La figure 1.8 illustre l'évolution du \textbf{PSNR} au cours des itérations pour différentes méthodes de défloutage, y compris \textbf{TV Deblurring} et \textbf{PnP\_DRUNet}, appliquées à des images floutées à divers niveaux de flou ($\sigma = 1$).
+
+\subsection*{Analyse des résultats} :
+
+\begin{itemize}
+    \item \textbf{Performance globale} :
+    \begin{itemize}
+        \item La méthode \textbf{TV Deblurring} obtient des PSNR  supérieurs à ceux de \textbf{PnP\_DRUNet}  pour les images avec un flou faible.
+        \item Cette méthode converge rapidement vers une performance optimale, atteignant des PSNR stables autour de \textbf{34-36 dB}.
+    \end{itemize}
+    \item \textbf{Convergence} :
+    \begin{itemize}
+        \item La méthode \textbf{PnP\_DRUNet} montre une progression plus lente du PSNR, avec des valeurs qui plafonnent généralement autour de \textbf{32-34 dB}.
+        \item En revanche, \textbf{TV Deblurring} atteint un plateau plus rapidement, indiquant une meilleure efficacité dans la restauration des détails.
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{projet radia/results/Imgs_deblurred_sig_3_comparison.png}
+    \caption{ \textbf{Défloutage d'une image avec un niveau de flou $\sigma = 3$ en utilisant la TV et PnP  sur différents exemples}
+ }
+    \label{fig:9}
+\end{figure} 
+\subsection*{Observations :}
+
+\begin{itemize}
+    \item \textbf{Qualité Visuelle :}
+    \begin{itemize}
+        \item \textbf{PNP\_DRUNet} :
+        \begin{itemize}
+            \item Fournit de bons résultats  visuels similaires àl'image originale en conservant les contours  .
+        \end{itemize}
+        \item \textbf{TV Deblurring} :
+        \begin{itemize}
+            \item Fournit également des résultats visuels de haute qualité, similaire à ceux de PNP\_DRUNet.
+        \end{itemize}
+       
+    \end{itemize}
+
+    \item \textbf{PSNR (Peak Signal-to-Noise Ratio) :}
+    \begin{itemize}
+        \item \textbf{TV Deblurring} :
+        \begin{itemize}
+            \item Affiche un PSNR supérieur à celui de PNP\_DRUNet, indiquant une capacité efficace à restaurer les détails tout en minimisant le flou.
+        \end{itemize}
+        \item \textbf{PNP\_DRUNet} :
+        \begin{itemize}
+            \item Bien qu'efficace, ses scores PSNR sont inférieurs à ceux de la méthode TV, suggérant que TV peut mieux gérer certains types de flou dans ces images spécifiques.
+        \end{itemize}
+       
+    \end{itemize}
+\end{itemize}
+\section*{Analyse des Résultats du PSNR}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{projet radia/results/Imgs_deblurred_sig_3_psnr_plot.png}
+    \caption{ \textbf{Évolution comparative du PSNR pour différentes méthodes de défloutage (\(\sigma = 3\))}
+ }
+    \label{fig:9}
+\end{figure} 
+
+
+
+
+\section*{Analyse des Résultats du PSNR}
+
+La figure illustre l'évolution du \textbf{PSNR} en fonction des itérations pour les méthodes de défloutage \textbf{TV Denoising} et \textbf{PnP\_DRUNet} appliquées à des images bruitées avec un niveau de bruit $\sigma = 3$.
+
+\subsection*{Analyse des résultats} :
+
+\item \textbf{Performance globale} :
+    \begin{itemize}
+        \item La méthode \textbf{TV Denoising} atteint des valeurs de PSNR plus élevées que celles de \textbf{PnP\_DRUNet}, montrant une meilleure capacité à restaurer les détails des images bruitées.
+        \item Bien que \textbf{PnP\_DRUNet} converge rapidement , son PSNR plafonne autour de \textbf{24 dB}, tandis que \textbf{TV Denoising} continue d'augmenter, atteignant des valeurs supérieures à \textbf{24 dB} à la fin des itérations.
+    \end{itemize}
+    \item \textbf{Convergence} :
+    \begin{itemize}
+        \item \textbf{PnP\_DRUNet} montre une convergence rapide, atteignant un plateau à la 50ème itération, indiquant une bonne efficacité initiale.
+        \item En revanche, \textbf{TV Denoising} continue d'améliorer le PSNR jusqu'à la fin des itérations, démontrant ainsi une capacité à optimiser la qualité d'image sur une période prolongée.
+    \end{itemize}
+    \item \textbf{Différences entre les types de flou} :
+    \begin{itemize}
+        \item Les deux méthodes affichent des courbes de PSNR qui évoluent différemment, avec TV Denoising montrant une amélioration continue, même si elle converge plus lentement.
+        \item Cela suggère que bien que \textbf{PnP\_DRUNet} soit efficace pour des résultats rapides, \textbf{TV Denoising} peut offrir une meilleure qualité finale.
+    \end{itemize}
+\end{itemize}
+
+
+
+
+
+
+
+
+
+\newpage
+
+\chapter{Apprentissage de fonction de régularisation convexe pour la résolution de problémes inverses}
+Le texte de ce chapitre est adapté de la thése Alexis Marie Frederic GOUJON.
+\section*{Introduction}
+L'émergence de techniques classiques et d'apprentissage profond pour aborder les problèmes de reconstruction d'images a conduit à une amélioration significative de la qualité. Cependant, ces nouvelles approches présentent souvent des lacunes en termes de fiabilité et d'explicabilité, suscitant ainsi un intérêt croissant pour résoudre ces problèmes tout en maintenant les gains de performance. Dans ce chapitre, nous examinons cette question en revisitant des régularisateurs qui sont la somme de fonctions convexes en crête. Le gradient de ces régularisateurs est paramétré par un réseau de neurones doté d'une seule couche cachée, avec des fonctions d'activation croissantes et apprenables. Ce réseau de neurones est entraîné en quelques minutes en tant que dénoiseur gaussien multistep. Les expériences numériques en matière de débruitage, ainsi que de reconstruction en tomographie computérisée (CT) et en IRM, montrent des améliorations par rapport à des méthodes fournissant des garanties de fiabilité similaires.
+\section{Architecture du Régularisateur}
+\subsection{Paramètres Généraux}
+Notre objectif est d'apprendre un régularisateur \( R \) pour le problème variationnel \[
+x^* \in \arg \min_{x \in \mathbb{R}^d} \left( \| Hx - y \|_2^2 + R(x) \right)
+\] qui fonctionne bien sur une variété de problèmes mal posés. À l'instar du cadre PnP, nous considérons la tâche de débruitage 
 
 \[
-x^{[k+1]} = \text{prox}_{\tau_k} f(x^{[k]}), \tag{7}
+x^* = \arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \| x - y \|_2^2 + \lambda R(x) \right)
 \]
 
-où \(\tau_k > 0\) et \(\partial f(x) = \{ w \in \mathbb{R}^N \; | \; \forall y \in \mathbb{R}^N, \langle y - x, w \rangle + f(x) \leq f(y) \}\) désigne la sous-différentielle de Moreau \cite{23}, qui se réduit au gradient lorsque la fonction est différentiable (c'est-à-dire, \(\partial f = \{\nabla f\}\)). Dans le cas où la sous-différentielle est calculée en \(x^{[k]}\) et non en \(x^{[k+1]}\), on obtient une itération de l'algorithme de sous-gradient explicite.\\
-Contrairement à la méthode de sous-gradient explicite, la
-La convergence de l'algorithme proximal repose sur un choix de pas \(\tau_k\) moins contraignant. L'efficacité des itérations proximales est conditionnée par la connaissance explicite de l'opérateur proximal. De nombreuses formes explicites ont été proposées dans la littérature et sont en grande partie répertoriées sur le site web Prox-Repository.
-
-Une difficulté supplémentaire se présente lorsqu'il s'agit de calculer l'opérateur proximal associé à une somme de deux fonctions (c'est-à-dire, \(f = \psi + \lambda \phi\)), comme c'est le cas dans (2). Dans ce contexte, très peu de formes explicites existent, et il est alors nécessaire de recourir à des algorithmes proximaux de type éclatement (splitting), qui sont des variations de ces itérations permettant de minimiser une somme de fonctions convexes pouvant être non lisses. L'approche de référence est l'algorithme explicite-implicite (FB : forward-backward) \cite{7}, qui suppose que \(\psi\) possède un gradient \(\beta\)-Lipschitz   et dont les itérations sont de la forme :
+comme le problème de base sous-jacent pour l'entraînement, où \( y \) est l'image bruitée. Puisque nous privilégions l'interprétabilité et la fiabilité, nous choisissons le simple régularisateur en crête convexe $R(x) = \sum_{i} \psi_i(w_i^T x)$ et utilisons sa forme convolutionnelle. Plus précisément, la régularité d'une image \( x \) est mesurée par 
 
 \[
-x[k+1] = \text{prox}_{\tau_k,\lambda \phi} \Big(x^{[k]} - \tau_k \nabla \psi(x^{[k]})\Big), \tag{8}
+R: x \mapsto \sum_{i=1}^{N_C} \sum_{k \in \mathbb{Z}^2} \psi_i \left( (h_i * x)[k] \right),
 \]
 
-où \(\tau_k < 2\beta^{-1}\). L'étape explicite permet de gérer l'inversion de \(A\), tandis que l'étape implicite est une étape de débruitage qui active les différentes pénalisations présentées dans la section précédente. Cependant, il peut parfois être coûteux numériquement d'avoir recours à des sous-itérations pour calculer l'opérateur proximal. Dans ce cas, il peut être opportun d'utiliser des algorithmes primaux-duaux \cite{5,11}.
+où \( h_i \) est la réponse impulsionnelle d'un filtre convolutionnel 2D, \( (h_i * x)[k] \) est la valeur du k-ème pixel de l'image filtrée \( h_i * x \), et \( N_C \) est le nombre de canaux. Par la suite, nous considérons principalement l'image \( x \) (de taille finie) comme le vecteur \( x \in \mathbb{R}^d \) (de dimension finie), et comme \[
+R: x \mapsto \sum_{i=1}^{N_C} \sum_{k \in \mathbb{Z}^2} \psi_i \left( (h_i * x)[k] \right),
+\] est un cas particulier de $R(x) = \sum_{i} \psi_i(w_i^T x)$, nous utiliserons dorénavant la forme générique $R(x) = \sum_{i} \psi_i(w_i^T x)$ pour simplifier les notations. Nous utilisons la notation \( R_\theta \) pour exprimer la dépendance de \( R \) à l'égard de l'ensemble agrégé de paramètres apprenables \( \theta \), qui sera précisé lorsque nécessaire. Désormais, nous supposons que les profils convexes \( \psi_i \) ont des dérivées continues de Lipschitz, c'est-à-dire \( \psi_i \in C^{1,1}(\mathbb{R}) \).
+\subsection{Réseau de neurones à pas de gradient}
+Étant donné les hypothèses sur \( R_\theta \), l'image débruitée dans \[
+x^* = \arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \| x - y \|_2^2 + \lambda R(x) \right)
+\] peut être interprétée comme le point fixe unique de \( T_{R_\theta,\lambda,\alpha} : \mathbb{R}^d \to \mathbb{R}^d \) défini par
 
-Pour la gestion de fonctions non convexes, une littérature reposant sur l'inégalité de Kurdyka-Łojasiewicz a permis de proposer des algorithmes capables de converger vers un point critique, ce qui est utile dans le cas de pénalisations non convexes ou en déconvolution aveugle \cite{9}.
+\[
+T_{R_\theta,\lambda,\alpha}(x) = x - \alpha \left( (x - y) + \lambda \nabla R_\theta(x) \right).
+\]
+
+Les itérations de l'opérateur de l'équation ci dessus mettent en œuvre une descente de gradient avec un pas de taille \( \alpha \), qui converge si \( \alpha \in \left(0, \frac{2}{1 + \lambda L_\theta}\right) \), où \( L_\theta = \text{Lip}(\nabla R_\theta) \) est la constante de Lipschitz de \( \nabla R_\theta \). Par la suite, nous imposons toujours cette contrainte sur \( \alpha \). Le gradient de l'expression générique de crête convexe $R(x) = \sum_{i} \psi_i(w_i^T x)$ est donné par
+
+\[
+\nabla R_\theta(x) = W^T \sigma(Wx),
+\]
+
+où \( W = [w_1 \cdots w_p]^T \in \mathbb{R}^{p \times d} \) et \( \sigma \) est une fonction d'activation point par point dont les composants \( (\sigma_i = \psi'_i)_{i=1}^p \) sont Lipschitz continus et croissants. Dans notre mise en œuvre, les fonctions d'activation \( \sigma_i \) sont partagées au sein de chaque canal de \( W \). L'opérateur de pas de gradient résultant
+
+\[
+T_{R_\theta,\lambda,\alpha}(x) = (1 - \alpha)x + \alpha \left( y - \lambda W^T \sigma(Wx) \right)
+\]
+
+correspond à un réseau de neurones convolutionnel à une couche cachée avec un biais et une connexion de contournement. Nous le désignons comme un réseau de neurones à pas de gradient. L'entraînement d'un réseau de neurones à pas de gradient donnera un CRR-NN.
+\section{Caractérisation des bonnes fonctions de profil}
+Dans cette section, nous présentons des résultats théoriques afin de justifier notre choix des profils \( \psi_i \) ou, de manière équivalente, de leurs dérivées \( \sigma_i = \psi'_i \).
+\subsection{Existence des minimisateurs et stabilité de la reconstruction}
+La convexité de \( R_\theta \) n'est pas suffisante pour garantir que l'ensemble des solutions dans x^* \in \arg \min_{x \in \mathbb{R}^d} \left( \| Hx - y \|_2^2 + R(x) \right)
+\] est non vide pour une matrice avancée \( H \) non inversible. Avec les régularisateurs en crête convexe, cette limitation peut être surmontée sous une condition légère sur les fonctions \( \psi_i \) de la Proposition ci dessous
+\subsection*{Proposition 1}
+Soit \( H \in \mathbb{R}^{m \times d} \) et \( \psi_i : \mathbb{R} \to \mathbb{R} \), pour \( i = 1, \ldots, p \), des fonctions convexes. Si \( \arg \min_{t \in \mathbb{R}} \psi_i(t) \neq \emptyset \) pour tout \( i = 1, \ldots, p \), alors 
+
+\[
+\emptyset \neq \arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \| Hx - y \|_2^2 + \sum_{i=1}^p \psi_i(w_i^T x) \right).
+\]
+\subsection*{Proposition 2}
+Soit \( H \in \mathbb{R}^{m \times d} \) et \( \psi_i : \mathbb{R} \to \mathbb{R} \), pour \( i = 1, \ldots, p \), des fonctions convexes et continuellement différentiables avec \( \arg \min_{t \in \mathbb{R}} \psi_i(t) \neq \emptyset \). Pour tout \( y_1, y_2 \in \mathbb{R}^m \), soit 
+
+\[
+x_q \in \arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \| Hx - y_q \|_2^2 + \sum_{i=1}^p \psi_i(w_i^T x) \right).
+\]
+Avec \( q = 1, 2 \) étant les reconstructions correspondantes, nous avons alors 
+
+\[
+\| Hx_1 - Hx_2 \|_2 \leq \| y_1 - y_2 \|_2.
+\]
+\subsection{Expressivité des Fonctions de Profil}
+Le réseau de neurones à pas de gradient \( T_{R_\theta,\lambda,\alpha} \) est le composant clé de notre procédure d'entraînement. Ici, nous examinons son expressivité en fonction du choix des fonctions d'activation \( \sigma_i \) utilisées pour paramétrer \( \nabla R_\theta \).
+
+Soit \( C_{0,1}^+(\mathbb{R}) \) l'ensemble des fonctions scalaires Lipschitz continues et croissantes sur \( \mathbb{R} \), et soit \( LS_m^+(\mathbb{R}) \) le sous-ensemble des splines linéaires croissantes avec au plus \( m \) nœuds. Nous définissons également
+
+\[
+E(\mathbb{R}^d) = \left\{ W^T \sigma(W \cdot) : W \in \mathbb{R}^{p \times d}, \sigma_i \in C_{0,1}^+(\mathbb{R}) \right\} 
+\]
+
+et, de plus, pour tout \( \Omega \subset \mathbb{R}^d \),
+
+\[
+E(\Omega) = \left\{ f|_{\Omega} : f \in E(\mathbb{R}^d) \right\} 
+\]
+
+Dans ce qui suit, nous notons \( \|f\|_C(\Omega) := \sup_{x \in \Omega} \|f(x)\| \) et \( \|f\|_{C^1}(\Omega) := \sup_{x \in \Omega} \|f(x)\| + \sup_{x \in \Omega} \|Jf(x)\| \).
+
+La fonction d'activation ReLU, populaire, est Lipschitz continue et croissante. Malheureusement, elle présente une expressivité limitée, comme le montre la Proposition ci dessous.
+\subsection*{Proposition 3}
+Soit \( \Omega \subset \mathbb{R}^d \) compact avec un intérieur non vide. Alors, l'ensemble 
+
+\[
+\left\{ W^T \text{ReLU}(W \cdot - b) : W \in \mathbb{R}^{p \times d}, b \in \mathbb{R}^p \right\}
+\]
+\text{n'est pas dense par rapport à } \| \cdot \|_C(\Omega) \text{ dans } E(\Omega).
+\subsection*{Proposition 4}
+Soit \( \Omega \subset \mathbb{R}^d \) compact et \( m \geq 2 \). Alors, l'ensemble 
+
+\[
+\left\{ W^T \sigma(W \cdot) : W \in \mathbb{R}^{p \times d}, \sigma_i \in LS_m^+(\mathbb{R}) \right\} 
+\]
+
+est dense par rapport à \( \| \cdot \|_C(\Omega) \) dans \( E(\Omega) \).
+\subsection*{Corollaire}
+Soit \( \Omega \subset \mathbb{R}^d \) convexe et compact avec un intérieur non vide. Alors, les régularisateurs de la forme \[
+R: x \mapsto \sum_{i} \psi_i(w_i^T x)
+\]
+ avec des jacobiennes de la forme \[
+\left\{ W^T \sigma(W \cdot) : W \in \mathbb{R}^{p \times d}, \sigma_i \in LS_m^+(\mathbb{R}) \right\}
+\] sont denses dans 
+
+\[
+\left( \sum_{i=1}^p \psi_i(w_i^T x) : \psi_i \in C^{1,1}(\mathbb{R}) \text{ convexe}, w_i \in \mathbb{R}^d \right)
+\]
+
+par rapport à \( \| \cdot \|_{C^1}(\Omega) \). La densité ne tient pas si nous ne considérons que des régularisateurs avec des jacobiennes de la forme \[
+\left\{ W^T \text{ReLU}(W \cdot - b) : W \in \mathbb{R}^{p \times d}, b \in \mathbb{R}^p \right\}
+\]. 
+\section{Implémentation}
+\subsection{Entraînement d'un débruiteur à pas de gradient multiple}
+Soit \( \{x_m\}_{m=1}^M \) un ensemble d'images propres et soit \( \{y_m\}_{m=1}^M = \{x_m + n_m\}_{m=1}^M \) leurs versions bruitées, où \( n_m \) est la réalisation du bruit. Étant donné une fonction de perte \( L \), la procédure naturelle pour apprendre les paramètres de \( R_\theta \) basée sur x^* = \arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \| x - y \|_2^2 + \lambda R(x) \right)
+\] est de résoudre 
+
+\[
+\begin{aligned}
+& (\theta^*_t, \lambda^*_t) \in \arg \min_{\theta, \lambda} \sum_{m=1}^M L \left( T_t R_{\theta, \lambda, \alpha}(y^m), x^m \right).
+\end{aligned}
+\]
+Dans le cas limite où \( t = \infty \) et avec un pas de gradient admissible \( \alpha \), \( T_t R_{\theta, \lambda, \alpha} \) désigne la composition \( t \)-fois du réseau de neurones par étapes de gradient, comme indiqué dans \[
+T_{R_{\theta, \lambda, \alpha}}(x) = (1 - \alpha)x + \alpha \left( y - \lambda W^T \sigma(Wx) \right)
+\]. En théorie, il est possible d'optimiser le problème d'entraînement \[
+\begin{aligned}
+& (\theta^*_t, \lambda^*_t) \in \arg \min_{\theta, \lambda} \sum_{m=1}^M L \left( T_t R_{\theta, \lambda, \alpha}(y^m), x^m \right).
+\end{aligned}
+\] en posant \( t = \infty \). Cela constitue un problème d'optimisation bilatéral qui peut être abordé à l'aide de techniques de différentiation implicite \cite{pramanik2023memory,chen2014insights}. Cependant, il s'avère qu'il n'est pas nécessaire de calculer complètement le point fixe \( T^\infty R_{\theta, \lambda, \alpha}(y^m) \) pour apprendre \( R_\theta \) dans notre cadre contraint. Au lieu de cela, nous approximons \( T^\infty R_{\theta, \lambda, \alpha}(y^m) \) en un nombre fini d'étapes. Cela définit le réseau de neurones débruitant en \( t \) étapes \( T^t R_{\theta, \lambda, \alpha} \), qui est entraîné de manière à ce que $$\( T^t R_{\theta, \lambda, \alpha}(y^m) \approx x^m \)$$
+Pour \( m = 1, \ldots, M \), cela correspond à une minimisation partielle de  x^* = \arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \| x - y \|_2^2 + \lambda R(x) \right)
+\] avec une estimation initiale \( y_m \) ou, de manière équivalente, à l'unfolding de l'algorithme de descente de gradient sur \( t \) itérations avec des paramètres partagés entre les itérations \cite{aggarwal2018modl,pramanik2020deep}. Pour de petites valeurs de \( t \), cela permet d'obtenir un débruiteur rapide à évaluer. Cependant, comme il n'est pas nécessairement un opérateur proximal, son interprétabilité est limitée.\\
+Une fois le réseau de neurones par étapes de gradient entraîné, nous pouvons intégrer le \( R_\theta \) correspondant dans x^* = \arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \| x - y \|_2^2 + \lambda R(x) \right)
+\] et résoudre complètement le problème d'optimisation. Cela permet d'obtenir un débruiteur proximal interprétable. En pratique, transformer un débruiteur en \( t \) étapes en un débruiteur proximal nécessite d'ajuster \( \lambda \) et d'ajouter un paramètre d'échelle, comme décrit dans le chapitre 1. Par conséquent, il est possible d'entraîner le modèle en quelques minutes. Il convient de noter que notre méthode présente certaines ressemblances avec les réseaux variationnels (VN) proposés dans \cite{kobler2017variational}, bien qu'il existe des différences fondamentales. Alors que le modèle utilisé dans \cite{kobler2017variational} implique également une somme de crêtes convexes avec des profils apprenables, celles-ci sont paramétrées par des fonctions de base radiales et seule la dernière étape de la descente de gradient est incluse dans le passage avant. Les auteurs de \cite{kobler2017variational} ont observé qu'une augmentation de \( t \) nuit aux performances de débruitage, ce qui n'est pas le cas pour notre architecture.
+\subsection{Implémentation des contraintes}Notre apprentissage du débruiteur en \( t \) étapes est contraint comme suit :
+\begin{enumerate}
+    \item Les fonctions d'activation \( \sigma_i \) doivent être croissantes (contrainte de convexité sur \( \psi_i \)).
+    \item Les fonctions d'activation \( \sigma_i \) doivent prendre la valeur 0 à un certain endroit (contrainte d'existence).
+    \item Le pas de gradient dans \[
+T_{R_{\theta, \lambda, \alpha}}(x) = (1 - \alpha)x + \alpha \left( y - \lambda W^T \sigma(Wx) \right)
+\] doit satisfaire \( \alpha \in \left(0, \frac{2}{1 + \lambda L_\theta}\right) \) (pour une descente de gradient convergente).
+\end{enumerate}
+
+Étant donné que les méthodes pour imposer ces contraintes peuvent avoir un impact majeur sur la performance du résultat final ,elles doivent être conçues avec soin.\\
+\textbf{Splines Monotones}:\\
+Ici, nous abordons simultanément les contraintes (i) et (ii). À l'instar de \cite{bohra2021learning,bohra2020learning}, nous utilisons des splines linéaires apprenables \( \sigma_{c_i} : \mathbb{R} \to \mathbb{R} \) avec \( (M + 1) \) nœuds uniformes \( \nu_m = (m - M/2) \Delta \), pour \( m = 0, \ldots, M \), où \( \Delta \) est l'espacement des nœuds. Par souci de simplicité, nous supposons que \( M \) est pair. Le paramètre apprenable \( c_i = (c_{i m})_{m=0}^M \in \mathbb{R}^{M+1} \) définit la valeur \( \sigma_{c_i}(\nu_m) = c_{i m} \) de \( \sigma_{c_i} \) aux nœuds. Pour caractériser complètement \( \sigma_{c_i} \), nous l'étendons par la valeur constante \( c_{i 0} \) sur \( (-\infty, \nu_0] \) et \( c_{i M} \) sur \( [\nu_M, +\infty) \). Ce choix entraîne une extension linéaire pour les intégrales indéfinies correspondantes qui apparaissent pour le régularisateur \( R_\theta \) dans $x^* = \arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \| x - y \|_2^2 + \lambda R(x) \right)$. Des détails supplémentaires sur la mise en œuvre des splines linéaires apprenables peuvent être trouvés dans \cite{bohra2020learning}.\\
+Soit \( D \in \mathbb{R}^{M \times (M+1)} \) la matrice des différences finies unidimensionnelle avec \( (D c_i)_m = c_{i m+1} - c_{i m} \) pour \( m = 0, \ldots, (M - 1) \). Comme \( \sigma_{c_i} \) est linéaire par morceaux, on a :
+
+\[
+\sigma_{c_i} \text{ est croissante } \iff D c_i \geq 0. 
+\]
+
+Pour optimiser sur \( \{\sigma_c : D c \geq 0\} \), nous reparamétrons les splines linéaires en \( \sigma_{P^{\uparrow}}(c_i) \), où
+
+\[
+P^{\uparrow} = C D^{\dagger} \text{ReLU}(D \cdot) 
+\]
+
+est un opérateur de projection non linéaire sur l'ensemble faisable. Ici, \( D^{\dagger} \) désigne l'inverse de Moore-Penrose de \( D \) et \( C = (I_{M+1} - 1_{M+1} e^T_{M/2+1}) \) déplace la sortie de sorte que le \( (M/2 + 1) \)-ème élément soit nul. En effet, cette projection préserve simplement les différences finies non négatives entre les entrées de \( c_i \) et met à zéro celles qui sont négatives. Comme les profils associés \( \psi_i \) sont convexes et satisfont \( \psi'_i(0) = \sigma_i(0) = 0 \), la Proposition 1 garantit l'existence d'une solution pour le Problème \[
+x^* \in \arg \min_{x \in \mathbb{R}^d} \left( \| Hx - y \|_2^2 + R(x) \right)
+\].\\
+La paramétrisation proposée \( \sigma_{P^{\uparrow}}(c_i) \) des splines présente l'avantage d'utiliser des paramètres apprenables non contraints \( c_i \). Le gradient de l'objectif $$ \begin{aligned}
+& (\theta^*_t, \lambda^*_t) \in \arg \min_{\theta, \lambda} \sum_{m=1}^M L \left( T_t R_{\theta, \lambda, \alpha}(y^m), x^m \right)$$.
+\end{aligned}
+\] par rapport à \( c_i \) prend directement en compte la contrainte via \( P^{\uparrow} \). Cette approche diffère considérablement de la descente de gradient projetée plus standard — comme cela est fait dans \cite{kobler2017variational} pour apprendre des profils convexes — où \( c_i \) serait projeté sur \( \{c_i : D c_i \geq 0\} \) après chaque étape de gradient. Bien que cette routine soit efficace pour les problèmes convexes, nous avons constaté qu'elle donne de mauvais résultats pour le problème non convexe $$\begin{aligned}
+& (\theta^*_t, \lambda^*_t) \in \arg \min_{\theta, \lambda} \sum_{m=1}^M L \left( T_t R_{\theta, \lambda, \alpha}(y^m), x^m \right).
+\end{aligned}$$
+\]. Pour un passage avant et arrière efficace avec auto-différenciation, \( P^{\uparrow} \) est implémenté avec la fonction \texttt{cumsum} au lieu d'une construction explicite de la matrice \( D^{\dagger} \), et le surcoût computationnel est très faible.\\
+\textbf{Régularisation favorisant la parcimonie}\\
+L'utilisation de fonctions d'activation apprenables peut entraîner un surapprentissage et diminuer la capacité de généralisation à des opérateurs \( H \) arbitraires. Par conséquent, la procédure d'entraînement doit favoriser des splines linéaires simples. Il est donc naturel de privilégier les splines offrant de meilleures performances tout en ayant le moins de nœuds possible. Cela se fait en pénalisant la variation totale d'ordre supérieur \( \| L P^{\uparrow}(c_i) \|_1 \) de chaque spline \( \sigma_{P^{\uparrow}}(c_i) \), où \( L \in \mathbb{R}^{(M-1) \times (M+1)} \) est la matrice des différences finies d'ordre secondaire.\\
+La perte finale d'entraînement est alors donnée par :
+
+\[
+\sum_{m=1}^{M} L \left( T_{R_{\theta, \lambda, \alpha}}(y^m), x^m \right) + \eta \sum_{i=1}^{p} \| L P^{\uparrow}(c_i) \|_1, 
+\]
+
+où \( \eta \in \mathbb{R}^+ \) permet d'ajuster la force de la régularisation. Nous renvoyons à \cite{unser2019representer} pour des perspectives théoriques supplémentaires sur la régularisation par variation totale d'ordre supérieur et à \cite{bohra2020learning} pour des preuves expérimentales de sa pertinence en apprentissage machine.\\
+\textbf{Étapes de Gradient Convergentes}\\
+La contrainte (iii) garantit que la composition \( t \)-fois du réseau de neurones par étapes de gradient \( T_{R_{\theta, \lambda, \alpha}}^t \) calcule le véritable minimiseurs de \[
+x^* \in \arg \min_{x \in \mathbb{R}^d} \left( \| Hx - y \|_2^2 + R(x) \right)
+\] lorsque \( t \to \infty \). Par conséquent, elle doit être appliquée dans toute méthode d'entraînement sensée. De plus, elle apporte de la stabilité à l'entraînement. Pour exploiter pleinement la capacité du modèle, même pour de petites valeurs de \( t \), nous avons besoin d'une borne supérieure précise pour \( \text{Lip}(\nabla R_\theta) \). L'estimation que nous fournissons dans la Proposition 5 est plus précise que la borne classique dérivée de la sous-multiplicativité de la constante de Lipschitz pour les modèles compositionnels. Elle est également facilement calculable.\\
+\textbf{Proposition 5.}
+Soit \( L_\theta \) le constant de Lipschitz de \( \nabla R_\theta(x) = W^T \sigma(Wx) \) avec \( W \in \mathbb{R}^{p \times d} \) et \( \sigma_i \in C^{0,1}_{\uparrow}(\mathbb{R}) \). Avec la notation \( \Sigma_\infty = \text{diag}(\|\sigma'_1\|_\infty, \ldots, \|\sigma'_p\|_\infty) \), il en résulte que
+
+\[
+L_\theta \leq \|W^T \Sigma_\infty W\| = \|p \Sigma_\infty W\|^2, 
+\]
+
+ce qui est plus serré que la borne naïve
+
+\[
+L_\theta \leq L_\sigma \|W\|^2.
+\]
+\textbf{Des gradients aux potentiels}\\
+Pour récupérer le régularisateur \( R \) à partir de son gradient \( \nabla R \), il faut déterminer les profils \( \psi_i \), qui satisfont \( \psi'_i = \sigma P_{\uparrow}(c_i) \). Ainsi, chaque \( \psi_i \) est un polynôme par morceaux de degré 2 avec des dérivées continues, c'est-à-dire un spline de degré deux. Ces fonctions peuvent être exprimées comme une somme pondérée de décalages du B-spline causale de degré 2 mise à l'échelle, plus précisément comme
+
+\[
+\psi_i = \sum_{k \in \mathbb{Z}} d_{i,k} \beta_2^+ \left( \cdot - k \Delta \right). 
+\]
+
+Pour déterminer les coefficients \( (d_{i,k})_{k \in \mathbb{Z}} \), nous utilisons le fait que \( (\beta_2^+)'(k) = (\delta_{1,k} - \delta_{2,k}) \), où \( \delta \) est le delta de Kronecker ; voir \cite{unser1999splines} pour plus de détails. Ainsi, nous obtenons que 
+
+\[
+d_{i,k} - d_{i,k-1} = (P_{\uparrow}(c_i))_k,
+\]
+
+ce qui définit \( (d_{i,k})_{k \in \mathbb{Z}} \) jusqu'à une constante. Cette constante peut être choisie arbitrairement car elle n'affecte pas \( \nabla R \). En raison du support fini de \( \beta_2^+ \), on peut évaluer efficacement \( \psi_i \) puis \( R \).
+\subsection{Renforcement de l'universalité du régularisateur}
+Le régularisateur \( R_\theta \) appris dépend de la tâche d'entraînement (débruitage) et du niveau de bruit. Pour résoudre un problème inverse générique, en plus de la force de régularisation \( \lambda \), nous proposons d'incorporer un paramètre d'échelle ajustable \( \mu \in \mathbb{R}^+ \) et de calculer
+
+\[
+\arg \min_{x \in \mathbb{R}^d} \left( \frac{1}{2} \|Hx - y\|_2^2 + \frac{\lambda}{\mu} R_\theta(\mu x) \right).
+\]
+
+Bien que le paramètre d'échelle soit sans pertinence pour les régularisateurs homogènes tels que Tikhonov et TV, il est connu pour améliorer les performances dans le cadre PnP lorsqu'il est appliqué à l'entrée du débruiteur \cite{xu2020boosting}. Lors de l'entraînement des débruiteurs en \( t \) étapes, nous apprenons également un paramètre d'échelle \( \mu \) en laissant le pas de gradient \( \text{NN} \) \[
+TR_{\theta, \lambda, \alpha}(x) = x - \alpha \left( (x - y) + \lambda \nabla R_\theta(x) \right).
+\]
+ devenir
+
+\[
+TR_{\theta, \lambda, \mu, \alpha}(x) = x - \alpha \left( (x - y) + \lambda \nabla R_\theta(\mu x) \right), 
+\]
+
+avec maintenant \( \alpha < \frac{2}{1 + \lambda \mu \text{Lip}(\nabla R_\theta)} \).
+\section{Connexions aux approches d'apprentissage profond}
+Nos CRR-NNs proposés possèdent une seule couche non linéaire, ce qui est plutôt inhabituel à l'ère de l'apprentissage profond. Pour explorer davantage leurs propriétés théoriques, nous discutons brièvement de deux méthodes d'apprentissage profond réussies, à savoir le PnP et la conception explicite de régularisateurs convexes, et nous énonçons leurs versions les plus stables et interprétables
 
 
 
-
-
-
-
-\section{\large Passage de methodes variationnelles a la methode de plug-and-play } 
-
-Bien que les méthodes variationnelles soient souvent utilisées pour le traitement d'images , leurs limites en termes de flexibilité, de sensibilité aux paramètres et de capacité à capturer des structures complexes ont conduit à l'exploration de méthodes alternatives, comme les approches Plug-and-Play et celles basées sur l'apprentissage profond. Ces limites soulignent l'importance d'adopter des méthodes plus adaptatives et puissantes pour répondre aux défis modernes du traitement d'images.
-
-\section{\large Introduction a la methode plug and play }
-
-Les méthodes plug-and-play constituent une classe d’algorithmes itératifs pour la résolution de problèmes inverses en imagerie, où la régularisation est effectuée par un débruiteur de bruit gaussien. Ces algorithmes donnent de très bonnes performances de restauration, notamment lorsque le débruiteur est paramétré par un réseau de neurones profond. La méthode Plug-and-Play (PnP) a émergé comme une approche innovante dans le domaine du traitement d'images et de l'optimisation. Dans un contexte où les problèmes inverses, tels que le débruitage, la super-résolution et la restauration d'images, deviennent de plus en plus complexes, les techniques traditionnelles d'optimisation rencontrent des limitations en raison de la nature non lisse des fonctions et de la difficulté à modéliser le bruit. En intégrant des modèles de débruitage avancés, souvent issus de réseaux de neurones, la méthode PnP offre une flexibilité et une adaptabilité qui permettent de mieux capturer les structures complexes des données réelles. 
-
-
-
-
+\bibliographystyle{plain}
+\bibliography{ref.bib}
 
 \end{document}
