@@ -26,21 +26,21 @@ def main():
 
     Im_butterfly_denoised_sig15, Tb15 = fista(Im_butterfly_noised_sig15, "none", None, 0.01, 0.25, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
 
-    Im_butterfly_denoised_sig25, Tb25 = fista(Im_butterfly_noised_sig25, "none", None, 0.01, 0.01, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 20}, tol=1e-7)
+    Im_butterfly_denoised_sig25, Tb25 = fista(Im_butterfly_noised_sig25, "none", None, 0.01, 1e-3, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 15}, tol=1e-7)
 
-    Im_butterfly_denoised_sig50, Tb50 = fista(Im_butterfly_noised_sig50, "none", None, 0.01, 0.01, 9, prox=prox_l6, prox_params={"tau": 0.1, "K": 20}, tol=1e-7)
+    Im_butterfly_denoised_sig50, Tb50 = fista(Im_butterfly_noised_sig50, "none", None, 0.01, 1e-3, 9, prox=prox_l6, prox_params={"tau": 0.1, "K": 15}, tol=1e-7)
 
     Im_leaves_denoised_sig15, Tl15 = fista(Im_leaves_noised_sig15, "none", None, 0.01, 0.25, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
 
-    Im_leaves_denoised_sig25, Tl25 = fista(Im_leaves_noised_sig25, "none", None, 0.01, 0.01, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 20}, tol=1e-7)
+    Im_leaves_denoised_sig25, Tl25 = fista(Im_leaves_noised_sig25, "none", None, 0.01, 0.01, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 15}, tol=1e-7)
 
-    Im_leaves_denoised_sig50, Tl50 = fista(Im_leaves_noised_sig50, "none", None, 0.01, 0.01, 9, prox=prox_l6, prox_params={"tau": 0.1, "K": 20}, tol=1e-7)
+    Im_leaves_denoised_sig50, Tl50 = fista(Im_leaves_noised_sig50, "none", None, 0.01, 0.01, 9, prox=prox_l6, prox_params={"tau": 0.1, "K": 15}, tol=1e-7)
 
     Im_starfish_denoised_sig15, Ts15 = fista(Im_starfish_noised_sig15, "none", None, 0.01, 0.25, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 5}, tol=1e-7)
 
-    Im_starfish_denoised_sig25, Ts25 = fista(Im_starfish_noised_sig25, "none", None, 0.01, 0.01, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 20}, tol=1e-7)
+    Im_starfish_denoised_sig25, Ts25 = fista(Im_starfish_noised_sig25, "none", None, 0.01, 0.01, 5, prox=prox_l6, prox_params={"tau": 0.1, "K": 15}, tol=1e-7)
 
-    Im_starfish_denoised_sig50, Ts50 = fista(Im_starfish_noised_sig50, "none", None, 0.01, 0.01, 9, prox=prox_l6, prox_params={"tau": 0.1, "K": 20}, tol=1e-7)
+    Im_starfish_denoised_sig50, Ts50 = fista(Im_starfish_noised_sig50, "none", None, 0.01, 0.01, 9, prox=prox_l6, prox_params={"tau": 0.1, "K": 15}, tol=1e-7)
 
     # print(PSNR(Im_butterfly, Im_butterfly_denoised_sig50, 1.0))
 
@@ -55,21 +55,21 @@ def main():
 
     Im_butterfly_denoised_sig25_pnp, Tb25_pnp = pnp_apgm(Im_butterfly_noised_sig25, "none", None, 1, denoiser, sigma=sigma_mod, K=5, tol=1e-7)
 
-    Im_butterfly_denoised_sig50_pnp, Tb50_pnp = pnp_pgm(Im_butterfly_noised_sig50, "none", None, 1, denoiser, sigma=sigma_high, K=15, tol=1e-7)
+    Im_butterfly_denoised_sig50_pnp, Tb50_pnp = pnp_pgm(Im_butterfly_noised_sig50, "none", None, 1, denoiser, sigma=sigma_high, K=5, tol=1e-7)
 
     Im_leaves_denoised_sig15_pnp, Tl15_pnp = pnp_apgm(Im_leaves_noised_sig15, "none", None, 1, denoiser, sigma=sigma_low, K=5, tol=1e-7)
 
     Im_leaves_denoised_sig25_pnp, Tl25_pnp = pnp_apgm(Im_leaves_noised_sig25, "none", None, 1, denoiser, sigma=sigma_mod, K=5, tol=1e-7)
 
-    Im_leaves_denoised_sig50_pnp, Tl50_pnp = pnp_pgm(Im_leaves_noised_sig50, "none", None, 1, denoiser, sigma=sigma_high, K=15, tol=1e-7)
+    Im_leaves_denoised_sig50_pnp, Tl50_pnp = pnp_pgm(Im_leaves_noised_sig50, "none", None, 1, denoiser, sigma=sigma_high, K=5, tol=1e-7)
 
     Im_starfish_denoised_sig15_pnp, Ts15_pnp = pnp_apgm(Im_starfish_noised_sig15, "none", None, 1, denoiser, sigma=sigma_low, K=5, tol=1e-7)
 
     Im_starfish_denoised_sig25_pnp, Ts25_pnp = pnp_apgm(Im_starfish_noised_sig25, "none", None, 1, denoiser, sigma=sigma_mod, K=5, tol=1e-7)
 
-    Im_starfish_denoised_sig50_pnp, Ts50_pnp = pnp_pgm(Im_starfish_noised_sig50, "none", None, 1, denoiser, sigma=sigma_high, K=15, tol=1e-7)
+    Im_starfish_denoised_sig50_pnp, Ts50_pnp = pnp_pgm(Im_starfish_noised_sig50, "none", None, 1, denoiser, sigma=sigma_high, K=5, tol=1e-7)
 
-    # print(PSNR(Im_butterfly, Im_butterfly_denoised_sig50_pnp, 1.0))
+    # print(PSNR(Im_starfish, Im_starfish_denoised_sig50_pnp, 1.0))
 
 
     # # # '''Recherche paramètres optimaux (Proxy and PNP)'''
@@ -102,15 +102,15 @@ def main():
     # print(score_map.head())
 
 
-    # # # Save images 
+    # # Save images 
     
-    # # Images Denoising
+    # Images Denoising
 
     reference_image_list = [Im_butterfly, Im_leaves, Im_starfish]
 
-    names_denoised_sig15 = [["Low Noise B ($\sigma=0.06$)", "TV Denoising B ($\sigma=0.06$)", "PNP_DRUNet Denoising B ($\sigma=0.06$)"], 
-                            ["Low Noise L ($\sigma=0.06$)", "TV Denoising L ($\sigma=0.06$)", "PNP_DRUNet Denoising L ($\sigma=0.06$)"], 
-                            ["Low Noise S ($\sigma=0.06$)", "TV Denoising S ($\sigma=0.06$)", "PNP_DRUNet Denoising S ($\sigma=0.06$)"]]
+    names_denoised_sig15 = [["Low Noise ($\sigma=0.06$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
+                            ["Low Noise ($\sigma=0.06$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
+                            ["Low Noise ($\sigma=0.06$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
 
     images_denoised_sig15 =[[Im_butterfly_noised_sig15, Im_butterfly_denoised_sig15, Im_butterfly_denoised_sig15_pnp],
                             [Im_leaves_noised_sig15, Im_leaves_denoised_sig15, Im_leaves_denoised_sig15_pnp],
@@ -118,9 +118,9 @@ def main():
 
     denoise_trajectories_sig_15 = [[Tb15, Tb15_pnp], [Tl15, Tl15_pnp], [Ts15, Ts15_pnp]]
 
-    names_denoised_sig25 = [["Moderate Noise B ($\sigma=0.1$)", "TV Denoising B ($\sigma=0.1$)", "PNP_DRUNet Denoising B ($\sigma=0.1$)"], 
-                            ["Moderate Noise L ($\sigma=0.1$)", "TV Denoising L ($\sigma=0.1$)", "PNP_DRUNet Denoising L ($\sigma=0.1$)"], 
-                            ["Moderate Noise S ($\sigma=0.1$)", "TV Denoising S ($\sigma=0.1$)", "PNP_DRUNet Denoising S ($\sigma=0.1$)"]]
+    names_denoised_sig25 = [["Moderate Noise ($\sigma=0.1$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
+                            ["Moderate Noise ($\sigma=0.1$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
+                            ["Moderate Noise ($\sigma=0.1$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
 
     images_denoised_sig25 =[[Im_butterfly_noised_sig25, Im_butterfly_denoised_sig25, Im_butterfly_denoised_sig25_pnp],
                             [Im_leaves_noised_sig25, Im_leaves_denoised_sig25, Im_leaves_denoised_sig25_pnp],
@@ -128,9 +128,9 @@ def main():
 
     denoise_trajectories_sig_25 = [[Tb25, Tb25_pnp], [Tl25, Tl25_pnp], [Ts25, Ts25_pnp]]
 
-    names_denoised_sig50 = [["High Noise B ($\sigma=0.2$)", "TV Denoising B ($\sigma=0.2$)", "PNP_DRUNet Denoising B ($\sigma=0.2$)"], 
-                            ["High Noise L ($\sigma=0.2$)", "TV Denoising L ($\sigma=0.2$)", "PNP_DRUNet Denoising L ($\sigma=0.2$)"], 
-                            ["High Noise S ($\sigma=0.2$)", "TV Denoising S ($\sigma=0.2$)", "PNP_DRUNet Denoising S ($\sigma=0.2$)"]]
+    names_denoised_sig50 = [["High Noise ($\sigma=0.2$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
+                            ["High Noise ($\sigma=0.2$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
+                            ["High Noise ($\sigma=0.2$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
 
     images_denoised_sig50 =[[Im_butterfly_noised_sig50, Im_butterfly_denoised_sig50, Im_butterfly_denoised_sig50_pnp],
                             [Im_leaves_noised_sig50, Im_leaves_denoised_sig50, Im_leaves_denoised_sig50_pnp],
@@ -154,11 +154,11 @@ def main():
 
     # plt.figure(figsize=(18, 6), dpi=200)
     # plt.subplot(131)
-    # plt.imshow(Im_butterfly_denoised_sig50_pnp)
+    # plt.imshow(Im_butterfly)
     # plt.subplot(132)
-    # plt.imshow(Im_leaves_denoised_sig50_pnp)
+    # plt.imshow(Im_butterfly_noised_sig50)
     # plt.subplot(133)
-    # plt.imshow(Im_starfish_denoised_sig50_pnp)
+    # plt.imshow(Im_butterfly_denoised_sig50)
 
     # print([PSNR(Im_butterfly, Im_butterfly_denoised_sig50_pnp),
     #        PSNR(Im_leaves, Im_leaves_denoised_sig50_pnp),
