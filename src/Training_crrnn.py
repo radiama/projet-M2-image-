@@ -64,146 +64,146 @@ def main():
     plt.tight_layout()
     plt.show();
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # charger le modèle pré-entraîné
-    model = ConvexRidgeRegularizer(kernel_size=7, channels=[1, 8, 32], activation_params={"knots_range": 0.1, "n_channels": 56, "n_knots": 21, "name": "spline"})
-    # model.load_state_dict(torch.load("crr_nn_best_model.pth", map_location=device)) # Charger les poids depuis le fichier .pth
-    model.to(device)
-    # print("Modèle chargé avec succès à partir de drunet_best_model.pth.")
+    # # charger le modèle pré-entraîné
+    # model = ConvexRidgeRegularizer(kernel_size=7, channels=[1, 8, 32], activation_params={"knots_range": 0.1, "n_channels": 56, "n_knots": 21, "name": "spline"})
+    # # model.load_state_dict(torch.load("crr_nn_best_model.pth", map_location=device)) # Charger les poids depuis le fichier .pth
+    # model.to(device)
+    # # print("Modèle chargé avec succès à partir de drunet_best_model.pth.")
 
-    # Définissons le débruiteur
-    denoise = tStepDenoiser
+    # # Définissons le débruiteur
+    # denoise = tStepDenoiser
 
-    # Définir la perte
-    criterion = nn.L1Loss(reduction='mean')
+    # # Définir la perte
+    # criterion = nn.L1Loss(reduction='mean')
 
-    # Définir les optimiseurs
-    optimizers = []
-    optimizer = torch.optim.Adam
+    # # Définir les optimiseurs
+    # optimizers = []
+    # optimizer = torch.optim.Adam
 
-    # Optimisation des couches convolutives
-    params_conv = model.conv_layer.parameters()
-    optimizer_conv = optimizer(params_conv, lr=1e-3)
-    optimizers.append(optimizer_conv)
+    # # Optimisation des couches convolutives
+    # params_conv = model.conv_layer.parameters()
+    # optimizer_conv = optimizer(params_conv, lr=1e-3)
+    # optimizers.append(optimizer_conv)
 
-    # Optimisation des fonctions d'activation
-    if model.use_splines:
-        params_activations = [model.activation.coefficients_vect]
-        optimizer_activations = optimizer(params_activations, lr=5e-05)
-        optimizers.append(optimizer_activations)
+    # # Optimisation des fonctions d'activation
+    # if model.use_splines:
+    #     params_activations = [model.activation.coefficients_vect]
+    #     optimizer_activations = optimizer(params_activations, lr=5e-05)
+    #     optimizers.append(optimizer_activations)
 
-    # Optimisation des poids de régularisation
-    optimizer_lmbd = optimizer([model.lmbd], lr=5e-2)
-    optimizers.append(optimizer_lmbd)
+    # # Optimisation des poids de régularisation
+    # optimizer_lmbd = optimizer([model.lmbd], lr=5e-2)
+    # optimizers.append(optimizer_lmbd)
 
-    # Optimisation des facteurs d'échelle
-    optimizer_mu = optimizer([model.mu], lr=5e-2)
-    optimizers.append(optimizer_mu)
+    # # Optimisation des facteurs d'échelle
+    # optimizer_mu = optimizer([model.mu], lr=5e-2)
+    # optimizers.append(optimizer_mu)
 
-    # Définir le scheduler et l'arrêt précoce
-    schedulers = [StepLR(optim, step_size=1, gamma=0.75) for optim in optimizers]
+    # # Définir le scheduler et l'arrêt précoce
+    # schedulers = [StepLR(optim, step_size=1, gamma=0.75) for optim in optimizers]
 
-    # Optimizers_names
-    lr_name = ["lr_conv", "lr_params_activ", "lr_lmd", "lr_mu"] if model.use_splines else ["lr_conv", "lr_lmd", "lr_mu"]
+    # # Optimizers_names
+    # lr_name = ["lr_conv", "lr_params_activ", "lr_lmd", "lr_mu"] if model.use_splines else ["lr_conv", "lr_lmd", "lr_mu"]
 
-    # Early_stopping
-    early_stopping = EarlyStopping(patience=3)
+    # # Early_stopping
+    # early_stopping = EarlyStopping(patience=3)
 
-    # Entraînement du modèle
-    num_epochs = 5
-    train_losses = []
-    val_losses = []
+    # # Entraînement du modèle
+    # num_epochs = 5
+    # train_losses = []
+    # val_losses = []
 
-    for epoch in range(num_epochs):
-        model.train()
-        running_loss = 0.0
+    # for epoch in range(num_epochs):
+    #     model.train()
+    #     running_loss = 0.0
         
-        for noisy_images, truth_images in tqdm(train_loader, desc="CRRNN Training"):
+    #     for noisy_images, truth_images in tqdm(train_loader, desc="CRRNN Training"):
 
-            noisy_images, truth_images = noisy_images.to(device, dtype=torch.float32), truth_images.to(device, dtype=torch.float32)
+    #         noisy_images, truth_images = noisy_images.to(device, dtype=torch.float32), truth_images.to(device, dtype=torch.float32)
             
-            # Réinitialisation des gradients
-            for optimizer in optimizers:
-                optimizer.zero_grad()
+    #         # Réinitialisation des gradients
+    #         for optimizer in optimizers:
+    #             optimizer.zero_grad()
 
-            noisy_images.requires_grad_(True) # Activer le suivi des gradients
-            truth_images.requires_grad_(False) # Désactiver le suivi des gradients
+    #         noisy_images.requires_grad_(True) # Activer le suivi des gradients
+    #         truth_images.requires_grad_(False) # Désactiver le suivi des gradients
             
-            # Forward pass
-            outputs = denoise(model, noisy_images, t_steps=5)
+    #         # Forward pass
+    #         outputs = denoise(model, noisy_images, t_steps=5)
 
-            # Calcul de la perte
-            loss = criterion(outputs, truth_images)
+    #         # Calcul de la perte
+    #         loss = criterion(outputs, truth_images)
 
-            # Backward pass
-            loss.backward()
+    #         # Backward pass
+    #         loss.backward()
 
-            # Mise à jour des paramètres
-            for optimizer in optimizers:
-                optimizer.step()
+    #         # Mise à jour des paramètres
+    #         for optimizer in optimizers:
+    #             optimizer.step()
             
-            running_loss += loss.item()
+    #         running_loss += loss.item()
 
-        # Affichage des statistiques
-        print(f"\n=== Epoch {epoch+1}/{num_epochs} ===")    
-        print(f"Training Loss: {running_loss/len(train_loader):.4f}")
-        train_losses.append(running_loss/len(train_loader))
+    #     # Affichage des statistiques
+    #     print(f"\n=== Epoch {epoch+1}/{num_epochs} ===")    
+    #     print(f"Training Loss: {running_loss/len(train_loader):.4f}")
+    #     train_losses.append(running_loss/len(train_loader))
 
-        # Validation du modèle
-        model.eval()
-        with torch.no_grad():
-            val_loss, psnr_val = 0.0, 0.0
-            for noisy_images, truth_images in valid_loader:
-                noisy_images, truth_images = noisy_images.to(device, dtype=torch.float32), truth_images.to(device, dtype=torch.float32)
-                outputs = denoise(model, noisy_images, t_steps=1)
-                loss = criterion(outputs, truth_images)
-                psnr_val += psnr(outputs, truth_images, data_range=1.0).item()
-                val_loss += loss.item()
+    #     # Validation du modèle
+    #     model.eval()
+    #     with torch.no_grad():
+    #         val_loss, psnr_val = 0.0, 0.0
+    #         for noisy_images, truth_images in valid_loader:
+    #             noisy_images, truth_images = noisy_images.to(device, dtype=torch.float32), truth_images.to(device, dtype=torch.float32)
+    #             outputs = denoise(model, noisy_images, t_steps=1)
+    #             loss = criterion(outputs, truth_images)
+    #             psnr_val += psnr(outputs, truth_images, data_range=1.0).item()
+    #             val_loss += loss.item()
 
-        print(f"Validation Loss: {val_loss / len(valid_loader):.4f} | PSNR: {psnr_val / len(valid_loader):.2f}")
-        print("=============================")
-        val_losses.append(val_loss)
+    #     print(f"Validation Loss: {val_loss / len(valid_loader):.4f} | PSNR: {psnr_val / len(valid_loader):.2f}")
+    #     print("=============================")
+    #     val_losses.append(val_loss)
 
-        # Vérification de l'arrêt précoce
-        if early_stopping(val_loss, model, epoch):
-            print("Early stopping triggered. Training stopped.")
-            break
+    #     # Vérification de l'arrêt précoce
+    #     if early_stopping(val_loss, model, epoch):
+    #         print("Early stopping triggered. Training stopped.")
+    #         break
         
-        # Mise à jour du scheduler
-        for sc in schedulers:
-            sc.step()
+    #     # Mise à jour du scheduler
+    #     for sc in schedulers:
+    #         sc.step()
 
-        for name, optimizer in zip(lr_name, optimizers) :
-            print(f"\nLearning rate {name}: {optimizer.param_groups[0]['lr']:4f}")
-        print("\n")
+    #     for name, optimizer in zip(lr_name, optimizers) :
+    #         print(f"\nLearning rate {name}: {optimizer.param_groups[0]['lr']:4f}")
+    #     print("\n")
 
-    # Test du modèle
-    model.eval()
+    # # Test du modèle
+    # model.eval()
     
-    with torch.no_grad():
-        noisy_images, truth_images = next(iter(test_loader))
-        denoised_image = denoise(model, noisy_images, t_steps=5)
+    # with torch.no_grad():
+    #     noisy_images, truth_images = next(iter(test_loader))
+    #     denoised_image = denoise(model, noisy_images, t_steps=5)
 
-    i=0
+    # i=0
     
-    # Convertir en numpy
-    noisy_image = noisy_images[i].permute(1, 2, 0).cpu().numpy()
-    truth_image = truth_images[i].permute(1, 2, 0).cpu().numpy()
-    denoised_image = denoised_image[i].permute(1, 2, 0).cpu().detach().numpy()
+    # # Convertir en numpy
+    # noisy_image = noisy_images[i].permute(1, 2, 0).cpu().numpy()
+    # truth_image = truth_images[i].permute(1, 2, 0).cpu().numpy()
+    # denoised_image = denoised_image[i].permute(1, 2, 0).cpu().detach().numpy()
     
-    # Afficher les images
-    plt.figure(figsize=(15, 5))
-    plt.subplot(1, 3, 1)
-    plt.title("Image bruitée")
-    plt.imshow(noisy_image, cmap="gray")
-    plt.subplot(1, 3, 2)
-    plt.title("Image débruitée")
-    plt.imshow(denoised_image, cmap="gray")
-    plt.subplot(1, 3, 3)
-    plt.title("Image propre")
-    plt.imshow(truth_image, cmap="gray")
-    plt.show()
+    # # Afficher les images
+    # plt.figure(figsize=(15, 5))
+    # plt.subplot(1, 3, 1)
+    # plt.title("Image bruitée")
+    # plt.imshow(noisy_image, cmap="gray")
+    # plt.subplot(1, 3, 2)
+    # plt.title("Image débruitée")
+    # plt.imshow(denoised_image, cmap="gray")
+    # plt.subplot(1, 3, 3)
+    # plt.title("Image propre")
+    # plt.imshow(truth_image, cmap="gray")
+    # plt.show()
 
 
 if __name__=="__main__":
