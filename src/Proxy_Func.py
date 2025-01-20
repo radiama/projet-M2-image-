@@ -355,7 +355,7 @@ def forward_backward(u, operator_type, operator_params, lambd, tau, K, prox=prox
     return x, trajectoires
 
 
-def fista(u, operator_type, operator_params, lambd, tau, K, prox=prox_l6, prox_params=None, tol=1e-7):
+def fista(u, operator_type, operator_params, lambd, tau, K, prox=prox_l6, prox_params=None, tol=1e-7, init = True, verbose = True):
     """
     Algorithme FISTA (Fast Iterative Shrinkage-Thresholding Algorithm) modulable.
 
@@ -401,12 +401,12 @@ def fista(u, operator_type, operator_params, lambd, tau, K, prox=prox_l6, prox_p
     validate_inputs(u, operator_type, operator_params, lambd, tau, K)
 
     # Initialisation des variables
-    y = np.copy(u)  # Variable intermédiaire
-    x_old = np.copy(u)  # Solution précédente
+    y = np.copy(u) if init else np.zeros_like(u) # Variable intermédiaire
+    x_old = np.copy(u)# Solution précédente
     t = 1  # Paramètre d'accélération de FISTA
     trajectoires = [np.copy(u)]  # Stocke les solutions intermédiaires
 
-    for k in tqdm(range(K), desc="Fista_TV Algorithm"):
+    for k in tqdm(range(K), desc="Fista_TV Algorithm", disable=not verbose):
         # Calcul du gradient
         grad_f = process_image_2(u, y, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
 

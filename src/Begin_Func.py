@@ -5,6 +5,7 @@ import pandas as pd
 import deepinv as dinv
 import torch, os, itertools, cv2
 import matplotlib.pyplot as plt
+from torch.utils.data import Dataset
 
 # Chargement des images
 
@@ -730,6 +731,64 @@ def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_param
         return best_params, best_score, score_map_df
     else:
         return best_params, best_score, score_map_df
+    
+class DenoisingDataset(Dataset):
+
+    def __init__(self, images_dir, image_files, transform=None, noise_level=0.2, random = True):
+        self.truth_dir = images_dir
+        self.image_files = image_files
+        self.transform = transform
+        self.noise_level = noise_level  # Niveau de bruit gaussien à ajouter
+        self.random = random
+        
+    def __len__(self):
+        return len(self.image_files)
+    
+    def __getitem__(self, idx):
+        truth_path = os.path.join(self.truth_dir, self.image_files[idx])
+        
+        # Charger l'image propre
+        truth_image = Image.open(truth_path)
+        
+        truth_image = truth_image.convert('RGB') if np.array(truth_image).ndim==3 else truth_image
+
+        # Appliquer les transformations synchronisées
+        if self.transform:
+            truth_image = self.transform(truth_image) # (C, H, W)
+        
+        # Ajouter du bruit gaussien
+        if not self.random :
+            noisy_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).noise(sigma=self.noise_level)
+        else:
+            noisy_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).noise(sigma=np.random.uniform(0.0, self.noise_level))
+            
+        noisy_image = numpy_to_tensor(noisy_image).squeeze(0) # (C, H, W)
+
+        return noisy_image, truth_image
+
+class EarlyStopping:
+    def __init__(self, patience=3, min_delta=0, save_model=True):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.best_loss = None
+        self.save_model = save_model
+
+    def __call__(self, val_loss, model=None, epoch=None):
+        if self.best_loss is None or val_loss < self.best_loss - self.min_delta:
+            self.best_loss = val_loss
+            self.counter = 0
+            if self.save_model and model is not None and epoch is not None:
+                save_path = f"crr_nn_best_model.pth"
+                torch.save(model.state_dict(), save_path)
+                print(f"Meilleur modèle sauvegardé à : {save_path}")
+
+        else:
+            self.counter += 1
+            if self.counter >= self.patience:
+                print("Arrêt précoce déclenché.")
+                return True
+        return False
     
 # Redimensionnement avec PIL
 # def upscale_image(image, scale_factor):

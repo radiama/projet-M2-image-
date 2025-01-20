@@ -85,7 +85,7 @@ def pnp_admm(u, operator_type, operator_params, tau, denoiser, rho=1.0, sigma=0.
 
     return x, trajectoires
 
-def pnp_pgm(u, operator_type, operator_params, tau, denoiser, sigma=0.1, K=100, tol=1e-7):
+def pnp_pgm(u, operator_type, operator_params, tau, denoiser, sigma=0.1, K=100, tol=1e-7, init=True, verbose=True):
     """
     Méthode de gradient projeté Plug-and-Play (PNP-APGM).
 
@@ -125,11 +125,11 @@ def pnp_pgm(u, operator_type, operator_params, tau, denoiser, sigma=0.1, K=100, 
         validate_inputs(u, operator_type, operator_params, tau, sigma, K)
 
     # Initialisation
-    x = np.copy(u)  # Variable intermédiaire
+    x = np.copy(u) if init else np.zeros_like(u)  # Variable intermédiaire
     trajectoires = [np.copy(x)]  # Stocker les trajectoires
 
     # Boucle d'optimisation
-    for k in tqdm(range(K), desc="PnP_PGM Algorithm"):
+    for k in tqdm(range(K), desc="PnP_PGM Algorithm", disable=not verbose):
         # Calcul du gradient
         grad_f = process_image_2(u, x, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
 
