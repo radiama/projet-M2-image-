@@ -5,7 +5,7 @@
 import torch
 import torch.nn as nn
 from collections import OrderedDict
-from utils import get_weights_url, test_onesplit, test_pad
+from Utils import get_weights_url, test_onesplit, test_pad
 
 # Configuration du type de tenseur en fonction de la disponibilité du GPU
 cuda = True if torch.cuda.is_available() else False
