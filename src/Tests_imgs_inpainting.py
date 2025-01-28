@@ -31,41 +31,41 @@ def main():
 
     complex_mask = torch.rand(1, 1, 256, 256) > 0.8
 
-    # Im_butterfly_masked_simple, Mask_butterfly_simple = operateur(Im_butterfly).inpaint(mask=simple_mask, sigma=sigma_low)
+    Im_butterfly_masked_simple, Mask_butterfly_simple = operateur(Im_butterfly).inpaint(mask=simple_mask, sigma=sigma_low)
 
-    # Im_butterfly_masked_medium, Mask_butterfly_medium = operateur(Im_butterfly).inpaint(mask=medium_mask, sigma=sigma_mod)
+    Im_butterfly_masked_medium, Mask_butterfly_medium = operateur(Im_butterfly).inpaint(mask=medium_mask, sigma=sigma_mod)
 
-    # Im_butterfly_masked_complex, Mask_butterfly_complex = operateur(Im_butterfly).inpaint(mask=complex_mask, sigma=sigma_high)
+    Im_butterfly_masked_complex, Mask_butterfly_complex = operateur(Im_butterfly).inpaint(mask=complex_mask, sigma=sigma_high)
 
-    # Im_leaves_masked_simple, Mask_leaves_simple = operateur(Im_leaves).inpaint(mask=simple_mask, sigma=sigma_low)
+    Im_leaves_masked_simple, Mask_leaves_simple = operateur(Im_leaves).inpaint(mask=simple_mask, sigma=sigma_low)
 
-    # Im_leaves_masked_medium, Mask_leaves_medium = operateur(Im_leaves).inpaint(mask=medium_mask, sigma=sigma_mod)
+    Im_leaves_masked_medium, Mask_leaves_medium = operateur(Im_leaves).inpaint(mask=medium_mask, sigma=sigma_mod)
 
-    # Im_leaves_masked_complex, Mask_leaves_complex = operateur(Im_leaves).inpaint(mask=complex_mask, sigma=sigma_high)
+    Im_leaves_masked_complex, Mask_leaves_complex = operateur(Im_leaves).inpaint(mask=complex_mask, sigma=sigma_high)
 
-    # Im_starfish_masked_simple, Mask_star_simple = operateur(Im_starfish).inpaint(mask=simple_mask, sigma=sigma_low)
+    Im_starfish_masked_simple, Mask_star_simple = operateur(Im_starfish).inpaint(mask=simple_mask, sigma=sigma_low)
 
-    # Im_starfish_masked_medium, Mask_star_medium = operateur(Im_starfish).inpaint(mask=medium_mask, sigma=sigma_mod)
+    Im_starfish_masked_medium, Mask_star_medium = operateur(Im_starfish).inpaint(mask=medium_mask, sigma=sigma_mod)
 
-    # Im_starfish_masked_complex, Mask_star_complex = operateur(Im_starfish).inpaint(mask=complex_mask, sigma=sigma_high)
+    Im_starfish_masked_complex, Mask_star_complex = operateur(Im_starfish).inpaint(mask=complex_mask, sigma=sigma_high)
 
-    # Im_butterfly_demasked_simple, Tb_simple = fista(Im_butterfly_masked_simple, "mask", {"Mask": Mask_butterfly_simple}, 0.1, 1, 400, prox=prox_l6, prox_params={"tau": 0.01, "K": 10}, tol=1e-7, init=False)
+    Im_butterfly_demasked_simple, Tb_simple = fista(Im_butterfly_masked_simple, "mask", {"Mask": Mask_butterfly_simple}, 0.1, 1, 400, prox=prox_l6, prox_params={"tau": 0.01, "K": 10}, tol=1e-7, init=False)
 
-    # Im_butterfly_demasked_medium, Tb_medium = fista(Im_butterfly_masked_medium, "mask", {"Mask": Mask_butterfly_medium}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 20}, tol=1e-7, init=False)
+    Im_butterfly_demasked_medium, Tb_medium = fista(Im_butterfly_masked_medium, "mask", {"Mask": Mask_butterfly_medium}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 20}, tol=1e-7, init=False)
 
-    # Im_butterfly_demasked_complex, Tb_complex = fista(Im_butterfly_masked_complex, "mask", {"Mask": Mask_butterfly_complex}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 30}, tol=1e-7, init=False)
+    Im_butterfly_demasked_complex, Tb_complex = fista(Im_butterfly_masked_complex, "mask", {"Mask": Mask_butterfly_complex}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 30}, tol=1e-7, init=False)
     
-    # Im_leaves_demasked_simple, Tl_simple = fista(Im_leaves_masked_simple, "mask", {"Mask": Mask_leaves_simple}, 0.1, 1, 400, prox=prox_l6, prox_params={"tau": 0.01, "K": 10}, tol=1e-7, init=False)
+    Im_leaves_demasked_simple, Tl_simple = fista(Im_leaves_masked_simple, "mask", {"Mask": Mask_leaves_simple}, 0.1, 1, 400, prox=prox_l6, prox_params={"tau": 0.01, "K": 10}, tol=1e-7, init=False)
 
-    # Im_leaves_demasked_medium, Tl_medium = fista(Im_leaves_masked_medium, "mask", {"Mask": Mask_leaves_medium}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 20}, tol=1e-7, init=False)
+    Im_leaves_demasked_medium, Tl_medium = fista(Im_leaves_masked_medium, "mask", {"Mask": Mask_leaves_medium}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 20}, tol=1e-7, init=False)
 
-    # Im_leaves_demasked_complex, Tl_complex = fista(Im_leaves_masked_complex, "mask", {"Mask": Mask_leaves_complex}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 30}, tol=1e-7, init=False)
+    Im_leaves_demasked_complex, Tl_complex = fista(Im_leaves_masked_complex, "mask", {"Mask": Mask_leaves_complex}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 30}, tol=1e-7, init=False)
 
-    # Im_starfish_demasked_simple, Ts_simple = fista(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 0.1, 1, 400, prox=prox_l6, prox_params={"tau": 0.01, "K": 10}, tol=1e-7, init=False)
+    Im_starfish_demasked_simple, Ts_simple = fista(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 0.1, 1, 400, prox=prox_l6, prox_params={"tau": 0.01, "K": 10}, tol=1e-7, init=False)
 
-    # Im_starfish_demasked_medium, Ts_medium = fista(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 20}, tol=1e-7, init=False)
+    Im_starfish_demasked_medium, Ts_medium = fista(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 20}, tol=1e-7, init=False)
 
-    # Im_starfish_demasked_complex, Ts_complex = fista(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 30}, tol=1e-7, init=False)
+    Im_starfish_demasked_complex, Ts_complex = fista(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 0.1, 1, 200, prox=prox_l6, prox_params={"tau": 0.01, "K": 30}, tol=1e-7, init=False)
                                
     # print(PSNR(Im_butterfly, Im_butterfly_demasked_simple, 1.0))
 
@@ -77,23 +77,23 @@ def main():
 
     denoiser = DRUNet()
 
-    # Im_butterfly_demasked_simple_pnp, Tb_simple_pnp = pnp_pgm(Im_butterfly_masked_simple, "mask", {"Mask": Mask_butterfly_simple}, 1.5, denoiser, sigma=1.2e-1, K=400, tol=1e-7, init=False)
+    Im_butterfly_demasked_simple_pnp, Tb_simple_pnp = pnp_pgm(Im_butterfly_masked_simple, "mask", {"Mask": Mask_butterfly_simple}, 1.5, denoiser, sigma=1.2e-1, K=400, tol=1e-7, init=False)
 
-    # Im_butterfly_demasked_medium_pnp, Tb_medium_pnp = pnp_pgm(Im_butterfly_masked_medium, "mask", {"Mask": Mask_butterfly_medium}, 1.5, denoiser, sigma=1.3e-1, K=200, tol=1e-7, init=False)
+    Im_butterfly_demasked_medium_pnp, Tb_medium_pnp = pnp_pgm(Im_butterfly_masked_medium, "mask", {"Mask": Mask_butterfly_medium}, 1.5, denoiser, sigma=1.3e-1, K=200, tol=1e-7, init=False)
 
-    # Im_butterfly_demasked_complex_pnp, Tb_complex_pnp = pnp_pgm(Im_butterfly_masked_complex, "mask", {"Mask": Mask_butterfly_complex}, 1.5, denoiser, sigma=2e-1, K=200, tol=1e-7, init=False)
+    Im_butterfly_demasked_complex_pnp, Tb_complex_pnp = pnp_pgm(Im_butterfly_masked_complex, "mask", {"Mask": Mask_butterfly_complex}, 1.5, denoiser, sigma=2e-1, K=200, tol=1e-7, init=False)
 
-    # Im_leaves_demasked_simple_pnp, Tl_simple_pnp = pnp_pgm(Im_leaves_masked_simple, "mask", {"Mask": Mask_leaves_simple}, 1.5, denoiser, sigma=1.3e-1, K=400, tol=1e-7, init=False)
+    Im_leaves_demasked_simple_pnp, Tl_simple_pnp = pnp_pgm(Im_leaves_masked_simple, "mask", {"Mask": Mask_leaves_simple}, 1.5, denoiser, sigma=1.3e-1, K=400, tol=1e-7, init=False)
 
-    # Im_leaves_demasked_medium_pnp, Tl_medium_pnp = pnp_pgm(Im_leaves_masked_medium, "mask", {"Mask": Mask_leaves_medium}, 1.5, denoiser, sigma=1.9e-1, K=200, tol=1e-7, init=False)  
+    Im_leaves_demasked_medium_pnp, Tl_medium_pnp = pnp_pgm(Im_leaves_masked_medium, "mask", {"Mask": Mask_leaves_medium}, 1.5, denoiser, sigma=1.9e-1, K=200, tol=1e-7, init=False)  
 
-    # Im_leaves_demasked_complex_pnp, Tl_complex_pnp = pnp_pgm(Im_leaves_masked_complex, "mask", {"Mask": Mask_leaves_complex}, 1.7, denoiser, sigma=1.7e-1, K=200, tol=1e-7, init=False)  
+    Im_leaves_demasked_complex_pnp, Tl_complex_pnp = pnp_pgm(Im_leaves_masked_complex, "mask", {"Mask": Mask_leaves_complex}, 1.7, denoiser, sigma=1.7e-1, K=200, tol=1e-7, init=False)  
 
-    # Im_starfish_demasked_simple_pnp, Ts_simple_pnp = pnp_pgm(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 1.5, denoiser, sigma=1.2e-1, K=400, tol=1e-7, init=False)
+    Im_starfish_demasked_simple_pnp, Ts_simple_pnp = pnp_pgm(Im_starfish_masked_simple, "mask", {"Mask": Mask_star_simple}, 1.5, denoiser, sigma=1.2e-1, K=400, tol=1e-7, init=False)
 
-    # Im_starfish_demasked_medium_pnp, Ts_medium_pnp = pnp_pgm(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 1.5, denoiser, sigma=1.2e-1, K=200, tol=1e-7, init=False)
+    Im_starfish_demasked_medium_pnp, Ts_medium_pnp = pnp_pgm(Im_starfish_masked_medium, "mask", {"Mask": Mask_star_medium}, 1.5, denoiser, sigma=1.2e-1, K=200, tol=1e-7, init=False)
 
-    # Im_starfish_demasked_complex_pnp, Ts_complex_pnp = pnp_pgm(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 1.9, denoiser, sigma=1.5e-1, K=200, tol=1e-7, init=False)
+    Im_starfish_demasked_complex_pnp, Ts_complex_pnp = pnp_pgm(Im_starfish_masked_complex, "mask", {"Mask": Mask_star_complex}, 1.9, denoiser, sigma=1.5e-1, K=200, tol=1e-7, init=False)
 
     # print(PSNR(Im_starfish, Im_starfish_demasked_medium_pnp, 1.0))
 
@@ -136,46 +136,46 @@ def main():
 
     # # Images Inpainting
 
-    # reference_image_list = [Im_butterfly, Im_leaves, Im_starfish]
+    reference_image_list = [Im_butterfly, Im_leaves, Im_starfish]
 
-    # names_inpaint_simple = [["Simple Mask with Low Noise", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
-    #                         ["Simple Mask with Low Noise", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
-    #                         ["Simple Mask with Low Noise", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
+    names_inpaint_simple = [["Simple Mask with Low Noise", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
+                            ["Simple Mask with Low Noise", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
+                            ["Simple Mask with Low Noise", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
     
-    # images_inpaint_simple = [[Im_butterfly_masked_simple, Im_butterfly_demasked_simple, Im_butterfly_demasked_simple_pnp], 
-    #                          [Im_leaves_masked_simple, Im_leaves_demasked_simple, Im_leaves_demasked_simple_pnp], 
-    #                          [Im_starfish_masked_simple, Im_starfish_demasked_simple, Im_starfish_demasked_simple_pnp]]
+    images_inpaint_simple = [[Im_butterfly_masked_simple, Im_butterfly_demasked_simple, Im_butterfly_demasked_simple_pnp], 
+                             [Im_leaves_masked_simple, Im_leaves_demasked_simple, Im_leaves_demasked_simple_pnp], 
+                             [Im_starfish_masked_simple, Im_starfish_demasked_simple, Im_starfish_demasked_simple_pnp]]
 
-    # inpaint_trajectories_simple = [[Tb_simple, Tb_simple_pnp], [Tl_simple, Tl_simple_pnp], [Ts_simple, Ts_simple_pnp]]
+    inpaint_trajectories_simple = [[Tb_simple, Tb_simple_pnp], [Tl_simple, Tl_simple_pnp], [Ts_simple, Ts_simple_pnp]]
 
-    # names_inpaint_medium = [["Medium Mask with Moderate Noise", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
-    #                         ["Medium Mask with Moderate Noise", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
-    #                         ["Medium Mask with Moderate Noise", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
+    names_inpaint_medium = [["Medium Mask with Moderate Noise", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
+                            ["Medium Mask with Moderate Noise", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
+                            ["Medium Mask with Moderate Noise", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
 
-    # images_inpaint_medium = [[Im_butterfly_masked_medium, Im_butterfly_demasked_medium, Im_butterfly_demasked_medium_pnp], 
-    #                          [Im_leaves_masked_medium, Im_leaves_demasked_medium, Im_leaves_demasked_medium_pnp], 
-    #                          [Im_starfish_masked_medium, Im_starfish_demasked_medium, Im_starfish_demasked_medium_pnp]]
+    images_inpaint_medium = [[Im_butterfly_masked_medium, Im_butterfly_demasked_medium, Im_butterfly_demasked_medium_pnp], 
+                             [Im_leaves_masked_medium, Im_leaves_demasked_medium, Im_leaves_demasked_medium_pnp], 
+                             [Im_starfish_masked_medium, Im_starfish_demasked_medium, Im_starfish_demasked_medium_pnp]]
 
-    # inpaint_trajectories_medium =[[Tb_medium, Tb_medium_pnp], [Tl_medium, Tl_medium_pnp], [Ts_medium, Ts_medium_pnp]]
+    inpaint_trajectories_medium =[[Tb_medium, Tb_medium_pnp], [Tl_medium, Tl_medium_pnp], [Ts_medium, Ts_medium_pnp]]
 
-    # names_inpaint_complex = [["Complex Mask with High Noise", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
-    #                          ["Complex Mask with High Noise", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
-    #                          ["Complex Mask with High Noise", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
+    names_inpaint_complex = [["Complex Mask with High Noise", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
+                             ["Complex Mask with High Noise", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
+                             ["Complex Mask with High Noise", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
 
-    # images_inpaint_complex = [[Im_butterfly_masked_complex, Im_butterfly_demasked_complex, Im_butterfly_demasked_complex_pnp], 
-    #                           [Im_leaves_masked_complex, Im_leaves_demasked_complex, Im_leaves_demasked_complex_pnp], 
-    #                           [Im_starfish_masked_complex, Im_starfish_demasked_complex, Im_starfish_demasked_complex_pnp]]
+    images_inpaint_complex = [[Im_butterfly_masked_complex, Im_butterfly_demasked_complex, Im_butterfly_demasked_complex_pnp], 
+                              [Im_leaves_masked_complex, Im_leaves_demasked_complex, Im_leaves_demasked_complex_pnp], 
+                              [Im_starfish_masked_complex, Im_starfish_demasked_complex, Im_starfish_demasked_complex_pnp]]
 
-    # inpaint_trajectories_complex =[[Tb_complex, Tb_complex_pnp], [Tl_complex, Tl_complex_pnp], [Ts_complex, Ts_complex_pnp]]
+    inpaint_trajectories_complex =[[Tb_complex, Tb_complex_pnp], [Tl_complex, Tl_complex_pnp], [Ts_complex, Ts_complex_pnp]]
 
-    # save_path("results", "Imgs_inpaint_simple", names_inpaint_simple, images_inpaint_simple, reference_image_list=reference_image_list, 
-    #           psnr=True, trajectories_list=inpaint_trajectories_simple)
+    save_path("results", "Imgs_inpaint_simple", names_inpaint_simple, images_inpaint_simple, reference_image_list=reference_image_list, 
+              psnr=True, trajectories_list=inpaint_trajectories_simple)
 
-    # save_path("results", "Imgs_inpaint_medium", names_inpaint_medium, images_inpaint_medium, reference_image_list=reference_image_list, 
-    #           psnr=True, trajectories_list=inpaint_trajectories_medium)
+    save_path("results", "Imgs_inpaint_medium", names_inpaint_medium, images_inpaint_medium, reference_image_list=reference_image_list, 
+              psnr=True, trajectories_list=inpaint_trajectories_medium)
 
-    # save_path("results", "Imgs_inpaint_complex", names_inpaint_complex, images_inpaint_complex, reference_image_list=reference_image_list, 
-    #           psnr=True, trajectories_list=inpaint_trajectories_complex)
+    save_path("results", "Imgs_inpaint_complex", names_inpaint_complex, images_inpaint_complex, reference_image_list=reference_image_list, 
+              psnr=True, trajectories_list=inpaint_trajectories_complex)
     
 
     # import matplotlib.pyplot as plt

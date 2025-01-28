@@ -404,7 +404,7 @@ def fista(u, operator_type, operator_params, lambd, tau, K, prox=prox_l6, prox_p
     y = np.copy(u) if init else np.zeros_like(u) # Variable intermédiaire
     x_old = np.copy(u)# Solution précédente
     t = 1  # Paramètre d'accélération de FISTA
-    trajectoires = [np.copy(u)]  # Stocke les solutions intermédiaires
+    trajectoires = [np.copy(y)]  # Stocke les solutions intermédiaires
 
     for k in tqdm(range(K), desc="Fista_TV Algorithm", disable=not verbose):
         # Calcul du gradient

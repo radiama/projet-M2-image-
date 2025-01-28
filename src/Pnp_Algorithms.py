@@ -138,6 +138,7 @@ def pnp_pgm(u, operator_type, operator_params, tau, denoiser, sigma=0.1, K=100, 
 
         # # Application du débruiteur
         with torch.no_grad():
+
             x_half_tensor = numpy_to_tensor(x_half)
             x_tensor = denoiser(x_half_tensor, sigma=sigma)
             x = tensor_to_numpy(x_tensor)
@@ -206,6 +207,7 @@ def pnp_apgm(u, operator_type, operator_params, tau, denoiser, sigma=0.1, K=100,
 
         # # Application du débruiteur
         with torch.no_grad():
+            
             x_half_tensor = numpy_to_tensor(x_half)
             x_tensor = denoiser(x_half_tensor, sigma=sigma)
             x = tensor_to_numpy(x_tensor)

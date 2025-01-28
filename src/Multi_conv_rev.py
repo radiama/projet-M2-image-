@@ -1,4 +1,4 @@
-# Code borrowed from Alexis Goujon https://https://github.com/axgoujon/convex_ridge_regularizers
+# Code borrowed from Alexis Goujon https://github.com/axgoujon/convex_ridge_regularizers
 
 import torch, math
 from torch import nn

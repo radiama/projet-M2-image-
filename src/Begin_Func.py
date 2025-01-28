@@ -764,22 +764,28 @@ class DenoisingDataset(Dataset):
             
         noisy_image = numpy_to_tensor(noisy_image).squeeze(0) # (C, H, W)
 
+        noisy_image = noisy_image.clamp(0, 1)  # Clamp les valeurs entre 0 et 1
+
         return noisy_image, truth_image
 
 class EarlyStopping:
-    def __init__(self, patience=3, min_delta=0, save_model=True):
+    def __init__(self, patience=3, min_delta=0, noise_level=25, save_model=True):
         self.patience = patience
         self.min_delta = min_delta
         self.counter = 0
         self.best_loss = None
         self.save_model = save_model
+        self.noise_level = noise_level
 
     def __call__(self, val_loss, model=None, epoch=None):
         if self.best_loss is None or val_loss < self.best_loss - self.min_delta:
             self.best_loss = val_loss
             self.counter = 0
+            script_dir = os.path.dirname(__file__)
+            parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+  
             if self.save_model and model is not None and epoch is not None:
-                save_path = f"crr_nn_best_model.pth"
+                save_path = os.path.join(parent_dir, f"trained_models/IOD_Training/crr_nn_best_model_{self.noise_level}.pth")
                 torch.save(model.state_dict(), save_path)
                 print(f"Meilleur modèle sauvegardé à : {save_path}")
 
