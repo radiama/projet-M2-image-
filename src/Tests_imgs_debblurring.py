@@ -39,21 +39,21 @@ def main():
     Im_starfish_blurred_high, G_starfish_high = operateur(Im_starfish).blur(sigma = sigma_high_2, angle = 0)
 
 
-    # Im_butterfly_deblurred_low, Tb_low = fista(Im_butterfly_blurred_low, "convolution", {"G": G_butterfly_low}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 20}, tol=1e-7, init=False)
+    Im_butterfly_deblurred_low, Tb_low = fista(Im_butterfly_blurred_low, "convolution", {"G": G_butterfly_low}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 20}, tol=1e-7, init=False)
 
-    # Im_butterfly_deblurred_mod, Tb_mod = fista(Im_butterfly_blurred_mod, "convolution", {"G": G_butterfly_mod}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 25}, tol=1e-7, init=False)
+    Im_butterfly_deblurred_mod, Tb_mod = fista(Im_butterfly_blurred_mod, "convolution", {"G": G_butterfly_mod}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 25}, tol=1e-7, init=False)
 
     Im_butterfly_deblurred_high, Tb_high = fista(Im_butterfly_blurred_high, "convolution", {"G": G_butterfly_high}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-2, "K": 5}, tol=1e-7, init=False)
     
-    # Im_leaves_deblurred_low, Tl_low = fista(Im_leaves_blurred_low, "convolution", {"G": G_leaves_low}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 20}, tol=1e-7, init=False)
+    Im_leaves_deblurred_low, Tl_low = fista(Im_leaves_blurred_low, "convolution", {"G": G_leaves_low}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 20}, tol=1e-7, init=False)
 
-    # Im_leaves_deblurred_mod, Tl_mod = fista(Im_leaves_blurred_mod, "convolution", {"G": G_leaves_mod}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 25}, tol=1e-7, init=False)
+    Im_leaves_deblurred_mod, Tl_mod = fista(Im_leaves_blurred_mod, "convolution", {"G": G_leaves_mod}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 25}, tol=1e-7, init=False)
 
     Im_leaves_deblurred_high, Tl_high = fista(Im_leaves_blurred_high, "convolution", {"G": G_leaves_high}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-2, "K": 5}, tol=1e-7, init=False)
 
-    # Im_starfish_deblurred_low, Ts_low = fista(Im_starfish_blurred_low, "convolution", {"G": G_starfish_low}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 20}, tol=1e-7, init=False)
+    Im_starfish_deblurred_low, Ts_low = fista(Im_starfish_blurred_low, "convolution", {"G": G_starfish_low}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 20}, tol=1e-7, init=False)
 
-    # Im_starfish_deblurred_mod, Ts_mod = fista(Im_starfish_blurred_mod, "convolution", {"G": G_starfish_mod}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 25}, tol=1e-7, init=False)
+    Im_starfish_deblurred_mod, Ts_mod = fista(Im_starfish_blurred_mod, "convolution", {"G": G_starfish_mod}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 25}, tol=1e-7, init=False)
 
     Im_starfish_deblurred_high, Ts_high = fista(Im_starfish_blurred_high, "convolution", {"G": G_starfish_high}, 1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 25}, tol=1e-7, init=False)
 
@@ -67,21 +67,21 @@ def main():
 
     denoiser = DRUNet()
 
-    # Im_butterfly_deblurred_low_pnp, Tb_low_pnp = pnp_pgm(Im_butterfly_blurred_low, "convolution", {"G": G_butterfly_low}, 1.9, denoiser, sigma=8e-3, K=200, tol=1e-7, init=False)
+    Im_butterfly_deblurred_low_pnp, Tb_low_pnp = pnp_pgm(Im_butterfly_blurred_low, "convolution", {"G": G_butterfly_low}, 1.9, denoiser, sigma=8e-3, K=200, tol=1e-7, init=False)
 
-    # Im_butterfly_deblurred_mod_pnp, Tb_mod_pnp = pnp_pgm(Im_butterfly_blurred_mod, "convolution", {"G": G_butterfly_mod}, 1.9, denoiser, sigma=3e-2, K=200, tol=1e-7, init=False)
+    Im_butterfly_deblurred_mod_pnp, Tb_mod_pnp = pnp_pgm(Im_butterfly_blurred_mod, "convolution", {"G": G_butterfly_mod}, 1.9, denoiser, sigma=3e-2, K=200, tol=1e-7, init=False)
 
     Im_butterfly_deblurred_high_pnp, Tb_high_pnp = pnp_pgm(Im_butterfly_blurred_high, "convolution", {"G": G_butterfly_high}, 1.9, denoiser, sigma=5e-2, K=200, tol=1e-7, init=False)
 
-    # Im_leaves_deblurred_low_pnp, Tl_low_pnp = pnp_pgm(Im_leaves_blurred_low, "convolution", {"G": G_leaves_low}, 1.9, denoiser, sigma=1e-2, K=200, tol=1e-7, init=False)
+    Im_leaves_deblurred_low_pnp, Tl_low_pnp = pnp_pgm(Im_leaves_blurred_low, "convolution", {"G": G_leaves_low}, 1.9, denoiser, sigma=1e-2, K=200, tol=1e-7, init=False)
 
-    # Im_leaves_deblurred_mod_pnp, Tl_mod_pnp = pnp_pgm(Im_leaves_blurred_mod, "convolution", {"G": G_leaves_mod}, 1.9, denoiser, sigma=5e-2, K=200, tol=1e-7, init=False)
+    Im_leaves_deblurred_mod_pnp, Tl_mod_pnp = pnp_pgm(Im_leaves_blurred_mod, "convolution", {"G": G_leaves_mod}, 1.9, denoiser, sigma=5e-2, K=200, tol=1e-7, init=False)
 
     Im_leaves_deblurred_high_pnp, Tl_high_pnp = pnp_pgm(Im_leaves_blurred_high, "convolution", {"G": G_leaves_high}, 1.9, denoiser, sigma=3e-2, K=200, tol=1e-7, init=False)
     
-    # Im_starfish_deblurred_low_pnp, Ts_low_pnp = pnp_pgm(Im_starfish_blurred_low, "convolution", {"G": G_starfish_low}, 1.9, denoiser, sigma=1e-2, K=200, tol=1e-7, init=False)
+    Im_starfish_deblurred_low_pnp, Ts_low_pnp = pnp_pgm(Im_starfish_blurred_low, "convolution", {"G": G_starfish_low}, 1.9, denoiser, sigma=1e-2, K=200, tol=1e-7, init=False)
 
-    # Im_starfish_deblurred_mod_pnp, Ts_mod_pnp = pnp_pgm(Im_starfish_blurred_mod, "convolution", {"G": G_starfish_mod}, 1.9, denoiser, sigma=5e-2, K=200, tol=1e-7, init=False)
+    Im_starfish_deblurred_mod_pnp, Ts_mod_pnp = pnp_pgm(Im_starfish_blurred_mod, "convolution", {"G": G_starfish_mod}, 1.9, denoiser, sigma=5e-2, K=200, tol=1e-7, init=False)
 
     Im_starfish_deblurred_high_pnp, Ts_high_pnp = pnp_pgm(Im_starfish_blurred_high, "convolution", {"G": G_starfish_high}, 1.9, denoiser, sigma=3e-2, K=200, tol=1e-7, init=False)
 
@@ -123,26 +123,26 @@ def main():
 
     reference_image_list = [Im_butterfly, Im_leaves, Im_starfish]
 
-    # names_deblurred_sig_1 = [["Low Blur ($\sigma=1$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
-    #                             ["Low Blur ($\sigma=1$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
-    #                             ["Low Blur ($\sigma=1$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
+    names_deblurred_sig_1 = [["Low Blur ($\sigma=1$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
+                                ["Low Blur ($\sigma=1$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
+                                ["Low Blur ($\sigma=1$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]
 
-    # images_deblurred_sig_1 =[[Im_butterfly_blurred_low, Im_butterfly_deblurred_low, Im_butterfly_deblurred_low_pnp], 
-    #                             [Im_leaves_blurred_low, Im_leaves_deblurred_low, Im_leaves_deblurred_low_pnp], 
-    #                             [Im_starfish_blurred_low, Im_starfish_deblurred_low, Im_starfish_deblurred_low_pnp]]
+    images_deblurred_sig_1 =[[Im_butterfly_blurred_low, Im_butterfly_deblurred_low, Im_butterfly_deblurred_low_pnp], 
+                                [Im_leaves_blurred_low, Im_leaves_deblurred_low, Im_leaves_deblurred_low_pnp], 
+                                [Im_starfish_blurred_low, Im_starfish_deblurred_low, Im_starfish_deblurred_low_pnp]]
 
-    # deblur_trajectories_sig_1 = [[Tb_low, Tb_low_pnp], [Tl_low, Tl_low_pnp], [Ts_low, Ts_low_pnp]]
+    deblur_trajectories_sig_1 = [[Tb_low, Tb_low_pnp], [Tl_low, Tl_low_pnp], [Ts_low, Ts_low_pnp]]
 
 
-    # names_deblurred_sig_2 = [["Moderate Blur B ($\sigma=2$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
-    #                             ["Moderate Blur L ($\sigma=2$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
-    #                             ["Moderate Blur S ($\sigma=2$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]    
+    names_deblurred_sig_2 = [["Moderate Blur B ($\sigma=2$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
+                                ["Moderate Blur L ($\sigma=2$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
+                                ["Moderate Blur S ($\sigma=2$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]    
 
-    # images_deblurred_sig_2 =[[Im_butterfly_blurred_mod, Im_butterfly_deblurred_mod, Im_butterfly_deblurred_mod_pnp], 
-    #                             [Im_leaves_blurred_mod, Im_leaves_deblurred_mod, Im_leaves_deblurred_mod_pnp], 
-    #                             [Im_starfish_blurred_mod, Im_starfish_deblurred_mod, Im_starfish_deblurred_mod_pnp]]
+    images_deblurred_sig_2 =[[Im_butterfly_blurred_mod, Im_butterfly_deblurred_mod, Im_butterfly_deblurred_mod_pnp], 
+                                [Im_leaves_blurred_mod, Im_leaves_deblurred_mod, Im_leaves_deblurred_mod_pnp], 
+                                [Im_starfish_blurred_mod, Im_starfish_deblurred_mod, Im_starfish_deblurred_mod_pnp]]
 
-    # deblur_trajectories_sig_2 = [[Tb_mod, Tb_mod_pnp], [Tl_mod, Tl_mod_pnp], [Ts_mod, Ts_mod_pnp]]
+    deblur_trajectories_sig_2 = [[Tb_mod, Tb_mod_pnp], [Tl_mod, Tl_mod_pnp], [Ts_mod, Ts_mod_pnp]]
 
 
     names_deblurred_sig_3 = [["High Blur B ($\sigma=3$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
@@ -155,11 +155,11 @@ def main():
 
     deblur_trajectories_sig_3 = [[Tb_high, Tb_high_pnp], [Tl_high, Tl_high_pnp], [Ts_high, Ts_high_pnp]]
 
-    # save_path("results", "Imgs_deblurred_sig_1", names_deblurred_sig_1, images_deblurred_sig_1, reference_image_list=reference_image_list, 
-    #           psnr=True, trajectories_list=deblur_trajectories_sig_1)
+    save_path("results", "Imgs_deblurred_sig_1", names_deblurred_sig_1, images_deblurred_sig_1, reference_image_list=reference_image_list, 
+              psnr=True, trajectories_list=deblur_trajectories_sig_1)
     
-    # save_path("results", "Imgs_deblurred_sig_2", names_deblurred_sig_2, images_deblurred_sig_2, reference_image_list=reference_image_list, 
-    #           psnr=True, trajectories_list=deblur_trajectories_sig_2)
+    save_path("results", "Imgs_deblurred_sig_2", names_deblurred_sig_2, images_deblurred_sig_2, reference_image_list=reference_image_list, 
+              psnr=True, trajectories_list=deblur_trajectories_sig_2)
 
     save_path("results", "Imgs_deblurred_sig_3", names_deblurred_sig_3, images_deblurred_sig_3, reference_image_list=reference_image_list, 
               psnr=True, trajectories_list=deblur_trajectories_sig_3)

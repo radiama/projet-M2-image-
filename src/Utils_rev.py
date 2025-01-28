@@ -19,6 +19,8 @@ from torchmetrics.functional import structural_similarity_index_measure as ssim 
 from tqdm import tqdm  # Barre de progression pour suivre l'exécution des boucles.
 from Convex_ridge_regularizer_rev import ConvexRidgeRegularizer  # Importe la classe principale pour construire le modèle.
 from pathlib import Path  # Outils pour manipuler facilement les chemins de fichiers et dossiers.
+from Proxy_Func import compute_gradient
+from Begin_Func import process_image_2, numpy_to_tensor, tensor_to_numpy
 
 def load_model(name, device='cuda:0', epoch=None):
     """
@@ -149,7 +151,7 @@ def accelerated_gd(x_noisy, model, ada_restart=False, lmbd=1, mu=1, use_strong_c
 
     return x, i, n_restart
 
-def tStepDenoiser(model, x_noisy, t_steps=50):
+def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_params=None, train=False):
     """
     Implémente un débruitage itératif basé sur un modèle donné.
 
@@ -178,6 +180,9 @@ def tStepDenoiser(model, x_noisy, t_steps=50):
         # Utilise la valeur stockée pour éviter le recalcul
         L = model.L
 
+    if type(x_noisy)==np.ndarray:
+        x_noisy = numpy_to_tensor(x_noisy)
+
     # Initialisation des résultats avec l'entrée bruitée
     x = torch.clone(x_noisy)
 
@@ -197,7 +202,13 @@ def tStepDenoiser(model, x_noisy, t_steps=50):
                 step_size = 2 / (2 + L * lmbd * mu)  # Alternative (moins utilisée)
 
             # Mise à jour de x
-            x = x - step_size * ((x - x_noisy) + lmbd * model(mu * x))
+            if not train:
+                x_noisy_half, x_half = tensor_to_numpy(x_noisy), tensor_to_numpy(x)
+                grad_f = process_image_2(x_noisy_half, x_half, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
+                grad_f = numpy_to_tensor(grad_f)
+            else:
+                grad_f = x - x_noisy
+            x = x - step_size * ((grad_f) + lmbd * model(mu * x))
 
     return x
 
