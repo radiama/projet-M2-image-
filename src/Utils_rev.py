@@ -151,7 +151,7 @@ def accelerated_gd(x_noisy, model, ada_restart=False, lmbd=1, mu=1, use_strong_c
 
     return x, i, n_restart
 
-def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_params=None, train=False):
+def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_params=None, train=False, auto_params=False, lmbd=1, mu=1, step_size=None):
     """
     Implémente un débruitage itératif basé sur un modèle donné.
 
@@ -163,10 +163,10 @@ def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_pa
     Returns:
         torch.Tensor: Résultat après t étapes de débruitage.
     """
-
-    # Paramètres d'échelle et de régularisation (transférables)
-    lmbd = model.lmbd_transformed
-    mu = model.mu_transformed
+    if auto_params:
+        # Paramètres d'échelle et de régularisation (transférables)
+        lmbd = model.lmbd_transformed
+        mu = model.mu_transformed
 
     # Borne de Lipschitz du modèle
     if model.training:
@@ -190,25 +190,26 @@ def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_pa
     for i in range(t_steps):
         opt = 1  # Choix du schéma d'étape
 
-        # Étape 1 : Initialisation
-        if i == 0:
-            # Étape de descente de gradient avec un pas 2/L
-            x = x_noisy - 2 / (L * mu) * model(mu * x_noisy)
-        else:
-            # Étapes suivantes : choix du pas
-            if opt == 1:
-                step_size = (2 - 1e-8) / (1 + L * lmbd * mu)  # Règle par défaut
+        if auto_params :
+            # Étape 1 : Initialisation
+            if i == 0:
+                # Étape de descente de gradient avec un pas 2/L
+                x = x_noisy - 2 / (L * mu) * model(mu * x_noisy)
             else:
-                step_size = 2 / (2 + L * lmbd * mu)  # Alternative (moins utilisée)
+                # Étapes suivantes : choix du pas
+                if opt == 1:
+                    step_size = (2 - 1e-8) / (1 + L * lmbd * mu)  # Règle par défaut
+                else:
+                    step_size = 2 / (2 + L * lmbd * mu)  # Alternative (moins utilisée)
 
-            # Mise à jour de x
-            if not train:
-                x_noisy_half, x_half = tensor_to_numpy(x_noisy), tensor_to_numpy(x)
-                grad_f = process_image_2(x_noisy_half, x_half, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
-                grad_f = numpy_to_tensor(grad_f)
-            else:
-                grad_f = x - x_noisy
-            x = x - step_size * ((grad_f) + lmbd * model(mu * x))
+        # Mise à jour de x
+        if not train:
+            x_noisy_half, x_half = tensor_to_numpy(x_noisy), tensor_to_numpy(x)
+            grad_f = process_image_2(x_noisy_half, x_half, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
+            grad_f = numpy_to_tensor(grad_f)
+        else:
+            grad_f = x - x_noisy
+        x = x - step_size * ((grad_f) + lmbd * model(mu * x))
 
     return x
 
