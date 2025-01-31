@@ -21,6 +21,8 @@ from Convex_ridge_regularizer_rev import ConvexRidgeRegularizer  # Importe la cl
 from pathlib import Path  # Outils pour manipuler facilement les chemins de fichiers et dossiers.
 from Proxy_Func import compute_gradient
 from Begin_Func import process_image_2, numpy_to_tensor, tensor_to_numpy
+from Variational_Func import convolve
+from tqdm import tqdm
 
 def load_model(name, device='cuda:0', epoch=None):
     """
@@ -151,7 +153,8 @@ def accelerated_gd(x_noisy, model, ada_restart=False, lmbd=1, mu=1, use_strong_c
 
     return x, i, n_restart
 
-def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_params=None, train=False, auto_params=False, lmbd=1, mu=1, step_size=None):
+def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_params=None, train=False, 
+                  auto_params=False, lmbd=1, mu=1, step_size=None, traj=True, init=False, verbose=True):
     """
     Implémente un débruitage itératif basé sur un modèle donné.
 
@@ -184,10 +187,13 @@ def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_pa
         x_noisy = numpy_to_tensor(x_noisy)
 
     # Initialisation des résultats avec l'entrée bruitée
-    x = torch.clone(x_noisy)
+    x = torch.clone(x_noisy) if init else torch.zeros_like(x_noisy)
+
+    trajectoires = [x]  # Trajectoire des solutions
 
     # Boucle principale : t étapes différentiables
-    for i in range(t_steps):
+    
+    for i in tqdm(range(t_steps), desc="CRRNN Algorithm", disable=not verbose):
         opt = 1  # Choix du schéma d'étape
 
         if auto_params :
@@ -195,6 +201,8 @@ def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_pa
             if i == 0:
                 # Étape de descente de gradient avec un pas 2/L
                 x = x_noisy - 2 / (L * mu) * model(mu * x_noisy)
+                trajectoires.append(x)
+                continue
             else:
                 # Étapes suivantes : choix du pas
                 if opt == 1:
@@ -208,10 +216,17 @@ def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_pa
             grad_f = process_image_2(x_noisy_half, x_half, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
             grad_f = numpy_to_tensor(grad_f)
         else:
-            grad_f = x - x_noisy
+            grad_f = (x - x_noisy) if operator_type == "none" else ((x - x_noisy) * operator_params["Mask"]) if operator_type == "mask" else (convolve(convolve(x_noisy, operator_params["G"]) - x, operator_params["G"].T))
+        
         x = x - step_size * ((grad_f) + lmbd * model(mu * x))
 
-    return x
+        # Ajoute la solution à la trajectoire
+        trajectoires.append(x)
+    
+    if not traj:
+        return x
+    else:
+        return x, trajectoires
 
 
 def AdaGD(x_noisy, model, lmbd=1, mu=1, **kwargs):

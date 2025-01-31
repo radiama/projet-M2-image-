@@ -308,3 +308,16 @@ def normalize(u):
         torch.Tensor: Tensor normalisé.
     """
     return u / norm(u)
+
+def CRRNN(model=None, name_model_pre=None, device=None, load=True, checkpoint=True):
+    if load and checkpoint:
+        model.load_state_dict(torch.load(name_model_pre, map_location=device)["state_dict"]) # Charger les poids depuis le fichier .pth
+    elif load:
+        model.load_state_dict(torch.load(name_model_pre, map_location=device)) # Charger les poids depuis le fichier .pth
+    else:
+        model.to(device)
+        model.eval()
+    # model.prune(change_splines_to_clip=False, prune_filters=True, collapse_filters=True)
+    # model.initializeEigen(size=100)
+    # model.precise_lipschitz_bound(n_iter=100)
+    return model
