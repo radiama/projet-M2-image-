@@ -241,12 +241,23 @@ def save_path(folder, file_name, names_list, images_list, reference_image_list=N
         plt.figure(figsize=(12, 8), dpi=200)
         for img_ref, trajectory_group, name_group in zip(reference_image_list, trajectories_list, names_list):
             if img_ref is not None:
-                for trajectory, name in zip(trajectory_group, name_group[-2:]):
-                    psnr_values = [
-                        cv2.PSNR((img_ref * 255).clip(0, 255).astype(np.uint8), (traj * 255).clip(0, 255).astype(np.uint8))
-                        for traj in trajectory
-                    ]
-                    plt.plot(range(len(psnr_values)), psnr_values, marker="o", linestyle="-", label=name)
+
+                # Définition des styles possibles
+                markers = ["o", "s", "D", "^", "v", "p", "*", "X"]
+                linestyles = ["-", "--", "-.", ":"]
+                colors = plt.cm.viridis(np.linspace(0, 1, len(trajectory_group)))  # Palette de couleurs
+
+                # Boucle pour tracer chaque trajectoire avec un style unique
+                for idx, (trajectory, name) in enumerate(zip(trajectory_group, name_group[-len(trajectory_group):])):
+                    psnr_values = [cv2.PSNR((img_ref * 255).clip(0, 255).astype(np.uint8), (traj * 255).clip(0, 255).astype(np.uint8))
+                        for traj in trajectory]
+
+                    # Sélection des styles avec gestion de l'indexation circulaire
+                    marker, linestyle, color = markers[idx % len(markers)], linestyles[idx % len(linestyles)], colors[idx]
+
+                    # Tracé avec variation des styles
+                    plt.plot(range(len(psnr_values)), psnr_values, marker=marker, linestyle=linestyle, 
+                            label=name, alpha=0.7)
 
         # Paramètres du graphique PSNR
         plt.xlabel("Itérations")
@@ -324,6 +335,53 @@ def process_image_2(*images, operator, **kwargs):
         return np.stack([operator(*(img[:, :, c] for img in images), **kwargs) for c in range(3)], axis=2)
     else:
         raise ValueError("Les images doivent être de dimension (H, W) ou (H, W, 3).")
+    
+def process_image_3(*images, operator, **kwargs):
+    """
+    Traite un ou plusieurs tableaux représentant des images (en couleur ou en niveaux de gris)
+    en appliquant un opérateur canal par canal.
+
+    Parameters:
+    - *images : list of array_like, un ou plusieurs tableaux représentant les images.
+    - operator : callable, opérateur ou fonction à appliquer.
+    - kwargs : dict, paramètres supplémentaires pour la fonction de traitement.
+
+    Returns:
+    - array_like : image ou tableau traité (H, W, 3) ou (H, W).
+
+    Raises:
+    - ValueError : si les dimensions des images ne correspondent pas ou si elles ne sont pas valides.
+    """
+    # Vérifier que toutes les images ont les mêmes dimensions
+    if len(images) < 1:
+        raise ValueError("Au moins une image doit être fournie.")
+    base_shape = images[0].shape
+    for img in images:
+        if img.shape != base_shape:
+            raise ValueError("Toutes les images doivent avoir les mêmes dimensions.")
+    
+    # Cas des images en niveaux de gris
+    if len(base_shape) == 2 or (len(base_shape) == 3 and base_shape[2] == 1):  # Image en niveaux de gris
+        return operator(*images, **kwargs)
+    
+    # Cas des images en couleur
+    elif len(base_shape) == 3 and base_shape[2] == 3:  # Images avec 3 canaux
+
+        # Appliquer l'opérateur canal par canal
+        new_images =[operator(*(img[:, :, c] for img in images), **kwargs)[0] for c in range(3)]
+
+        new_images= [img.squeeze(0).squeeze(0) for img in new_images]
+
+        image = np.stack(new_images, axis=2)
+        
+        trajectories = [operator(*(img[:, :, c] for img in images), **kwargs)[1] for c in range(3)]
+        
+        trajectories = [np.stack([(traj[i]).squeeze(0).squeeze(0) for traj in trajectories], axis=2) for i in range(len(trajectories[0]))]
+
+        return image, trajectories
+    else:
+        raise ValueError("Les images doivent être de dimension (H, W) ou (H, W, 3).")
+    
 
 # Produit scalaire u, v
 
@@ -732,19 +790,27 @@ def search_opt(func, u_truth, param_ranges, metric, func_params=None, prox_param
     else:
         return best_params, best_score, score_map_df
     
-class DenoisingDataset(Dataset):
+class OperatorDataset(Dataset):
 
-    def __init__(self, images_dir, image_files, transform=None, noise_level=0.2, random = True):
+    def __init__(self, images_dir, image_files, transform=None, operator="noising", 
+                 noise_level=0.2, blur_level=(1,1), angle=0, mask=None, random=True):
+        
         self.truth_dir = images_dir
         self.image_files = image_files
         self.transform = transform
         self.noise_level = noise_level  # Niveau de bruit gaussien à ajouter
+        self.blur_level = blur_level
+        self.mask = mask
+        self.angle = angle
         self.random = random
+        self.operator = operator
+        self.random_blur = np.random.uniform(0.0, 5.0), np.random.uniform(0.0, 5.0)
         
     def __len__(self):
         return len(self.image_files)
     
     def __getitem__(self, idx):
+        # Chemin de l'image propre
         truth_path = os.path.join(self.truth_dir, self.image_files[idx])
         
         # Charger l'image propre
@@ -757,25 +823,59 @@ class DenoisingDataset(Dataset):
             truth_image = self.transform(truth_image) # (C, H, W)
         
         # Ajouter du bruit gaussien
-        if not self.random :
-            noisy_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).noise(sigma=self.noise_level)
-        else:
-            noisy_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).noise(sigma=np.random.uniform(0.0, self.noise_level))
-            
-        noisy_image = numpy_to_tensor(noisy_image).squeeze(0) # (C, H, W)
+        if self.transform and self.operator == "noising":
 
-        noisy_image = noisy_image.clamp(0, 1)  # Clamp les valeurs entre 0 et 1
+            if not self.random :
+                noisy_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).noise(sigma=self.noise_level)
+            else:
+                noisy_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).noise(sigma=np.random.uniform(0.0, self.noise_level))
+                
+            noisy_image = numpy_to_tensor(noisy_image).squeeze(0) # (C, H, W)
 
-        return noisy_image, truth_image
+            # noisy_image = noisy_image.clamp(0, 1)  # Clamp les valeurs entre 0 et 1
+
+            return noisy_image, truth_image
+                
+        # Ajouter du flou gaussien
+        if self.transform and self.operator == "debblurring":
+
+            if not self.random :
+                blurry_image, G_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).blur(sigma=self.blur_level, angle =self.angle)
+            else:
+                blurry_image, G_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).blur(
+                    sigma=(self.random_blur), angle=np.random.uniform(0.0, self.angle))
+                
+            blurry_image, G_image = numpy_to_tensor(blurry_image).squeeze(0), numpy_to_tensor(G_image).squeeze(0) # (C, H, W)
+
+            # blurry_image = blurry_image.clamp(0, 1)  # Clamp les valeurs entre 0 et 1
+
+            return blurry_image, truth_image, G_image
+        
+        # Ajouter un masque et du bruit gaussien
+        if self.transform and self.operator == "inpainting":
+
+            if not self.random :
+                inpainted_image, mask_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).inpaint(mask=self.mask, sigma=self.noise_level)
+            else:
+                inpainted_image, mask_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).inpaint(
+                    mask=torch.rand(1, 1, *truth_image.size()[1:]) > np.random.uniform(0.0, 1.0), sigma=np.random.uniform(0.0, self.noise_level))
+                
+            inpainted_image, mask_image = numpy_to_tensor(inpainted_image).squeeze(0), numpy_to_tensor(mask_image).squeeze(0) # (C, H, W)
+
+            # inpainted_image = inpainted_image.clamp(0, 1)  # Clamp les valeurs entre 0 et 1
+
+            return inpainted_image, truth_image, mask_image
 
 class EarlyStopping:
-    def __init__(self, patience=3, min_delta=0, noise_level=25, save_model=True):
+    def __init__(self, patience=3, min_delta=0, noise_level=25, blur_level=(1,1), operator="noising", save_model=True):
         self.patience = patience
         self.min_delta = min_delta
         self.counter = 0
         self.best_loss = None
         self.save_model = save_model
         self.noise_level = noise_level
+        self.operator = operator
+        self.blur_level = blur_level
 
     def __call__(self, val_loss, model=None, epoch=None):
         if self.best_loss is None or val_loss < self.best_loss - self.min_delta:
@@ -785,7 +885,13 @@ class EarlyStopping:
             parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
   
             if self.save_model and model is not None and epoch is not None:
-                save_path = os.path.join(parent_dir, f"trained_models/IOD_Training/crr_nn_best_model_{self.noise_level}.pth")
+                if self.operator == "noising":
+                    save_path = os.path.join(parent_dir, f"trained_models/IOD_Training/crr_nn_best_model_noise_{self.noise_level}.pth")
+                elif self.operator == "debblurring":
+                    save_path = os.path.join(parent_dir, f"trained_models/IOD_Training/crr_nn_best_model_blur_{self.blur_level}.pth")
+                elif self.operator == "inpainting":
+                    save_path = os.path.join(parent_dir, f"trained_models/IOD_Training/crr_nn_best_model_inpaint_{self.noise_level}.pth")
+
                 torch.save(model.state_dict(), save_path)
                 print(f"Meilleur modèle sauvegardé à : {save_path}")
 
