@@ -287,7 +287,7 @@ def compute_gradient(u, y, operator_type, operator_params):
 
 # 
 
-def forward_backward(u, operator_type, operator_params, lambd, tau, K, prox=prox_l1, prox_params=None, tol=1e-7):
+def forward_backward(u, operator_type, operator_params, lambd, tau, K, prox=prox_l1, prox_params=None, tol=1e-7, init=False, verbose=True):
     """
     Algorithme Forward-Backward modulable.
 
@@ -333,10 +333,10 @@ def forward_backward(u, operator_type, operator_params, lambd, tau, K, prox=prox
         prox_params = {}
 
     # Initialisation des variables
-    x = np.zeros_like(u)  # Solution initiale
+    x = np.copy(u) if init else np.zeros_like(u)   # Solution initiale
     trajectoires = [np.copy(x)]  # Stocker la trajectoire des solutions
 
-    for k in range(K):
+    for k in tqdm(range(K), desc="Forward_Backward Algorithm", disable=not verbose):
         # Calcul du gradient
         grad_f = process_image_2(u, x, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
 

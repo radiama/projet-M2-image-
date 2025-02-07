@@ -34,8 +34,8 @@ def main():
 
     # Chargement des images
 
-    noise=50 # Niveau de bruit
-    blur=(1,1) # Niveau de flou
+    noise=25 # Niveau de bruit
+    blur=(3,3) # Niveau de flou
 
     simple_mask = torch.ones(1, 1, H, W)
 
@@ -45,9 +45,9 @@ def main():
 
     train_dataset = OperatorDataset(images_dir=images_dir, image_files=image_files,
                                     operator="noising", transform=transform, noise_level=round(noise/255, 1 if noise >= 25 else 2),
-                                    blur_level=blur, mask=simple_mask, random=False) # Créer le dataset noisy (noising), blurred (blurring), masked (inpainting)
+                                    blur_level=blur, mask=simple_mask, random=False) # Créer le dataset noisy (noising), blurred (blurring), masked (painting)
 
-    num_train = int(len(train_dataset) * 0.9)
+    num_train = int(len(train_dataset) * 0.95)
 
     train_0, test = \
         random_split(train_dataset, [num_train, len(train_dataset) - num_train])
@@ -58,9 +58,10 @@ def main():
         random_split(train_0, [num_train_0, len(train_0) - num_train_0])
 
     # DataLoader (Batch size = 1) # Batch size = 128
-    train_loader = DataLoader(dataset=train, batch_size=128, shuffle=True)
-    valid_loader = DataLoader(dataset=valid, batch_size=128, shuffle=False)
-    test_loader = DataLoader(dataset=test, batch_size=128, shuffle=False)
+    batch_size = 64
+    train_loader = DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
+    valid_loader = DataLoader(dataset=valid, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(dataset=test, batch_size=batch_size, shuffle=False)
 
     data_iter = iter(train_loader)
     images_noised, images_truth = next(data_iter)
@@ -127,9 +128,9 @@ def main():
     lr_name = ["lr_conv", "lr_params_activ", "lr_lmd", "lr_mu"] if model.use_splines else ["lr_conv", "lr_lmd", "lr_mu"]
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=5, noise_level=noise, blur_level=(1,1), operator="noising")
+    early_stopping = EarlyStopping(patience=10, noise_level=noise, blur_level=blur, operator="denoising")
 
-    num_epochs = 30
+    num_epochs = 10
     train_losses = []
     val_losses = []
 
@@ -138,8 +139,12 @@ def main():
         running_loss = 0.0
         
         for noisy_images, truth_images in tqdm(train_loader, desc="CRRNN Training"):
+        
+        # for noisy_images, truth_images, operator in tqdm(train_loader, desc="CRRNN Training"):
 
             noisy_images, truth_images = noisy_images.to(device, dtype=torch.float32), truth_images.to(device, dtype=torch.float32)
+
+            # noisy_images, truth_images, operator = noisy_images.to(device, dtype=torch.float32), truth_images.to(device, dtype=torch.float32), operator.to(device, dtype=torch.float32)
             
             # Réinitialisation des gradients
             for optimizer in optimizers:
@@ -149,7 +154,9 @@ def main():
             truth_images.requires_grad_(False) # Désactiver le suivi des gradients
             
             # Forward pass
-            outputs = denoise(noisy_images, model, t_steps=50, operator_type ="none", operator_params=None, train=True, auto_params=True, traj=False, verbose=False)
+            outputs = denoise(noisy_images, model, t_steps=100, operator_type ="none", operator_params=None, train=True, auto_params=True, traj=False, verbose=False)
+            # outputs = denoise(noisy_images, model, t_steps=100, operator_type ="mask", operator_params={"Mask": operator}, train=True, auto_params=True, traj=False, verbose=False)
+            # outputs = denoise(noisy_images, model, t_steps=100, operator_type ="convolution", operator_params={"G": operator}, train=True, auto_params=True, traj=False, verbose=False)
 
             # Calcul de la perte
             loss = criterion(outputs, truth_images)
@@ -173,8 +180,12 @@ def main():
         with torch.no_grad():
             val_loss, psnr_val = 0.0, 0.0
             for noisy_images, truth_images in valid_loader:
+            # for noisy_images, truth_images, operator in valid_loader:
                 noisy_images, truth_images = noisy_images.to(device, dtype=torch.float32), truth_images.to(device, dtype=torch.float32)
-                outputs = denoise(noisy_images, model, t_steps=50, operator_type ="none", operator_params=None, train=True, auto_params=True, traj=False, verbose=False)
+                # noisy_images, truth_images, operator = noisy_images.to(device, dtype=torch.float32), truth_images.to(device, dtype=torch.float32), operator.to(device, dtype=torch.float32)
+                outputs = denoise(noisy_images, model, t_steps=100, operator_type ="none", operator_params=None, train=True, auto_params=True, traj=False, verbose=False)
+                # outputs = denoise(noisy_images, model, t_steps=100, operator_type ="mask", operator_params={"Mask": operator}, train=True, auto_params=True, traj=False, verbose=False)
+                # outputs = denoise(noisy_images, model, t_steps=100, operator_type ="convolution", operator_params={"G": operator}, train=True, auto_params=True, traj=False, verbose=False)
                 loss = criterion(outputs, truth_images)
                 psnr_val += psnr(outputs, truth_images, data_range=1.0).item()
                 val_loss += loss.item()
@@ -203,10 +214,11 @@ def main():
     # checkpoint_dir = os.path.join(parent_dir, f'trained_models/{training_name}/checkpoints/checkpoint_{epoch}.pth')
     checkpoint_dir = os.path.join(parent_dir, f'trained_models/IOD_Training/crr_nn_best_model_noise_{noise}.pth')
 
-    modele=CRRNN(model=model, name_model_pre=checkpoint_dir, device=device, load=True, checkpoint=False)
+    modele=CRRNN(model=model, name_model_pre=checkpoint_dir, device=device, load=False, checkpoint=False)
     
     with torch.no_grad():
         noisy_images, truth_images = next(iter(test_loader))
+        # noisy_images, truth_images, operator = next(iter(test_loader))
         lmbd = modele.lmbd_transformed
         print(f"Lambda: {lmbd:.2f}")
         mu = modele.mu_transformed
@@ -215,49 +227,10 @@ def main():
         noisy_image = noisy_images[i].permute(1, 2, 0).cpu().numpy()
         truth_image = truth_images[i].permute(1, 2, 0).cpu().numpy()
         # denoised_image = denoise(noisy_images, CRRNN(), t_steps=50, operator_type ="none", operator_params=None, train=True, auto_params=False, lmbd=10.5e-0, mu=3e-0, step_size=1e-1)
-        denoised_image = denoise(noisy_images[i], modele, t_steps=50, operator_type ="none", operator_params=None, train=True, auto_params=True, lmbd=10.5e-0, mu=3e-0, step_size=1e-1, traj=False).squeeze(0).permute(1, 2, 0).cpu().numpy()
+        denoised_image = denoise(noisy_images[i], modele, t_steps=100, operator_type ="none", operator_params=None, train=True, auto_params=True, lmbd=10.5e-0, mu=3e-0, step_size=1e-1, traj=False).squeeze(0).permute(1, 2, 0).cpu().numpy()
+        # denoised_image = denoise(noisy_images[i], modele, t_steps=100, operator_type ="mask", operator_params={"Mask": operator[i]}, train=True, auto_params=True, traj=False, verbose=False).squeeze(0).permute(1, 2, 0).cpu().numpy()
+        # denoised_image = denoise(noisy_images[i], modele, t_steps=100, operator_type ="convolution", operator_params={"G": operator[i]}, train=True, auto_params=True, traj=False, verbose=False).squeeze(0).permute(1, 2, 0).cpu().numpy()
         # denoised_image = CRRNN()(noisy_images[i]).squeeze(0).permute(1, 2, 0).cpu().numpy()
-
-    
-    # i=0
-    # noisy_image = noisy_images[i].permute(1, 2, 0).cpu().numpy()
-    # truth_image = truth_images[i].permute(1, 2, 0).cpu().numpy()
-    # denoised_image = denoised_image[i].permute(1, 2, 0).cpu().numpy()
-
-    # Images couleurs débruitées
-
-    # Im_butterfly, Im_leaves, Im_starfish = load_img("butterfly.png"), load_img("leaves.png"), load_img("starfish.png")
-
-    # sigma_low, sigma_mod, sigma_high = 0.06, 0.1, 0.2
-
-    # sigma_low_2, sigma_mod_2, sigma_high_2 = (1, 1), (2, 2), (3, 3)
-
-    # Im_butterfly_noised_sig15, Im_butterfly_noised_sig25, Im_butterfly_noised_sig50 = operateur(Im_butterfly).noise(sigma=sigma_low), operateur(Im_butterfly).noise(sigma=sigma_mod), operateur(Im_butterfly).noise(sigma=sigma_high)
-
-    # Im_butterfly_blurred_high, G_butterfly_high = operateur(Im_butterfly).blur(sigma = sigma_high_2, angle = 0)
-
-    # simple_mask = torch.ones(1, 1, 256, 256)
-
-    # simple_mask[:, :, 0::24, :] = 0
-
-    # simple_mask[:, :, :, 0::24] = 0
-
-    # simple_mask = simple_mask.to(torch.bool)
-
-    # Im_butterfly_masked_simple, Mask_butterfly_simple = operateur(Im_butterfly).inpaint(mask=simple_mask, sigma=sigma_low)
-
-    # with torch.no_grad():
-        # denoised_image = process_image_2(Im_butterfly_noised_sig25, operator=denoise, model=CRRNN(load=True), t_steps=100, operator_type ="none", operator_params=None, auto_params=False, lmbd=12.5e-0, mu=5e-0, step_size=8e-2)
-        # debblurred_image = process_image_2(Im_butterfly_blurred_high, operator=denoise, model=CRRNN(), t_steps=50, operator_type="convolution", operator_params={"G": G_butterfly_high}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9)
-        # inpainted_image = process_image_2(Im_butterfly_masked_simple, operator=denoise, model=CRRNN(), t_steps=500,operator_type="mask", operator_params={"Mask": Mask_butterfly_simple})
-    
-    # noisy_image = Im_butterfly_noised_sig25
-    # denoised_image = denoised_image.squeeze(0).squeeze(0).transpose(1, 2, 0)
-    # blurry_image = Im_butterfly_blurred_high
-    # debblurred_image = debblurred_image.squeeze(0).squeeze(0).transpose(1, 2, 0)
-    # masked_image = Im_butterfly_masked_simple
-    # inpainted_image = inpainted_image.squeeze(0).squeeze(0).transpose(1, 2, 0)
-    # truth_image = Im_butterfly
 
     psnr_denoised = PSNR(denoised_image, truth_image, max_intensity=1.0)
 

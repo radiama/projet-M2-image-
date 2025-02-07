@@ -1,7 +1,6 @@
 import torch, os, pandas as pd
-from Begin_Func import load_img, save_path, operateur, numpy_to_tensor, tensor_to_numpy, PSNR, search_opt, process_image_2, process_image_3
-
-from Proxy_Func import fista, prox_l6
+from Begin_Func import load_img, save_path, operateur, numpy_to_tensor, tensor_to_numpy, PSNR, search_opt, process_image_2, process_image_3, timer
+from Proxy_Func import fista, prox_l6, forward_backward
 from Denoisers import DRUNet
 from Pnp_Algorithms import pnp_pgm, pnp_apgm
 import pandas as pd
@@ -89,6 +88,7 @@ def main():
 
     # print(PSNR(Im_starfish, Im_starfish_deblurred_high_pnp, 1.0))
 
+
    # # CRRNN_Débruiteur
 
     script_dir = os.path.dirname(__file__)
@@ -98,27 +98,29 @@ def main():
     training_name_25 = f'Sigma_{25}_t_{30}'
     checkpoint_dir_5 = os.path.join(parent_dir, f'trained_models/{training_name_5}/checkpoints/checkpoint_{epoch}.pth')
     checkpoint_dir_25 = os.path.join(parent_dir, f'trained_models/{training_name_25}/checkpoints/checkpoint_{epoch}.pth')
+    checkpoint_dir_1_1 = os.path.join(parent_dir, f'trained_models/IOD_Training/crr_nn_best_model_blur_(1, 1).pth')
+    checkpoint_dir_3_3 = os.path.join(parent_dir, f'trained_models/IOD_Training/crr_nn_best_model_blur_(3, 3).pth')
     
     # checkpoint_dir = os.path.join(parent_dir, f'trained_models/IOD_Training/crr_nn_best_model_{noise}.pth')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    modele_5 = ConvexRidgeRegularizer(kernel_size=7, channels=[1, 8, 32], activation_params={"knots_range": 0.1, "n_channels": 32, "n_knots": 21})
-    modele_25 = ConvexRidgeRegularizer(kernel_size=7, channels=[1, 8, 32], activation_params={"knots_range": 0.1, "n_channels": 32, "n_knots": 21})
+    modele_0 = ConvexRidgeRegularizer(kernel_size=7, channels=[1, 8, 32], activation_params={"knots_range": 0.1, "n_channels": 32, "n_knots": 21})   
 
-    model_5=CRRNN(model=modele_5, name_model_pre=checkpoint_dir_5, device=device, load=True)
-    model_25=CRRNN(model=modele_25, name_model_pre=checkpoint_dir_25, device=device, load=True)
+    model_5=CRRNN(model=modele_0, name_model_pre=checkpoint_dir_5, device=device, load=True)
+    # model_1_1 = CRRNN(model=modele_0, name_model_pre=checkpoint_dir_1_1, device=device, load=True, checkpoint=False)
+    # model_3_3 = CRRNN(model=modele_0, name_model_pre=checkpoint_dir_3_3, device=device, load=True, checkpoint=False)
 
     with torch.no_grad():
 
-        # Im_butterfly_deblurred_low_crrnn, Tb_low_crrnn = process_image_3(Im_butterfly_blurred_low, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_butterfly_low}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
-        # Im_butterfly_deblurred_medium_crrnn, Tb_mod_crrnn = process_image_3(Im_butterfly_blurred_mod, operator=denoise, model=model_5, t_steps=50, operator_type ="convolution", operator_params={"G": G_butterfly_mod}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
-        Im_butterfly_deblurred_high_crrnn, Tb_high_crrnn = process_image_3(Im_butterfly_blurred_high, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_butterfly_high}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
-        # Im_leaves_deblurred_low_crrnn, Tl_low_crrnn = process_image_3(Im_leaves_blurred_low, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_leaves_low}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
-        # Im_leaves_deblurred_medium_crrnn, Tl_mod_crrnn = process_image_3(Im_leaves_blurred_mod, operator=denoise, model=model_5, t_steps=50, operator_type ="convolution", operator_params={"G": G_leaves_mod}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
-        Im_leaves_deblurred_high_crrnn, Tl_high_crrnn = process_image_3(Im_leaves_blurred_high, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_leaves_high}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
-        # Im_starfish_deblurred_low_crrnn, Ts_low_crrnn = process_image_3(Im_starfish_blurred_low, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_starfish_low}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
-        # Im_starfish_deblurred_medium_crrnn, Ts_mod_crrnn = process_image_3(Im_starfish_blurred_mod, operator=denoise, model=model_5, t_steps=50, operator_type ="convolution", operator_params={"G": G_starfish_mod}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
-        Im_starfish_deblurred_high_crrnn, Ts_high_crrnn = process_image_3(Im_starfish_blurred_high, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_starfish_high}, auto_params=False, lmbd=2e-1, mu=5e-0, step_size=1.9, init=False)
+        # Im_butterfly_deblurred_low_crrnn, Tb_low_crrnn = process_image_3(Im_butterfly_blurred_low, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_butterfly_low}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+        # Im_butterfly_deblurred_mod_crrnn, Tb_mod_crrnn = process_image_3(Im_butterfly_blurred_mod, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_butterfly_mod}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+        Im_butterfly_deblurred_high_crrnn, Tb_high_crrnn = process_image_3(Im_butterfly_blurred_high, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_butterfly_high}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+        # Im_leaves_deblurred_low_crrnn, Tl_low_crrnn = process_image_3(Im_leaves_blurred_low, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_leaves_low}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+        # Im_leaves_deblurred_mod_crrnn, Tl_mod_crrnn = process_image_3(Im_leaves_blurred_mod, operator=denoise, model=model_5, t_steps=50, operator_type ="convolution", operator_params={"G": G_leaves_mod}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+        Im_leaves_deblurred_high_crrnn, Tl_high_crrnn = process_image_3(Im_leaves_blurred_high, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_leaves_high}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+        # Im_starfish_deblurred_low_crrnn, Ts_low_crrnn = process_image_3(Im_starfish_blurred_low, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_starfish_low}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+        # Im_starfish_deblurred_mod_crrnn, Ts_mod_crrnn = process_image_3(Im_starfish_blurred_mod, operator=denoise, model=model_5, t_steps=50, operator_type ="convolution", operator_params={"G": G_starfish_mod}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+        Im_starfish_deblurred_high_crrnn, Ts_high_crrnn = process_image_3(Im_starfish_blurred_high, operator=denoise, model=model_5, t_steps=200, operator_type ="convolution", operator_params={"G": G_starfish_high}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
 
     
     # # # '''Recherche paramètres optimaux (Proxy and PNP)'''
@@ -167,15 +169,15 @@ def main():
     # deblur_trajectories_sig_1 = [[Tb_low, Tb_low_pnp, Tb_low_crrnn], [Tl_low, Tl_low_pnp, Tl_low_crrnn], [Ts_low, Ts_low_pnp, Ts_low_crrnn]]
 
 
-    # names_deblurred_sig_2 = [["Moderate Blur B ($\sigma=2$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)"], 
-    #                             ["Moderate Blur L ($\sigma=2$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)"], 
-    #                             ["Moderate Blur S ($\sigma=2$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)"]]    
+    # names_deblurred_sig_2 = [["Moderate Blur B ($\sigma=2$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)", "CRRNN (Img_Butterfly)"], 
+    #                             ["Moderate Blur L ($\sigma=2$)", "TV (Img_Leaves)", "DRUNet (Img_Leaves)", "CRRNN (Img_Leaves)"], 
+    #                             ["Moderate Blur S ($\sigma=2$)", "TV (Img_Starfish)", "DRUNet (Img_Starfish)", "CRRNN (Img_Starfish)"]]    
 
-    # images_deblurred_sig_2 =[[Im_butterfly_blurred_mod, Im_butterfly_deblurred_mod, Im_butterfly_deblurred_mod_pnp], 
-    #                             [Im_leaves_blurred_mod, Im_leaves_deblurred_mod, Im_leaves_deblurred_mod_pnp], 
-    #                             [Im_starfish_blurred_mod, Im_starfish_deblurred_mod, Im_starfish_deblurred_mod_pnp]]
+    # images_deblurred_sig_2 =[[Im_butterfly_blurred_mod, Im_butterfly_deblurred_mod, Im_butterfly_deblurred_mod_pnp, Im_butterfly_deblurred_mod_crrnn], 
+    #                             [Im_leaves_blurred_mod, Im_leaves_deblurred_mod, Im_leaves_deblurred_mod_pnp, Im_leaves_deblurred_mod_crrnn], 
+    #                             [Im_starfish_blurred_mod, Im_starfish_deblurred_mod, Im_starfish_deblurred_mod_pnp, Im_starfish_deblurred_mod_crrnn]]
 
-    # deblur_trajectories_sig_2 = [[Tb_mod, Tb_mod_pnp], [Tl_mod, Tl_mod_pnp], [Ts_mod, Ts_mod_pnp]]
+    # deblur_trajectories_sig_2 = [[Tb_mod, Tb_mod_pnp, Tb_mod_crrnn], [Tl_mod, Tl_mod_pnp, Tb_mod_crrnn], [Ts_mod, Ts_mod_pnp, Tb_mod_crrnn]]
 
 
     names_deblurred_sig_3 = [["High Blur B ($\sigma=3$)", "TV (Img_Butterfly)", "DRUNet (Img_Butterfly)", "CRRNN (Img_Butterfly)"], 
@@ -198,16 +200,88 @@ def main():
               psnr=True, trajectories_list=deblur_trajectories_sig_3)
 
 
+    # # # Timer
+
+    # # Initialisation des listes pour stocker les temps d'exécution
+    # methods = ["TV", "DRUNet", "CRRNN"]
+    # sigma_values = [(1,1), (2,2), (3,3)]
+
+    # # Création d'un dictionnaire pour stocker les résultats
+    # Timer_map = {method:[] for method in methods}
+
+    # # Boucle sur les différents niveaux de bruit sigma ou méthode
+        
+    # # Méthode 1 : TV
+
+    # time_tv_1_1 = timer(forward_backward, Im_butterfly_blurred_low, "convolution", {"G": G_butterfly_low}, 
+    #                           1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 20}, tol=1e-7, init=False)
+    
+    # # time_tv_2_2 = timer(forward_backward, Im_butterfly_blurred_mod, "convolution", {"G": G_butterfly_mod}, 
+    # #                           1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-4, "K": 25}, tol=1e-7, init=False)
+
+    # # time_tv_3_3 = timer(forward_backward, Im_butterfly_blurred_high, "convolution", {"G": G_butterfly_high}, 
+    # #                     1e-4, 1.3, 200, prox=prox_l6, prox_params={"tau": 1e-2, "K": 5}, tol=1e-7, init=False)
+    
+    # Timer_map["TV"].append(time_tv_1_1)
+    # # Timer_map["TV"].append(time_tv_2_2)
+    # # Timer_map["TV"].append(time_tv_3_3)
+
+    # # Méthode 2 : DRUNet
+
+    # time_drunet_1_1 = timer(pnp_pgm, Im_butterfly_blurred_low, "convolution", {"G": G_butterfly_low}, 
+    #                         1.9, denoiser, sigma=8e-3, K=200, tol=1e-7, init=False)
+    
+    # # time_drunet_2_2 =  timer(pnp_pgm, Im_butterfly_blurred_mod, "convolution", {"G": G_butterfly_mod}, 
+    # #                          1.9, denoiser, sigma=3e-2, K=200, tol=1e-7, init=False)
+
+
+    # # time_drunet_3_3 = timer(pnp_pgm, Im_butterfly_blurred_high, "convolution", {"G": G_butterfly_high}, 
+    # #                         1.9, denoiser, sigma=5e-2, K=200, tol=1e-7, init=False)
+
+    # Timer_map["DRUNet"].append(time_drunet_1_1)
+    # # Timer_map["DRUNet"].append(time_drunet_2_2)
+    # # Timer_map["DRUNet"].append(time_drunet_3_3)
+
+    # # Méthode 3 : CRRNN (avec torch.no_grad() pour éviter le calcul des gradients)
+
+    # with torch.no_grad():
+
+    #     time_crrnn_1_1 = timer(process_image_3, Im_butterfly_blurred_low, operator=denoise, model=model_5, t_steps=200, 
+    #                            operator_type ="convolution", operator_params={"G": G_butterfly_low}, auto_params=False, lmbd=1e-5, mu=1e-0, step_size=1.9, init=False)
+
+    # # with torch.no_grad():
+
+    # #     time_crrnn_2_2 = timer(process_image_3, Im_butterfly_blurred_mod, operator=denoise, model=model_5, t_steps=50, 
+    # #                                      operator_type ="convolution", operator_params={"G": G_butterfly_mod}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+
+    # # with torch.no_grad():
+
+    # #     time_crrnn_3_3 = timer(process_image_3, Im_butterfly_blurred_high, operator=denoise, model=model_5, t_steps=200, 
+    # #                            operator_type ="convolution", operator_params={"G": G_butterfly_high}, auto_params=False, lmbd=1e-4, mu=1e-0, step_size=1.9, init=False)
+
+    # Timer_map["CRRNN"].append(time_crrnn_1_1)
+    # # Timer_map["CRRNN"].append(time_crrnn_2_2)
+    # # Timer_map["CRRNN"].append(time_crrnn_3_3)
+
+    # # Création d'un DataFrame Pandas
+    # # Timer_map_df = pd.DataFrame.from_dict(Timer_map, orient="index", columns=methods)
+    # Timer_map_df = pd.DataFrame.from_dict(Timer_map, orient="index", columns=[f"Sigma_{sigma}" for sigma in sigma_values[:1]])
+
+    # # Affichage du tableau formaté
+    # print("Temps d'exécution pour chaque méthode et niveau de bruit (en secondes) :")
+    # print(Timer_map_df.head())
+
+
     # import matplotlib.pyplot as plt
     # plt.figure(figsize=(18, 6), dpi=200)
     # plt.subplot(131)
-    # plt.imshow(Im_butterfly_blurred_low)
+    # plt.imshow(Im_butterfly_blurred_high)
     # plt.subplot(132)
-    # plt.imshow(G_butterfly_low)
+    # plt.imshow(G_butterfly_high)
     # plt.subplot(133)
-    # plt.imshow(Im_butterfly_deblurred_low_crrnn)
+    # plt.imshow(Im_butterfly_deblurred_high_crrnn)
 
-    # print(PSNR(Im_butterfly, Im_butterfly_deblurred_low_crrnn, 1.0))
+    # print(PSNR(Im_butterfly, Im_butterfly_deblurred_high_crrnn, 1.0))
 
     # print([PSNR(Im_butterfly, Im_butterfly_deblurred_high_pnp),
     #        PSNR(Im_leaves, Im_leaves_deblurred_high_pnp),

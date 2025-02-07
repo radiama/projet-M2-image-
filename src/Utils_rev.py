@@ -14,7 +14,9 @@ import numpy as np  # Manipulation de tableaux et calculs mathématiques avancé
 import torch  # Outils pour le calcul tensoriel et l'entraînement de modèles.
 from torchmetrics.functional import peak_signal_noise_ratio as psnr  # Fonction pour calculer le PSNR (rapport signal-bruit de pic).
 from torchmetrics.functional import structural_similarity_index_measure as ssim  # Fonction pour calculer le SSIM (mesure de similarité structurelle).
-
+from torch import nn
+import torch.nn.functional as F
+from functorch import vmap
 
 from tqdm import tqdm  # Barre de progression pour suivre l'exécution des boucles.
 from Convex_ridge_regularizer_rev import ConvexRidgeRegularizer  # Importe la classe principale pour construire le modèle.
@@ -87,6 +89,86 @@ def build_model(config):
     )
 
     return model, config
+
+def single_conv_step(x_noisy, x, G):
+    x_filtered = F.conv2d(x.unsqueeze(0), G.unsqueeze(0), padding="same")
+    error = x_filtered - x_noisy.unsqueeze(0)
+    grad = F.conv2d(error, G.unsqueeze(0), padding="same")
+    return grad.squeeze(0) 
+
+compute_gradient_conv = vmap(single_conv_step)
+
+def compute_gradient_conv2(x_noisy, x, G):
+    """
+    Calcule le gradient de la convolution en batch en appliquant la convolution sur chaque élément du batch séparément.
+
+    Parameters:
+    ----------
+    x_noisy : torch.Tensor (batch_size, 1, H, W)
+        Image bruitée.
+    x : torch.Tensor (batch_size, 1, H, W)
+        Image de référence.
+    G : torch.Tensor (batch_size, 1, k, k)
+        Noyau de convolution (différent pour chaque batch).
+
+    Returns:
+    -------
+    grad : torch.Tensor (batch_size, 1, H, W)
+        Gradient du terme de fidélité.
+    """
+    if x_noisy.dim() == 4:
+        batch_size = x_noisy.shape[0]
+        grad = []
+
+        for i in range(batch_size):
+            x_np, x_noisy_np, G_np = tensor_to_numpy(x[i].unsqueeze(0)), tensor_to_numpy(x_noisy[i].unsqueeze(0)), tensor_to_numpy(G[i].unsqueeze(0))
+            grad_np = (convolve(convolve(x_np, G_np) - x_noisy_np, G_np.T))
+            grad_tsr = numpy_to_tensor(grad_np)
+            grad.append(grad_tsr)
+
+        return torch.cat(grad, dim=0)  # Reconstruction du batch
+    
+    elif x_noisy.dim() == 3:
+        x_np, x_noisy_np, G_np = tensor_to_numpy(x), tensor_to_numpy(x_noisy.unsqueeze(0)), tensor_to_numpy(G.unsqueeze(0))
+        grad_np = (convolve(convolve(x_np, G_np) - x_noisy_np, G_np.T))
+        grad_tsr = numpy_to_tensor(grad_np)
+        return grad_tsr
+
+# def compute_gradient_conv3(x_noisy, x, G):
+#     """
+#     Calcule le gradient de la convolution en batch en appliquant la convolution sur chaque élément du batch séparément.
+
+#     Parameters:
+#     ----------
+#     x_noisy : torch.Tensor (batch_size, 1, H, W)
+#         Image bruitée.
+#     x : torch.Tensor (batch_size, 1, H, W)
+#         Image de référence.
+#     G : torch.Tensor (batch_size, 1, k, k)
+#         Noyau de convolution (différent pour chaque batch).
+
+#     Returns:
+#     -------
+#     grad : torch.Tensor (batch_size, 1, H, W)
+#         Gradient du terme de fidélité.
+#     """
+#     if x_noisy.dim() == 4:
+#         batch_size = x_noisy.shape[0]
+#         grad = []
+
+#         for i in range(batch_size):
+#             x_filtered = F.conv2d(x[i].unsqueeze(0), G[i].unsqueeze(0), padding="same")
+#             error = x_filtered - x_noisy[i].unsqueeze(0)
+#             grad_i = F.conv2d(error, G[i].unsqueeze(0), padding="same")
+#             grad.append(grad_i)
+
+#         return torch.cat(grad, dim=0)  # Reconstruction du batch
+#     else:
+#         x_filtered = F.conv2d(x.unsqueeze(0), G.unsqueeze(0), padding="same")
+#         error = x_filtered - x_noisy.unsqueeze(0)
+#         grad_i = F.conv2d(error, G.unsqueeze(0), padding="same")
+#         grad
+#         return grad
 
 def accelerated_gd(x_noisy, model, ada_restart=False, lmbd=1, mu=1, use_strong_convexity=False, **kwargs):
     """
@@ -216,7 +298,7 @@ def tStepDenoiser(x_noisy, model, t_steps=50, operator_type ="none", operator_pa
             grad_f = process_image_2(x_noisy_half, x_half, operator=compute_gradient, operator_type=operator_type, operator_params=operator_params)
             grad_f = numpy_to_tensor(grad_f)
         else:
-            grad_f = (x - x_noisy) if operator_type == "none" else ((x - x_noisy) * operator_params["Mask"]) if operator_type == "mask" else (convolve(convolve(x_noisy, operator_params["G"]) - x, operator_params["G"].T))
+            grad_f = (x - x_noisy) if operator_type == "none" else ((x - x_noisy) * operator_params["Mask"]) if operator_type == "mask" else compute_gradient_conv2(x_noisy, x, operator_params["G"])
         
         x = x - step_size * ((grad_f) + lmbd * model(mu * x))
 

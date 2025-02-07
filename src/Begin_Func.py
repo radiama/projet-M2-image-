@@ -1,10 +1,6 @@
 from PIL import ImageFont, ImageDraw, Image
 from tqdm import tqdm
-import numpy as np
-import pandas as pd
-import deepinv as dinv
-import torch, os, itertools, cv2
-import matplotlib.pyplot as plt
+import numpy as np, pandas as pd, matplotlib.pyplot as plt, deepinv as dinv, torch, os, itertools, cv2, time
 from torch.utils.data import Dataset
 
 # Chargement des images
@@ -167,7 +163,7 @@ def treat_image_and_add_psnr_2(image, reference_image, psnr=True, subfolder='dat
     # Retourner l'image annotée
     return image
 
-def save_path(folder, file_name, names_list, images_list, reference_image_list=None, psnr=True, trajectories_list=None):
+def save_path(folder, file_name, names_list, images_list, reference_image_list=None, psnr=True, trajectories_list=None, save=True):
     """
     Sauvegarde toutes les images côte à côte avec leurs dégradations/réparations et affiche les trajectoires PSNR.
 
@@ -203,7 +199,10 @@ def save_path(folder, file_name, names_list, images_list, reference_image_list=N
     total_cols = num_images_per_group + (1 if reference_image_list is not None else 0) # Une colonne pour la référence, les autres pour les méthodes
 
     # Dimensions pour l'affichage global
-    fig, axes = plt.subplots(num_groups, total_cols, figsize=(3 * total_cols, 3 * num_groups), dpi=200)
+    if save:
+        fig, axes = plt.subplots(num_groups, total_cols, figsize=(3 * total_cols, 3 * num_groups), dpi=200)
+    else:
+        fig, axes = plt.subplots(num_groups, total_cols, figsize=(2 * total_cols, 2 * num_groups), dpi=200)
 
     # Normalisation des axes pour le cas d'une seule image ou groupe
     if num_groups == 1:
@@ -233,8 +232,9 @@ def save_path(folder, file_name, names_list, images_list, reference_image_list=N
     # Sauvegarde du graphique global des images
     plt.tight_layout()
     comparison_path = os.path.join(path, f"{file_name}_comparison.png")
-    plt.savefig(comparison_path, bbox_inches="tight", pad_inches=0.1)
-    plt.close()
+    if save:
+        plt.savefig(comparison_path, bbox_inches="tight", pad_inches=0.1)
+        plt.close()
 
     # Affichage des trajectoires PSNR (si applicables)
     if trajectories_list is not None and reference_image_list is not None:
@@ -268,8 +268,9 @@ def save_path(folder, file_name, names_list, images_list, reference_image_list=N
 
         # Sauvegarde du graphique des trajectoires PSNR
         psnr_plot_path = os.path.join(path, f"{file_name}_psnr_plot.png")
-        plt.savefig(psnr_plot_path, bbox_inches="tight", pad_inches=0.1)
-        plt.close()
+        if save:
+            plt.savefig(psnr_plot_path, bbox_inches="tight", pad_inches=0.1)
+            plt.close()
 
 
 def process_image(image, processing_function, **kwargs):
@@ -670,7 +671,7 @@ class operateur:
             raise ValueError("Le masque doit être un tenseur binaire.")
         if mask.shape[2:] != self.image.shape[:2]:
             raise ValueError("Les dimensions du masque doivent correspondre à celles de l'image.")
-        if sigma <= 0:
+        if sigma < 0:
             raise ValueError("Le paramètre sigma doit être positif.")
         
         Inpaint = dinv.physics.Inpainting(
@@ -837,7 +838,7 @@ class OperatorDataset(Dataset):
             return noisy_image, truth_image
                 
         # Ajouter du flou gaussien
-        if self.transform and self.operator == "debblurring":
+        if self.transform and self.operator == "blurring":
 
             if not self.random :
                 blurry_image, G_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).blur(sigma=self.blur_level, angle =self.angle)
@@ -852,7 +853,7 @@ class OperatorDataset(Dataset):
             return blurry_image, truth_image, G_image
         
         # Ajouter un masque et du bruit gaussien
-        if self.transform and self.operator == "inpainting":
+        if self.transform and self.operator == "painting":
 
             if not self.random :
                 inpainted_image, mask_image = operateur(tensor_to_numpy(truth_image.unsqueeze(0))).inpaint(mask=self.mask, sigma=self.noise_level)
@@ -867,7 +868,7 @@ class OperatorDataset(Dataset):
             return inpainted_image, truth_image, mask_image
 
 class EarlyStopping:
-    def __init__(self, patience=3, min_delta=0, noise_level=25, blur_level=(1,1), operator="noising", save_model=True):
+    def __init__(self, patience=3, min_delta=0, noise_level=25, blur_level=(1,1), operator="denoising", save_model=True):
         self.patience = patience
         self.min_delta = min_delta
         self.counter = 0
@@ -885,7 +886,7 @@ class EarlyStopping:
             parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
   
             if self.save_model and model is not None and epoch is not None:
-                if self.operator == "noising":
+                if self.operator == "denoising":
                     save_path = os.path.join(parent_dir, f"trained_models/IOD_Training/crr_nn_best_model_noise_{self.noise_level}.pth")
                 elif self.operator == "debblurring":
                     save_path = os.path.join(parent_dir, f"trained_models/IOD_Training/crr_nn_best_model_blur_{self.blur_level}.pth")
@@ -901,6 +902,12 @@ class EarlyStopping:
                 print("Arrêt précoce déclenché.")
                 return True
         return False
+    
+def timer(func, *args, **kwargs):
+    start = time.perf_counter()
+    _, _ = func(*args, **kwargs)
+    end = time.perf_counter()
+    return round(end - start, 3)
     
 # Redimensionnement avec PIL
 # def upscale_image(image, scale_factor):
